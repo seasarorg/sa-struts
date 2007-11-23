@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/main/resources"/>
+	<classpathentry kind="src" output="target/test-classes" path="src/test/java"/>
+	<classpathentry kind="src" output="target/test-classes" path="src/test/resources"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/commons-beanutils-1.7.0.jar" sourcepath="libsrc/commons-beanutils-1.7.0-src.zip"/>
+	<classpathentry kind="lib" path="lib/commons-digester-1.6.jar"/>
+	<classpathentry kind="lib" path="lib/commons-validator-1.1.4.jar" sourcepath="libsrc/commons-validator-1.1.4-src.zip"/>
+	<classpathentry kind="lib" path="lib/struts-1.2.9.jar" sourcepath="libsrc/struts-1.2.9-sources.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/s2-tiger"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/seasar2"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>
