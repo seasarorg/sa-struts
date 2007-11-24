@@ -1,5 +1,5 @@
 /*
- * Copyright 2004-2006 the Seasar Foundation and the Others.
+ * Copyright 2004-2007 the Seasar Foundation and the Others.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,26 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.seasar.struts.processor;
+package org.seasar.struts.config;
 
-import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
-import org.apache.struts.action.RequestProcessor;
+import org.apache.struts.config.ModuleConfig;
+import org.apache.struts.config.ModuleConfigFactory;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 
 /**
- * Seasar2用のリクエストプロセッサです。
- * 
  * @author higa
+ * 
  */
-public class S2RequestProcessor extends RequestProcessor {
+public class S2ModuleConfigFactory extends ModuleConfigFactory {
 
-    public HttpServletRequest processMultipart(HttpServletRequest request) {
-        HttpServletRequest result = super.processMultipart(request);
-        SingletonS2ContainerFactory.getContainer().getExternalContext()
-                .setRequest(result);
-        return result;
+    @SuppressWarnings("unchecked")
+    @Override
+    public ModuleConfig createModuleConfig(String prefix) {
+        Map applicationMap = SingletonS2ContainerFactory.getContainer()
+                .getExternalContext().getApplicationMap();
+        return new S2ModuleConfig(prefix, applicationMap);
     }
+
 }

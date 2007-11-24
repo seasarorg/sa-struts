@@ -22,6 +22,10 @@ import org.apache.struts.Globals;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.config.ActionConfig;
 import org.apache.struts.config.impl.ModuleConfigImpl;
+import org.seasar.framework.container.ComponentDef;
+import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
+import org.seasar.framework.util.Disposable;
+import org.seasar.framework.util.DisposableUtil;
 
 /**
  * Seasar2用のモジュール設定です。
@@ -29,9 +33,14 @@ import org.apache.struts.config.impl.ModuleConfigImpl;
  * @author higa
  * 
  */
-public class S2ModuleConfig extends ModuleConfigImpl {
+public class S2ModuleConfig extends ModuleConfigImpl implements Disposable {
 
     private static final long serialVersionUID = 1L;
+
+    /**
+     * 初期化されたかどうかです。
+     */
+    protected volatile boolean initialized;
 
     /**
      * サーブレットのマッピングです。
@@ -47,16 +56,36 @@ public class S2ModuleConfig extends ModuleConfigImpl {
     /**
      * インスタンスを構築します。
      * 
+     * @param prefix
+     *            プレフィックス
      * @param applicationScope
      *            applicationスコープ
      * 
      */
-    public S2ModuleConfig(Map<String, Object> applicationScope) {
+    public S2ModuleConfig(String prefix, Map<String, Object> applicationScope) {
+        super(prefix);
         setup(applicationScope);
+        initialize();
+    }
+
+    /**
+     * 初期化を行ないます。
+     */
+    public void initialize() {
+        DisposableUtil.add(this);
+        initialized = true;
+    }
+
+    public void dispose() {
+        actionConfigMap.clear();
+        initialized = false;
     }
 
     @Override
     public ActionConfig findActionConfig(String path) {
+        if (!initialized) {
+            initialize();
+        }
         ActionConfig actionConfig = actionConfigMap.get(path);
         if (actionConfig != null) {
             return actionConfig;
@@ -67,8 +96,23 @@ public class S2ModuleConfig extends ModuleConfigImpl {
         return actionConfig2 != null ? actionConfig2 : actionConfig;
     }
 
+    /**
+     * アクションマッピングを作成します。
+     * 
+     * @param path
+     *            パス
+     * @return アクションマッピング
+     */
     protected ActionMapping createActionMapping(String path) {
-        return null;
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        actionMapping.setPath(path);
+        actionMapping.setModuleConfig(this);
+        String actionName = fromPathToActionName(path);
+        ComponentDef componentDef = SingletonS2ContainerFactory.getContainer()
+                .getComponentDef(actionName);
+        actionMapping.setType(componentDef.getComponentClass().getName());
+        actionMapping.setActionName(actionName);
+        return actionMapping;
     }
 
     /**
@@ -84,7 +128,7 @@ public class S2ModuleConfig extends ModuleConfigImpl {
                     + 1);
         } else if (servletMapping.endsWith("/*")) {
             path = path.substring(servletMapping.length() - 1);
-        } else if (servletMapping.equals("/") || servletMapping.equals("*")) {
+        } else if (servletMapping.equals("/")) {
             path = path.substring(1);
         }
         return path.replace('/', '_') + "Action";

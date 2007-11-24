@@ -18,15 +18,19 @@ package org.seasar.struts.config;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import org.apache.struts.Globals;
+import org.apache.struts.action.ActionMapping;
+import org.seasar.extension.unit.S2TestCase;
 
 /**
  * @author higa
  * 
  */
-public class S2ModuleConfigTest extends TestCase {
+public class S2ModuleConfigTest extends S2TestCase {
+
+    public void setUp() {
+        register(BbbAction.class, "aaa_bbbAction");
+    }
 
     /**
      * @throws Exception
@@ -34,7 +38,7 @@ public class S2ModuleConfigTest extends TestCase {
     public void testServletMapping() throws Exception {
         Map<String, Object> applicationScope = new HashMap<String, Object>();
         applicationScope.put(Globals.SERVLET_KEY, "*.do");
-        S2ModuleConfig moduleConfig = new S2ModuleConfig(applicationScope);
+        S2ModuleConfig moduleConfig = new S2ModuleConfig("", applicationScope);
         assertEquals("*.do", moduleConfig.servletMapping);
     }
 
@@ -44,7 +48,7 @@ public class S2ModuleConfigTest extends TestCase {
     public void testFromPathToActionName_extension() throws Exception {
         Map<String, Object> applicationScope = new HashMap<String, Object>();
         applicationScope.put(Globals.SERVLET_KEY, "*.do");
-        S2ModuleConfig moduleConfig = new S2ModuleConfig(applicationScope);
+        S2ModuleConfig moduleConfig = new S2ModuleConfig("", applicationScope);
         assertEquals("aaa_bbbAction", moduleConfig
                 .fromPathToActionName("/aaa/bbb.do"));
     }
@@ -55,7 +59,7 @@ public class S2ModuleConfigTest extends TestCase {
     public void testFromPathToActionName_directory() throws Exception {
         Map<String, Object> applicationScope = new HashMap<String, Object>();
         applicationScope.put(Globals.SERVLET_KEY, "/do/*");
-        S2ModuleConfig moduleConfig = new S2ModuleConfig(applicationScope);
+        S2ModuleConfig moduleConfig = new S2ModuleConfig("", applicationScope);
         assertEquals("aaa_bbbAction", moduleConfig
                 .fromPathToActionName("/do/aaa/bbb"));
     }
@@ -66,7 +70,7 @@ public class S2ModuleConfigTest extends TestCase {
     public void testFromPathToActionName_slash() throws Exception {
         Map<String, Object> applicationScope = new HashMap<String, Object>();
         applicationScope.put(Globals.SERVLET_KEY, "/");
-        S2ModuleConfig moduleConfig = new S2ModuleConfig(applicationScope);
+        S2ModuleConfig moduleConfig = new S2ModuleConfig("", applicationScope);
         assertEquals("aaa_bbbAction", moduleConfig
                 .fromPathToActionName("/aaa/bbb"));
     }
@@ -74,11 +78,67 @@ public class S2ModuleConfigTest extends TestCase {
     /**
      * @throws Exception
      */
-    public void testFromPathToActionName_slash_asta() throws Exception {
+    public void testFromPathToActionName_slash_asterisk() throws Exception {
         Map<String, Object> applicationScope = new HashMap<String, Object>();
         applicationScope.put(Globals.SERVLET_KEY, "/*");
-        S2ModuleConfig moduleConfig = new S2ModuleConfig(applicationScope);
+        S2ModuleConfig moduleConfig = new S2ModuleConfig("", applicationScope);
         assertEquals("aaa_bbbAction", moduleConfig
                 .fromPathToActionName("/aaa/bbb"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testCreateActionMapping_path() throws Exception {
+        Map<String, Object> applicationScope = new HashMap<String, Object>();
+        applicationScope.put(Globals.SERVLET_KEY, "/*");
+        S2ModuleConfig moduleConfig = new S2ModuleConfig("", applicationScope);
+        ActionMapping actionMapping = moduleConfig
+                .createActionMapping("/aaa/bbb");
+        assertNotNull(actionMapping);
+        assertEquals("/aaa/bbb", actionMapping.getPath());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testCreateActionMapping_moduleConfig() throws Exception {
+        Map<String, Object> applicationScope = new HashMap<String, Object>();
+        applicationScope.put(Globals.SERVLET_KEY, "/*");
+        S2ModuleConfig moduleConfig = new S2ModuleConfig("", applicationScope);
+        ActionMapping actionMapping = moduleConfig
+                .createActionMapping("/aaa/bbb");
+        assertSame(moduleConfig, actionMapping.getModuleConfig());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testCreateActionMapping_type() throws Exception {
+        Map<String, Object> applicationScope = new HashMap<String, Object>();
+        applicationScope.put(Globals.SERVLET_KEY, "/*");
+        S2ModuleConfig moduleConfig = new S2ModuleConfig("", applicationScope);
+        ActionMapping actionMapping = moduleConfig
+                .createActionMapping("/aaa/bbb");
+        assertEquals(BbbAction.class.getName(), actionMapping.getType());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testCreateActionMapping_actionName() throws Exception {
+        Map<String, Object> applicationScope = new HashMap<String, Object>();
+        applicationScope.put(Globals.SERVLET_KEY, "/*");
+        S2ModuleConfig moduleConfig = new S2ModuleConfig("", applicationScope);
+        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
+                .createActionMapping("/aaa/bbb");
+        assertEquals("aaa_bbbAction", actionMapping.getActionName());
+    }
+
+    /**
+     * 
+     */
+    public static class BbbAction {
+
     }
 }
