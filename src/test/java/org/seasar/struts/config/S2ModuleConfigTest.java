@@ -20,7 +20,11 @@ import java.util.Map;
 
 import org.apache.struts.Globals;
 import org.apache.struts.action.ActionMapping;
+import org.apache.struts.config.ForwardConfig;
 import org.seasar.extension.unit.S2TestCase;
+import org.seasar.struts.annotation.Input;
+import org.seasar.struts.annotation.Result;
+import org.seasar.struts.annotation.Results;
 
 /**
  * @author higa
@@ -30,6 +34,7 @@ public class S2ModuleConfigTest extends S2TestCase {
 
     public void setUp() {
         register(BbbAction.class, "aaa_bbbAction");
+        register(CccAction.class, "aaa_cccAction");
     }
 
     /**
@@ -40,6 +45,16 @@ public class S2ModuleConfigTest extends S2TestCase {
         applicationScope.put(Globals.SERVLET_KEY, "*.do");
         S2ModuleConfig moduleConfig = new S2ModuleConfig("", applicationScope);
         assertEquals("*.do", moduleConfig.servletMapping);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testInputForward() throws Exception {
+        Map<String, Object> applicationScope = new HashMap<String, Object>();
+        applicationScope.put(Globals.SERVLET_KEY, "/*");
+        S2ModuleConfig moduleConfig = new S2ModuleConfig("", applicationScope);
+        assertTrue(moduleConfig.getControllerConfig().getInputForward());
     }
 
     /**
@@ -114,6 +129,18 @@ public class S2ModuleConfigTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testCreateActionMapping_scope() throws Exception {
+        Map<String, Object> applicationScope = new HashMap<String, Object>();
+        applicationScope.put(Globals.SERVLET_KEY, "/*");
+        S2ModuleConfig moduleConfig = new S2ModuleConfig("", applicationScope);
+        S2ActionMapping actionMapping = moduleConfig
+                .createActionMapping("/aaa/bbb");
+        assertEquals("request", actionMapping.getScope());
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testCreateActionMapping_type() throws Exception {
         Map<String, Object> applicationScope = new HashMap<String, Object>();
         applicationScope.put(Globals.SERVLET_KEY, "/*");
@@ -130,15 +157,78 @@ public class S2ModuleConfigTest extends S2TestCase {
         Map<String, Object> applicationScope = new HashMap<String, Object>();
         applicationScope.put(Globals.SERVLET_KEY, "/*");
         S2ModuleConfig moduleConfig = new S2ModuleConfig("", applicationScope);
-        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
+        S2ActionMapping actionMapping = moduleConfig
                 .createActionMapping("/aaa/bbb");
         assertEquals("aaa_bbbAction", actionMapping.getActionName());
     }
 
     /**
+     * @throws Exception
+     */
+    public void testSetupInput() throws Exception {
+        Map<String, Object> applicationScope = new HashMap<String, Object>();
+        applicationScope.put(Globals.SERVLET_KEY, "/*");
+        S2ModuleConfig moduleConfig = new S2ModuleConfig("", applicationScope);
+        S2ActionMapping actionMapping = moduleConfig
+                .createActionMapping("/aaa/bbb");
+        assertEquals("input", actionMapping.getInput());
+        ForwardConfig forwardConfig = actionMapping.findForwardConfig("input");
+        assertEquals("/aaa/input.jsp", forwardConfig.getPath());
+        assertFalse(forwardConfig.getRedirect());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testSetupResult() throws Exception {
+        Map<String, Object> applicationScope = new HashMap<String, Object>();
+        applicationScope.put(Globals.SERVLET_KEY, "/*");
+        S2ModuleConfig moduleConfig = new S2ModuleConfig("", applicationScope);
+        S2ActionMapping actionMapping = moduleConfig
+                .createActionMapping("/aaa/bbb");
+        ForwardConfig forwardConfig = actionMapping
+                .findForwardConfig("success");
+        assertNotNull(forwardConfig);
+        assertEquals("/aaa/bbb.jsp", forwardConfig.getPath());
+        assertFalse(forwardConfig.getRedirect());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testSetupResult_results() throws Exception {
+        Map<String, Object> applicationScope = new HashMap<String, Object>();
+        applicationScope.put(Globals.SERVLET_KEY, "/*");
+        S2ModuleConfig moduleConfig = new S2ModuleConfig("", applicationScope);
+        S2ActionMapping actionMapping = moduleConfig
+                .createActionMapping("/aaa/ccc");
+        ForwardConfig forwardConfig = actionMapping
+                .findForwardConfig("success");
+        assertNotNull(forwardConfig);
+        assertEquals("/aaa/bbb.jsp", forwardConfig.getPath());
+        assertFalse(forwardConfig.getRedirect());
+        forwardConfig = actionMapping.findForwardConfig("success2");
+        assertNotNull(forwardConfig);
+        assertEquals("/aaa/bbb2.jsp", forwardConfig.getPath());
+        assertFalse(forwardConfig.getRedirect());
+    }
+
+    /**
      * 
      */
+    @Input(path = "/aaa/input.jsp")
+    @Result(path = "/aaa/bbb.jsp")
     public static class BbbAction {
+
+    }
+
+    /**
+     * 
+     */
+    @Input(path = "/aaa/input.jsp")
+    @Results( { @Result(name = "success", path = "/aaa/bbb.jsp"),
+            @Result(name = "success2", path = "/aaa/bbb2.jsp") })
+    public static class CccAction {
 
     }
 }

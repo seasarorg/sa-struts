@@ -19,13 +19,16 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.struts.Globals;
-import org.apache.struts.action.ActionMapping;
 import org.apache.struts.config.ActionConfig;
+import org.apache.struts.config.ForwardConfig;
 import org.apache.struts.config.impl.ModuleConfigImpl;
 import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.framework.util.Disposable;
 import org.seasar.framework.util.DisposableUtil;
+import org.seasar.struts.annotation.Input;
+import org.seasar.struts.annotation.Result;
+import org.seasar.struts.annotation.Results;
 
 /**
  * Seasar2用のモジュール設定です。
@@ -96,6 +99,10 @@ public class S2ModuleConfig extends ModuleConfigImpl implements Disposable {
         return actionConfig2 != null ? actionConfig2 : actionConfig;
     }
 
+    @Override
+    public void freeze() {
+    }
+
     /**
      * アクションマッピングを作成します。
      * 
@@ -103,15 +110,19 @@ public class S2ModuleConfig extends ModuleConfigImpl implements Disposable {
      *            パス
      * @return アクションマッピング
      */
-    protected ActionMapping createActionMapping(String path) {
+    protected S2ActionMapping createActionMapping(String path) {
         S2ActionMapping actionMapping = new S2ActionMapping();
         actionMapping.setPath(path);
         actionMapping.setModuleConfig(this);
+        actionMapping.setScope("request");
         String actionName = fromPathToActionName(path);
         ComponentDef componentDef = SingletonS2ContainerFactory.getContainer()
                 .getComponentDef(actionName);
         actionMapping.setType(componentDef.getComponentClass().getName());
         actionMapping.setActionName(actionName);
+        Class<?> actionClass = componentDef.getComponentClass();
+        setupInput(actionMapping, actionClass);
+        setupResult(actionMapping, actionClass);
         return actionMapping;
     }
 
@@ -143,5 +154,67 @@ public class S2ModuleConfig extends ModuleConfigImpl implements Disposable {
      */
     protected void setup(Map<String, Object> applicationScope) {
         servletMapping = (String) applicationScope.get(Globals.SERVLET_KEY);
+        getControllerConfig().setInputForward(true);
+    }
+
+    /**
+     * 入力元の情報をセットアップします。
+     * 
+     * @param actionMapping
+     *            アクションマッピング
+     * @param actionClass
+     *            アクションクラス
+     */
+    protected void setupInput(S2ActionMapping actionMapping,
+            Class<?> actionClass) {
+        Input input = actionClass.getAnnotation(Input.class);
+        if (input == null) {
+            return;
+        }
+        actionMapping.setInput(input.name());
+        ForwardConfig forwardConfig = new ForwardConfig();
+        forwardConfig.setName(input.name());
+        forwardConfig.setPath(input.path());
+        forwardConfig.setRedirect(input.redirect());
+        actionMapping.addForwardConfig(forwardConfig);
+    }
+
+    /**
+     * 遷移先の情報をセットアップします。
+     * 
+     * @param actionMapping
+     *            アクションマッピング
+     * @param actionClass
+     *            アクションクラス
+     */
+    protected void setupResult(S2ActionMapping actionMapping,
+            Class<?> actionClass) {
+        Result result = actionClass.getAnnotation(Result.class);
+        if (result != null) {
+            setupResult(actionMapping, result);
+            return;
+        }
+        Results results = actionClass.getAnnotation(Results.class);
+        if (results != null) {
+            for (Result r : results.value()) {
+                setupResult(actionMapping, r);
+            }
+        }
+    }
+
+    /**
+     * 遷移先の情報をセットアップします。
+     * 
+     * @param actionMapping
+     *            アクションマッピング
+     * @param result
+     *            遷移先
+     */
+    protected void setupResult(S2ActionMapping actionMapping, Result result) {
+        ForwardConfig forwardConfig = new ForwardConfig();
+        forwardConfig.setName(result.name());
+        forwardConfig.setPath(result.path());
+        forwardConfig.setRedirect(result.redirect());
+        actionMapping.addForwardConfig(forwardConfig);
     }
 }
