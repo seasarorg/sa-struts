@@ -59,7 +59,7 @@ public class S2RequestProcessorTest extends S2TestCase {
         S2RequestProcessor processor = new S2RequestProcessor();
         Map<String, Object> applicationScope = new HashMap<String, Object>();
         applicationScope.put(Globals.SERVLET_KEY, "/*");
-        S2ModuleConfig moduleConfig = new S2ModuleConfig("", applicationScope);
+        S2ModuleConfig moduleConfig = new S2ModuleConfig("");
         processor.init(new ActionServlet(), moduleConfig);
         Action action = processor.processActionCreate(getRequest(),
                 getResponse(), mapping);

@@ -15,11 +15,8 @@
  */
 package org.seasar.struts.config;
 
-import java.util.Map;
-
 import org.apache.struts.config.ModuleConfig;
 import org.apache.struts.config.ModuleConfigFactory;
-import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 
 /**
  * @author higa
@@ -27,12 +24,9 @@ import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
  */
 public class S2ModuleConfigFactory extends ModuleConfigFactory {
 
-    @SuppressWarnings("unchecked")
     @Override
     public ModuleConfig createModuleConfig(String prefix) {
-        Map applicationMap = SingletonS2ContainerFactory.getContainer()
-                .getExternalContext().getApplicationMap();
-        return new S2ModuleConfig(prefix, applicationMap);
+        return new S2ModuleConfig(prefix);
     }
 
 }
