@@ -15,6 +15,9 @@
  */
 package org.seasar.struts.config;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.struts.action.ActionMapping;
 
 /**
@@ -36,6 +39,11 @@ public class S2ActionMapping extends ActionMapping {
     protected String actionName;
 
     /**
+     * 実行設定のマップです
+     */
+    protected Map<String, S2ExecuteConfig> executeConfigs = new HashMap<String, S2ExecuteConfig>();
+
+    /**
      * アクション名を返します。
      * 
      * @return アクション名
@@ -52,5 +60,16 @@ public class S2ActionMapping extends ActionMapping {
      */
     public void setActionName(String actionName) {
         this.actionName = actionName;
+    }
+
+    /**
+     * 実行設定を返します。
+     * 
+     * @param name
+     *            名前
+     * @return 実行設定
+     */
+    public S2ExecuteConfig getExecuteConfig(String name) {
+        return executeConfigs.get(name);
     }
 }
