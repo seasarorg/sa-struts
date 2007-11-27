@@ -63,6 +63,16 @@ public class S2ActionMapping extends ActionMapping {
     }
 
     /**
+     * 実行メソッド名の配列を返します。
+     * 
+     * @return 実行メソッド名の配列
+     */
+    public String[] getExecuteMethodNames() {
+        return executeConfigs.keySet().toArray(
+                new String[executeConfigs.size()]);
+    }
+
+    /**
      * 実行設定を返します。
      * 
      * @param name
@@ -71,5 +81,15 @@ public class S2ActionMapping extends ActionMapping {
      */
     public S2ExecuteConfig getExecuteConfig(String name) {
         return executeConfigs.get(name);
+    }
+
+    /**
+     * 実行設定を追加します。
+     * 
+     * @param executeConfig
+     *            実行設定
+     */
+    public void addExecuteConfig(S2ExecuteConfig executeConfig) {
+        executeConfigs.put(executeConfig.method.getName(), executeConfig);
     }
 }

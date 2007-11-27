@@ -13,7 +13,9 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.seasar.struts.util;
+package org.seasar.struts.exception;
+
+import java.lang.reflect.Method;
 
 import junit.framework.TestCase;
 
@@ -21,21 +23,17 @@ import junit.framework.TestCase;
  * @author higa
  * 
  */
-public class ActionUtilTest extends TestCase {
+public class IllegalExecuteMethodRuntimeExceptionTest extends TestCase {
 
     /**
      * @throws Exception
      */
-    public void testFromPathToActionName() throws Exception {
-        assertEquals("aaa_bbbAction", ActionUtil
-                .fromPathToActionName("/aaa/bbb"));
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testFromActionNameToPath() throws Exception {
-        assertEquals("/aaa/bbb", ActionUtil
-                .fromActionNameToPath("aaa_bbbAction"));
+    public void testAll() throws Exception {
+        Method m = getClass().getMethod("testAll");
+        IllegalExecuteMethodRuntimeException e = new IllegalExecuteMethodRuntimeException(
+                getClass(), m);
+        System.out.println(e);
+        assertEquals(getClass(), e.getActionClass());
+        assertEquals(m, e.getExecuteMethod());
     }
 }

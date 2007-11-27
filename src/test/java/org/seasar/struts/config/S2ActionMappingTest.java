@@ -13,7 +13,9 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.seasar.struts.util;
+package org.seasar.struts.config;
+
+import java.lang.reflect.Method;
 
 import junit.framework.TestCase;
 
@@ -21,21 +23,20 @@ import junit.framework.TestCase;
  * @author higa
  * 
  */
-public class ActionUtilTest extends TestCase {
+public class S2ActionMappingTest extends TestCase {
 
     /**
      * @throws Exception
      */
-    public void testFromPathToActionName() throws Exception {
-        assertEquals("aaa_bbbAction", ActionUtil
-                .fromPathToActionName("/aaa/bbb"));
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testFromActionNameToPath() throws Exception {
-        assertEquals("/aaa/bbb", ActionUtil
-                .fromActionNameToPath("aaa_bbbAction"));
+    public void testExecuteConfig() throws Exception {
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        Method m = getClass().getDeclaredMethod("testExecuteConfig");
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true);
+        actionMapping.addExecuteConfig(executeConfig);
+        assertSame(executeConfig, actionMapping
+                .getExecuteConfig("testExecuteConfig"));
+        String[] names = actionMapping.getExecuteMethodNames();
+        assertEquals(1, names.length);
+        assertEquals("testExecuteConfig", names[0]);
     }
 }

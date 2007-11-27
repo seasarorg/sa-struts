@@ -37,21 +37,21 @@ public class S2ExecuteConfig implements Serializable {
     protected Method method;
 
     /**
-     * バリデーションをするかどうかです。
+     * バリデータを呼び出すかどうかです。
      */
-    protected boolean validate = true;
+    protected boolean validator = true;
 
     /**
      * インスタンスを構築します。
      * 
      * @param method
      *            メソッド
-     * @param validate
-     *            バリデーションをするかどうか
+     * @param validator
+     *            バリデータを呼び出すかどうか
      */
-    public S2ExecuteConfig(Method method, boolean validate) {
+    public S2ExecuteConfig(Method method, boolean validator) {
         this.method = method;
-        this.validate = validate;
+        this.validator = validator;
     }
 
     /**
@@ -64,11 +64,11 @@ public class S2ExecuteConfig implements Serializable {
     }
 
     /**
-     * バリデーションをするかどうかを返します。
+     * バリデータを呼び出すかどうかを返します。
      * 
-     * @return バリデーションをするかどうか
+     * @return バリデータを呼び出すかどうか
      */
-    public boolean isValidate() {
-        return validate;
+    public boolean isValidator() {
+        return validator;
     }
 }

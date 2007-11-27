@@ -18,11 +18,14 @@ package org.seasar.struts.customizer;
 import org.apache.struts.Globals;
 import org.apache.struts.config.ForwardConfig;
 import org.seasar.extension.unit.S2TestCase;
+import org.seasar.struts.annotation.Execute;
 import org.seasar.struts.annotation.Input;
 import org.seasar.struts.annotation.Result;
 import org.seasar.struts.annotation.Results;
 import org.seasar.struts.config.S2ActionMapping;
+import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.config.S2ModuleConfig;
+import org.seasar.struts.exception.IllegalExecuteMethodRuntimeException;
 
 /**
  * @author higa
@@ -38,7 +41,6 @@ public class ActionCustomizerTest extends S2TestCase {
         getServletContext().setAttribute(Globals.SERVLET_KEY, "/*");
         getServletContext().setAttribute(Globals.MODULE_KEY, moduleConfig);
         register(BbbAction.class, "aaa_bbbAction");
-        register(CccAction.class, "aaa_cccAction");
     }
 
     /**
@@ -115,6 +117,7 @@ public class ActionCustomizerTest extends S2TestCase {
      * @throws Exception
      */
     public void testSetupResult_results() throws Exception {
+        register(CccAction.class, "aaa_cccAction");
         S2ActionMapping actionMapping = customizer
                 .createActionMapping(getComponentDef("aaa_cccAction"));
         ForwardConfig forwardConfig = actionMapping
@@ -129,12 +132,46 @@ public class ActionCustomizerTest extends S2TestCase {
     }
 
     /**
+     * @throws Exception
+     */
+    public void testSetupMethod() throws Exception {
+        S2ActionMapping actionMapping = customizer
+                .createActionMapping(getComponentDef("aaa_bbbAction"));
+        S2ExecuteConfig executeConfig = actionMapping
+                .getExecuteConfig("execute");
+        assertNotNull(executeConfig);
+        assertNotNull(executeConfig.getMethod());
+        assertFalse(executeConfig.isValidator());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testSetupMethod_illegalExecuteMethod() throws Exception {
+        register(DddAction.class, "aaa_dddAction");
+        try {
+            customizer.createActionMapping(getComponentDef("aaa_dddAction"));
+        } catch (IllegalExecuteMethodRuntimeException e) {
+            System.out.println(e);
+            assertEquals(DddAction.class, e.getActionClass());
+            assertEquals(DddAction.class.getMethod("execute"), e
+                    .getExecuteMethod());
+        }
+    }
+
+    /**
      * 
      */
     @Input(path = "/aaa/input.jsp")
     @Result(path = "/aaa/bbb.jsp")
     public static class BbbAction {
-
+        /**
+         * @return
+         */
+        @Execute(validator = false)
+        public String execute() {
+            return "success";
+        }
     }
 
     /**
@@ -145,5 +182,17 @@ public class ActionCustomizerTest extends S2TestCase {
             @Result(name = "success2", path = "/aaa/bbb2.jsp") })
     public static class CccAction {
 
+    }
+
+    /**
+     * 
+     */
+    public static class DddAction {
+        /**
+         * @return
+         */
+        @Execute
+        public void execute() {
+        }
     }
 }

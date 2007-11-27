@@ -31,8 +31,8 @@ import java.lang.annotation.Target;
 public @interface Execute {
 
     /**
-     * バリデーションするかどうかです。
+     * バリデータを呼び出すかどうかです。
      * 
      */
-    boolean validate() default true;
+    boolean validator() default true;
 }

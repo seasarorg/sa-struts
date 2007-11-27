@@ -36,16 +36,7 @@ public final class ActionUtil {
      * @return アクション名
      */
     public static String fromPathToActionName(String path) {
-        String servletMapping = ServletContextUtil.getServletMapping();
-        if (servletMapping.startsWith("*.")) {
-            path = path.substring(1, path.length() - servletMapping.length()
-                    + 1);
-        } else if (servletMapping.endsWith("/*")) {
-            path = path.substring(servletMapping.length() - 1);
-        } else if (servletMapping.equals("/")) {
-            path = path.substring(1);
-        }
-        return path.replace('/', '_') + SUFFIX;
+        return path.substring(1).replace('/', '_') + SUFFIX;
     }
 
     /**
@@ -56,18 +47,8 @@ public final class ActionUtil {
      * @return パス
      */
     public static String fromActionNameToPath(String actionName) {
-        actionName = actionName.replace('_', '/').substring(0,
-                actionName.length() - SUFFIX.length());
-        String servletMapping = ServletContextUtil.getServletMapping();
-        if (servletMapping.startsWith("*.")) {
-            actionName = "/" + actionName + servletMapping.substring(1);
-        } else if (servletMapping.endsWith("/*")) {
-            actionName = servletMapping.substring(0,
-                    servletMapping.length() - 1)
-                    + actionName;
-        } else if (servletMapping.equals("/")) {
-            actionName = "/" + actionName;
-        }
-        return actionName;
+        return "/"
+                + actionName.replace('_', '/').substring(0,
+                        actionName.length() - SUFFIX.length());
     }
 }

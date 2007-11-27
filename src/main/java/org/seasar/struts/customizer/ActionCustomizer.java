@@ -15,14 +15,19 @@
  */
 package org.seasar.struts.customizer;
 
-import org.apache.struts.config.ForwardConfig;
+import java.lang.reflect.Method;
+
+import org.apache.struts.action.ActionForward;
 import org.seasar.framework.container.ComponentCustomizer;
 import org.seasar.framework.container.ComponentDef;
+import org.seasar.struts.annotation.Execute;
 import org.seasar.struts.annotation.Input;
 import org.seasar.struts.annotation.Result;
 import org.seasar.struts.annotation.Results;
 import org.seasar.struts.config.S2ActionMapping;
+import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.config.S2ModuleConfig;
+import org.seasar.struts.exception.IllegalExecuteMethodRuntimeException;
 import org.seasar.struts.util.ActionUtil;
 import org.seasar.struts.util.ServletContextUtil;
 
@@ -57,6 +62,7 @@ public class ActionCustomizer implements ComponentCustomizer {
         Class<?> actionClass = componentDef.getComponentClass();
         setupInput(actionMapping, actionClass);
         setupResult(actionMapping, actionClass);
+        setupMethod(actionMapping, actionClass);
         return actionMapping;
     }
 
@@ -75,11 +81,11 @@ public class ActionCustomizer implements ComponentCustomizer {
             return;
         }
         actionMapping.setInput(input.name());
-        ForwardConfig forwardConfig = new ForwardConfig();
-        forwardConfig.setName(input.name());
-        forwardConfig.setPath(input.path());
-        forwardConfig.setRedirect(input.redirect());
-        actionMapping.addForwardConfig(forwardConfig);
+        ActionForward forward = new ActionForward();
+        forward.setName(input.name());
+        forward.setPath(input.path());
+        forward.setRedirect(input.redirect());
+        actionMapping.addForwardConfig(forward);
     }
 
     /**
@@ -114,10 +120,35 @@ public class ActionCustomizer implements ComponentCustomizer {
      *            遷移先
      */
     protected void setupResult(S2ActionMapping actionMapping, Result result) {
-        ForwardConfig forwardConfig = new ForwardConfig();
-        forwardConfig.setName(result.name());
-        forwardConfig.setPath(result.path());
-        forwardConfig.setRedirect(result.redirect());
-        actionMapping.addForwardConfig(forwardConfig);
+        ActionForward forward = new ActionForward();
+        forward.setName(result.name());
+        forward.setPath(result.path());
+        forward.setRedirect(result.redirect());
+        actionMapping.addForwardConfig(forward);
+    }
+
+    /**
+     * メソッドの情報をセットアップします。
+     * 
+     * @param actionMapping
+     *            アクションマッピング
+     * @param actionClass
+     *            アクションクラス
+     */
+    protected void setupMethod(S2ActionMapping actionMapping,
+            Class<?> actionClass) {
+        for (Method m : actionClass.getMethods()) {
+            Execute execute = m.getAnnotation(Execute.class);
+            if (execute != null) {
+                if (m.getParameterTypes().length > 0
+                        || m.getReturnType() != String.class) {
+                    throw new IllegalExecuteMethodRuntimeException(actionClass,
+                            m);
+                }
+                S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, execute
+                        .validator());
+                actionMapping.addExecuteConfig(executeConfig);
+            }
+        }
     }
 }
