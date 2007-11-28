@@ -19,6 +19,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.struts.action.ActionMapping;
+import org.seasar.framework.beans.BeanDesc;
+import org.seasar.framework.beans.factory.BeanDescFactory;
+import org.seasar.framework.container.ComponentDef;
 
 /**
  * Seasar2用のアクションマッピングです。
@@ -34,9 +37,14 @@ public class S2ActionMapping extends ActionMapping {
     private static final long serialVersionUID = 1L;
 
     /**
-     * アクション名です。
+     * コンポーネント定義です。
      */
-    protected String actionName;
+    protected ComponentDef componentDef;
+
+    /**
+     * Bean記述です。
+     */
+    protected BeanDesc beanDesc;
 
     /**
      * 実行設定のマップです
@@ -44,22 +52,37 @@ public class S2ActionMapping extends ActionMapping {
     protected Map<String, S2ExecuteConfig> executeConfigs = new HashMap<String, S2ExecuteConfig>();
 
     /**
-     * アクション名を返します。
+     * コンポーネント定義を返します。
      * 
-     * @return アクション名
+     * @return コンポーネント定義
      */
-    public String getActionName() {
-        return actionName;
+    public ComponentDef getComponentDef() {
+        return componentDef;
     }
 
     /**
-     * アクション名を設定します。
+     * コンポーネント定義を設定します。
      * 
-     * @param actionName
-     *            アクション名
+     * @param componentDef
      */
-    public void setActionName(String actionName) {
-        this.actionName = actionName;
+    public void setComponentDef(ComponentDef componentDef) {
+        this.componentDef = componentDef;
+        beanDesc = BeanDescFactory
+                .getBeanDesc(componentDef.getComponentClass());
+    }
+
+    /**
+     * Bean記述を返します。
+     * 
+     * @return Bean記述
+     */
+    public BeanDesc getBeanDesc() {
+        return beanDesc;
+    }
+
+    @Override
+    public String getType() {
+        return componentDef.getComponentClass().getName();
     }
 
     /**

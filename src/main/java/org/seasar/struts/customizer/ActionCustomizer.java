@@ -57,8 +57,7 @@ public class ActionCustomizer implements ComponentCustomizer {
         actionMapping.setPath(ActionUtil.fromActionNameToPath(componentDef
                 .getComponentName()));
         actionMapping.setScope("request");
-        actionMapping.setType(componentDef.getComponentClass().getName());
-        actionMapping.setActionName(componentDef.getComponentName());
+        actionMapping.setComponentDef(componentDef);
         Class<?> actionClass = componentDef.getComponentClass();
         setupInput(actionMapping, actionClass);
         setupResult(actionMapping, actionClass);

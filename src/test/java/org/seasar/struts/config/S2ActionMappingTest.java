@@ -19,6 +19,9 @@ import java.lang.reflect.Method;
 
 import junit.framework.TestCase;
 
+import org.seasar.framework.container.ComponentDef;
+import org.seasar.framework.container.impl.ComponentDefImpl;
+
 /**
  * @author higa
  * 
@@ -38,5 +41,15 @@ public class S2ActionMappingTest extends TestCase {
         String[] names = actionMapping.getExecuteMethodNames();
         assertEquals(1, names.length);
         assertEquals("testExecuteConfig", names[0]);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testBeanDesc() throws Exception {
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        ComponentDef cd = new ComponentDefImpl(String.class);
+        actionMapping.setComponentDef(cd);
+        assertNotNull(actionMapping.getBeanDesc());
     }
 }

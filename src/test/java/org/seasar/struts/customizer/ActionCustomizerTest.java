@@ -73,19 +73,19 @@ public class ActionCustomizerTest extends S2TestCase {
     /**
      * @throws Exception
      */
-    public void testCreateActionMapping_type() throws Exception {
+    public void testCreateActionMapping_componentDef() throws Exception {
         S2ActionMapping actionMapping = customizer
                 .createActionMapping(getComponentDef("aaa_bbbAction"));
-        assertEquals(BbbAction.class.getName(), actionMapping.getType());
+        assertNotNull(actionMapping.getComponentDef());
     }
 
     /**
      * @throws Exception
      */
-    public void testCreateActionMapping_actionName() throws Exception {
+    public void testCreateActionMapping_type() throws Exception {
         S2ActionMapping actionMapping = customizer
                 .createActionMapping(getComponentDef("aaa_bbbAction"));
-        assertEquals("aaa_bbbAction", actionMapping.getActionName());
+        assertEquals(BbbAction.class.getName(), actionMapping.getType());
     }
 
     /**

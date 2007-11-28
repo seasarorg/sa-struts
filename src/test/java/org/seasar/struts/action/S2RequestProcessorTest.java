@@ -55,10 +55,10 @@ public class S2RequestProcessorTest extends S2TestCase {
      */
     public void testProcessActionCreate() throws Exception {
         S2ActionMapping mapping = new S2ActionMapping();
-        mapping.setActionName("aaa_bbbAction");
+        mapping.setComponentDef(getComponentDef("aaa_bbbAction"));
         S2RequestProcessor processor = new S2RequestProcessor();
         Map<String, Object> applicationScope = new HashMap<String, Object>();
-        applicationScope.put(Globals.SERVLET_KEY, "/*");
+        applicationScope.put(Globals.SERVLET_KEY, "*.do");
         S2ModuleConfig moduleConfig = new S2ModuleConfig("");
         processor.init(new ActionServlet(), moduleConfig);
         Action action = processor.processActionCreate(getRequest(),

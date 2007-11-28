@@ -23,7 +23,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.RequestProcessor;
-import org.seasar.framework.container.SingletonS2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.struts.config.S2ActionMapping;
 
@@ -51,8 +50,8 @@ public class S2RequestProcessor extends RequestProcessor {
         }
         Action action = null;
         try {
-            action = new ActionWrapper(SingletonS2Container
-                    .getComponent(((S2ActionMapping) mapping).getActionName()));
+            action = new ActionWrapper(((S2ActionMapping) mapping)
+                    .getComponentDef().getComponent());
         } catch (Exception e) {
             log.error(getInternal().getMessage("actionCreate",
                     mapping.getPath()), e);
@@ -65,5 +64,4 @@ public class S2RequestProcessor extends RequestProcessor {
         action.setServlet(servlet);
         return action;
     }
-
 }
