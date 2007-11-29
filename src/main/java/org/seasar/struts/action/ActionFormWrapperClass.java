@@ -48,13 +48,11 @@ public class ActionFormWrapperClass implements DynaClass, Serializable {
     }
 
     public DynaProperty[] getDynaProperties() {
-        // TODO Auto-generated method stub
-        return null;
+        return actionMapping.getDynaProperties();
     }
 
     public DynaProperty getDynaProperty(String name) {
-        // TODO Auto-generated method stub
-        return null;
+        return actionMapping.getDynaProperty(name);
     }
 
     public String getName() {

@@ -22,6 +22,8 @@ import org.apache.struts.action.ActionMapping;
 import org.seasar.framework.beans.BeanDesc;
 import org.seasar.framework.beans.factory.BeanDescFactory;
 import org.seasar.framework.container.ComponentDef;
+import org.seasar.framework.util.ArrayMap;
+import org.seasar.struts.action.S2DynaProperty;
 
 /**
  * Seasar2用のアクションマッピングです。
@@ -52,6 +54,11 @@ public class S2ActionMapping extends ActionMapping {
     protected Map<String, S2ExecuteConfig> executeConfigs = new HashMap<String, S2ExecuteConfig>();
 
     /**
+     * 動的プロパティの集合です。
+     */
+    protected ArrayMap dynaProperties = new ArrayMap();
+
+    /**
      * コンポーネント定義を返します。
      * 
      * @return コンポーネント定義
@@ -78,6 +85,24 @@ public class S2ActionMapping extends ActionMapping {
      */
     public BeanDesc getBeanDesc() {
         return beanDesc;
+    }
+
+    /**
+     * POJOアクションフォームを返します。
+     * 
+     * @return POJOアクションフォーム
+     */
+    public Object getActionForm() {
+        return componentDef.getComponent();
+    }
+
+    /**
+     * POJOアクションフォームのクラスを返します。
+     * 
+     * @return POJOアクションフォームのクラス
+     */
+    public Class<?> getActionFormClass() {
+        return componentDef.getComponentClass();
     }
 
     @Override
@@ -114,5 +139,36 @@ public class S2ActionMapping extends ActionMapping {
      */
     public void addExecuteConfig(S2ExecuteConfig executeConfig) {
         executeConfigs.put(executeConfig.method.getName(), executeConfig);
+    }
+
+    /**
+     * 動的プロパティの配列を返します。
+     * 
+     * @return 動的プロパティの配列
+     */
+    public S2DynaProperty[] getDynaProperties() {
+        return (S2DynaProperty[]) dynaProperties
+                .toArray(new S2DynaProperty[dynaProperties.size()]);
+    }
+
+    /**
+     * 動的プロパティを返します。
+     * 
+     * @param name
+     *            名前
+     * @return 動的プロパティ
+     */
+    public S2DynaProperty getDynaProperty(String name) {
+        return (S2DynaProperty) dynaProperties.get(name);
+    }
+
+    /**
+     * 動的プロパティを追加します。
+     * 
+     * @param property
+     *            動的プロパティ
+     */
+    public void addDynaProperty(S2DynaProperty property) {
+        dynaProperties.put(property.getName(), property);
     }
 }

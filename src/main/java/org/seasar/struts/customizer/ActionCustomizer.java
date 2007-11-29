@@ -15,11 +15,17 @@
  */
 package org.seasar.struts.customizer;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import org.apache.struts.action.ActionForward;
+import org.seasar.framework.beans.BeanDesc;
+import org.seasar.framework.beans.PropertyDesc;
 import org.seasar.framework.container.ComponentCustomizer;
 import org.seasar.framework.container.ComponentDef;
+import org.seasar.framework.util.FieldUtil;
+import org.seasar.struts.action.S2DynaProperty;
 import org.seasar.struts.annotation.Execute;
 import org.seasar.struts.annotation.Input;
 import org.seasar.struts.annotation.Result;
@@ -27,6 +33,8 @@ import org.seasar.struts.annotation.Results;
 import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.config.S2ModuleConfig;
+import org.seasar.struts.exception.FieldNotFoundRuntimeException;
+import org.seasar.struts.exception.GenericsNotSpecifiedRuntimeException;
 import org.seasar.struts.exception.IllegalExecuteMethodRuntimeException;
 import org.seasar.struts.util.ActionUtil;
 import org.seasar.struts.util.ServletContextUtil;
@@ -62,6 +70,7 @@ public class ActionCustomizer implements ComponentCustomizer {
         setupInput(actionMapping, actionClass);
         setupResult(actionMapping, actionClass);
         setupMethod(actionMapping, actionClass);
+        setupDynaProperty(actionMapping, actionClass);
         return actionMapping;
     }
 
@@ -147,6 +156,44 @@ public class ActionCustomizer implements ComponentCustomizer {
                 S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, execute
                         .validator());
                 actionMapping.addExecuteConfig(executeConfig);
+            }
+        }
+    }
+
+    /**
+     * 動的プロパティの情報をセットアップします。
+     * 
+     * @param actionMapping
+     *            アクションマッピング
+     * @param actionClass
+     *            アクションクラス
+     */
+    protected void setupDynaProperty(S2ActionMapping actionMapping,
+            Class<?> actionClass) {
+        BeanDesc beanDesc = actionMapping.getBeanDesc();
+        int size = beanDesc.getPropertyDescSize();
+        for (int i = 0; i < size; i++) {
+            PropertyDesc pd = beanDesc.getPropertyDesc(i);
+            if (pd.getPropertyType() == String.class) {
+                actionMapping.addDynaProperty(new S2DynaProperty(pd
+                        .getPropertyName(), String.class, pd));
+            } else if (pd.getPropertyType() == boolean.class) {
+                actionMapping.addDynaProperty(new S2DynaProperty(pd
+                        .getPropertyName(), boolean.class, pd));
+            } else if (List.class.isAssignableFrom(pd.getPropertyType())) {
+                Field field = pd.getField();
+                if (field == null) {
+                    throw new FieldNotFoundRuntimeException(actionClass, pd
+                            .getPropertyName());
+                }
+                Class<?> contentType = FieldUtil
+                        .getElementTypeOfListFromFieldType(field);
+                if (contentType == null) {
+                    throw new GenericsNotSpecifiedRuntimeException(actionClass,
+                            pd.getPropertyName());
+                }
+                actionMapping.addDynaProperty(new S2DynaProperty(pd
+                        .getPropertyName(), List.class, contentType, pd));
             }
         }
     }
