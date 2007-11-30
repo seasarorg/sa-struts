@@ -15,11 +15,14 @@
  */
 package org.seasar.struts.action;
 
+import java.util.List;
+
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
 import org.apache.struts.action.ActionForm;
 import org.seasar.framework.beans.PropertyNotFoundRuntimeException;
 import org.seasar.struts.config.S2ActionMapping;
+import org.seasar.struts.exception.PropertyNotListRuntimeException;
 
 /**
  * アクションフォームのラッパーです。
@@ -91,8 +94,32 @@ public class ActionFormWrapper extends ActionForm implements DynaBean {
     }
 
     public Object get(String name, int index) {
-        // TODO Auto-generated method stub
-        return null;
+        List<Object> list = getList(name);
+        return list.get(index);
+    }
+
+    /**
+     * リストを返します。
+     * 
+     * @param name
+     *            名前
+     * @return リスト
+     */
+    @SuppressWarnings("unchecked")
+    protected List<Object> getList(String name) {
+        S2DynaProperty property = getProperty(name);
+        if (!List.class.isAssignableFrom(property.getPropertyDesc()
+                .getPropertyType())) {
+            throw new PropertyNotListRuntimeException(actionMapping
+                    .getActionFormClass(), name);
+        }
+        List<Object> list = (List<Object>) property.getPropertyDesc().getValue(
+                actionForm);
+        return list;
+    }
+
+    public void set(String name, int index, Object value) {
+        List<Object> list = getList(name);
     }
 
     /*
@@ -124,17 +151,6 @@ public class ActionFormWrapper extends ActionForm implements DynaBean {
      *      java.lang.String)
      */
     public void remove(String name, String key) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.commons.beanutils.DynaBean#set(java.lang.String, int,
-     *      java.lang.Object)
-     */
-    public void set(String name, int index, Object value) {
         // TODO Auto-generated method stub
 
     }

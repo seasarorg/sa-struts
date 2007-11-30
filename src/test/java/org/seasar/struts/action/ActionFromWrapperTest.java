@@ -15,12 +15,16 @@
  */
 package org.seasar.struts.action;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.seasar.extension.unit.S2TestCase;
 import org.seasar.framework.beans.BeanDesc;
 import org.seasar.framework.beans.PropertyDesc;
 import org.seasar.framework.beans.PropertyNotFoundRuntimeException;
 import org.seasar.framework.beans.factory.BeanDescFactory;
 import org.seasar.struts.config.S2ActionMapping;
+import org.seasar.struts.exception.PropertyNotListRuntimeException;
 
 /**
  * @author higa
@@ -112,6 +116,52 @@ public class ActionFromWrapperTest extends S2TestCase {
     }
 
     /**
+     * @throws Exception
+     */
+    public void testGetForList() throws Exception {
+        register(BbbAction.class, "bbbAction");
+        BbbAction action = (BbbAction) getComponent("bbbAction");
+        action.hogeList = Arrays.asList("aaa", "bbb");
+        BeanDesc beanDesc = BeanDescFactory.getBeanDesc(BbbAction.class);
+        PropertyDesc pd = beanDesc.getPropertyDesc("hogeList");
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        S2DynaProperty property = new S2DynaProperty("hogeList", List.class,
+                String.class, pd);
+        actionMapping.addDynaProperty(property);
+        actionMapping.setComponentDef(getComponentDef("bbbAction"));
+        ActionFormWrapperClass wrapperClass = new ActionFormWrapperClass(
+                actionMapping);
+        ActionFormWrapper formWrapper = new ActionFormWrapper(wrapperClass,
+                actionMapping);
+        assertEquals("aaa", formWrapper.get("hogeList", 0));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testGetList_notList() throws Exception {
+        register(BbbAction.class, "bbbAction");
+        BeanDesc beanDesc = BeanDescFactory.getBeanDesc(BbbAction.class);
+        PropertyDesc pd = beanDesc.getPropertyDesc("hoge");
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        S2DynaProperty property = new S2DynaProperty("hoge", String.class, pd);
+        actionMapping.addDynaProperty(property);
+        actionMapping.setComponentDef(getComponentDef("bbbAction"));
+        ActionFormWrapperClass wrapperClass = new ActionFormWrapperClass(
+                actionMapping);
+        ActionFormWrapper formWrapper = new ActionFormWrapper(wrapperClass,
+                actionMapping);
+        try {
+            formWrapper.getList("hoge");
+            fail();
+        } catch (PropertyNotListRuntimeException e) {
+            System.out.println(e);
+            assertEquals(BbbAction.class, e.getTargetClass());
+            assertEquals("hoge", e.getPropertyName());
+        }
+    }
+
+    /**
      * 
      */
     public static class BbbAction {
@@ -120,5 +170,10 @@ public class ActionFromWrapperTest extends S2TestCase {
          * 
          */
         public String hoge;
+
+        /**
+         * 
+         */
+        public List<String> hogeList;
     }
 }
