@@ -51,11 +51,31 @@ public class S2ActionMappingTest extends TestCase {
     /**
      * @throws Exception
      */
-    public void testBeanDesc() throws Exception {
+    public void testActionBeanDesc() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
         ComponentDef cd = new ComponentDefImpl(String.class);
         actionMapping.setComponentDef(cd);
-        assertNotNull(actionMapping.getBeanDesc());
+        assertNotNull(actionMapping.getActionBeanDesc());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testActionFormBeanDesc() throws Exception {
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        ComponentDef cd = new ComponentDefImpl(String.class);
+        actionMapping.setComponentDef(cd);
+        assertNotNull(actionMapping.getActionFormBeanDesc());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testAction() throws Exception {
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        ComponentDef cd = new ComponentDefImpl(MyAction.class);
+        actionMapping.setComponentDef(cd);
+        assertTrue(actionMapping.getAction() instanceof MyAction);
     }
 
     /**
@@ -66,16 +86,6 @@ public class S2ActionMappingTest extends TestCase {
         ComponentDef cd = new ComponentDefImpl(MyAction.class);
         actionMapping.setComponentDef(cd);
         assertTrue(actionMapping.getActionForm() instanceof MyAction);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testActionFormClass() throws Exception {
-        S2ActionMapping actionMapping = new S2ActionMapping();
-        ComponentDef cd = new ComponentDefImpl(MyAction.class);
-        actionMapping.setComponentDef(cd);
-        assertEquals(MyAction.class, actionMapping.getActionFormClass());
     }
 
     /**

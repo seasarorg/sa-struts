@@ -50,8 +50,7 @@ public class S2RequestProcessor extends RequestProcessor {
         }
         Action action = null;
         try {
-            action = new ActionWrapper(((S2ActionMapping) mapping)
-                    .getComponentDef().getComponent());
+            action = new ActionWrapper(((S2ActionMapping) mapping));
         } catch (Exception e) {
             log.error(getInternal().getMessage("actionCreate",
                     mapping.getPath()), e);

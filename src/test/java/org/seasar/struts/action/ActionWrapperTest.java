@@ -37,8 +37,6 @@ public class ActionWrapperTest extends S2TestCase {
      * @throws Exception
      */
     public void testExecute() throws Exception {
-        BbbAction action = (BbbAction) getComponent("bbbAction");
-        ActionWrapper wrapper = new ActionWrapper(action);
         S2ActionMapping actionMapping = new S2ActionMapping();
         actionMapping.setComponentDef(getComponentDef("bbbAction"));
         Method m = BbbAction.class.getDeclaredMethod("execute");
@@ -48,6 +46,7 @@ public class ActionWrapperTest extends S2TestCase {
         fowardConfig.setName("success");
         fowardConfig.setPath("/aaa/bbb.jsp");
         actionMapping.addForwardConfig(fowardConfig);
+        ActionWrapper wrapper = new ActionWrapper(actionMapping);
         ForwardConfig forward = wrapper.execute(actionMapping, null,
                 getRequest(), getResponse());
         assertNotNull(forward);
@@ -58,8 +57,6 @@ public class ActionWrapperTest extends S2TestCase {
      * @throws Exception
      */
     public void testExecute_results() throws Exception {
-        BbbAction action = (BbbAction) getComponent("bbbAction");
-        ActionWrapper wrapper = new ActionWrapper(action);
         S2ActionMapping actionMapping = new S2ActionMapping();
         actionMapping.setComponentDef(getComponentDef("bbbAction"));
         Method m = BbbAction.class.getDeclaredMethod("execute");
@@ -77,6 +74,7 @@ public class ActionWrapperTest extends S2TestCase {
         fowardConfig.setPath("/aaa/bbb2.jsp");
         actionMapping.addForwardConfig(fowardConfig);
         getRequest().setParameter("execute2", "hoge");
+        ActionWrapper wrapper = new ActionWrapper(actionMapping);
         ForwardConfig forward = wrapper.execute(actionMapping, null,
                 getRequest(), getResponse());
         assertNotNull(forward);
@@ -87,8 +85,6 @@ public class ActionWrapperTest extends S2TestCase {
      * @throws Exception
      */
     public void testExportPropertiesToRequest() throws Exception {
-        BbbAction action = (BbbAction) getComponent("bbbAction");
-        ActionWrapper wrapper = new ActionWrapper(action);
         S2ActionMapping actionMapping = new S2ActionMapping();
         actionMapping.setComponentDef(getComponentDef("bbbAction"));
         Method m = BbbAction.class.getDeclaredMethod("execute");
@@ -98,6 +94,7 @@ public class ActionWrapperTest extends S2TestCase {
         fowardConfig.setName("success");
         fowardConfig.setPath("/aaa/bbb.jsp");
         actionMapping.addForwardConfig(fowardConfig);
+        ActionWrapper wrapper = new ActionWrapper(actionMapping);
         wrapper.execute(actionMapping, null, getRequest(), getResponse());
         assertEquals("111", getRequest().getAttribute("hoge"));
     }

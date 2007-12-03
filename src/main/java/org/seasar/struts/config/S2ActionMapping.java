@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.apache.struts.action.ActionMapping;
 import org.seasar.framework.beans.BeanDesc;
+import org.seasar.framework.beans.PropertyDesc;
 import org.seasar.framework.beans.factory.BeanDescFactory;
 import org.seasar.framework.container.ComponentDef;
 
@@ -42,14 +43,24 @@ public class S2ActionMapping extends ActionMapping {
     protected ComponentDef componentDef;
 
     /**
-     * Bean記述です。
+     * アクションのBean記述です。
      */
-    protected BeanDesc beanDesc;
+    protected BeanDesc actionBeanDesc;
+
+    /**
+     * アクションフォームのBean記述です。
+     */
+    protected BeanDesc actionFormBeanDesc;
 
     /**
      * 実行設定のマップです
      */
     protected Map<String, S2ExecuteConfig> executeConfigs = new HashMap<String, S2ExecuteConfig>();
+
+    /**
+     * アクションフォーム用のプロパティ記述です。
+     */
+    protected PropertyDesc actionFormPropertyDesc;
 
     /**
      * コンポーネント定義を返します。
@@ -67,17 +78,36 @@ public class S2ActionMapping extends ActionMapping {
      */
     public void setComponentDef(ComponentDef componentDef) {
         this.componentDef = componentDef;
-        beanDesc = BeanDescFactory
-                .getBeanDesc(componentDef.getComponentClass());
+        actionBeanDesc = BeanDescFactory.getBeanDesc(componentDef
+                .getComponentClass());
+        actionFormBeanDesc = actionBeanDesc;
     }
 
     /**
-     * Bean記述を返します。
+     * アクションのBean記述を返します。
      * 
-     * @return Bean記述
+     * @return アクションのBean記述
      */
-    public BeanDesc getBeanDesc() {
-        return beanDesc;
+    public BeanDesc getActionBeanDesc() {
+        return actionBeanDesc;
+    }
+
+    /**
+     * アクションフォームのBean記述を返します。
+     * 
+     * @return アクションフォームのBean記述
+     */
+    public BeanDesc getActionFormBeanDesc() {
+        return actionFormBeanDesc;
+    }
+
+    /**
+     * POJOアクションを返します。
+     * 
+     * @return POJOアクション
+     */
+    public Object getAction() {
+        return componentDef.getComponent();
     }
 
     /**
@@ -86,16 +116,11 @@ public class S2ActionMapping extends ActionMapping {
      * @return POJOアクションフォーム
      */
     public Object getActionForm() {
-        return componentDef.getComponent();
-    }
-
-    /**
-     * POJOアクションフォームのクラスを返します。
-     * 
-     * @return POJOアクションフォームのクラス
-     */
-    public Class<?> getActionFormClass() {
-        return componentDef.getComponentClass();
+        Object action = getAction();
+        if (actionFormPropertyDesc != null) {
+            return actionFormPropertyDesc.getValue(action);
+        }
+        return action;
     }
 
     @Override

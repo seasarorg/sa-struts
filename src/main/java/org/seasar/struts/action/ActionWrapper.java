@@ -38,18 +38,18 @@ import org.seasar.struts.config.S2ExecuteConfig;
 public class ActionWrapper extends Action {
 
     /**
-     * POJO Actionです。
+     * アクションマッピングです。
      */
-    protected Object action;
+    protected S2ActionMapping actionMapping;
 
     /**
      * インスタンスを構築します。
      * 
-     * @param action
-     *            POJO Action
+     * @param actionMapping
+     *            アクションマッピング
      */
-    public ActionWrapper(Object action) {
-        this.action = action;
+    public ActionWrapper(S2ActionMapping actionMapping) {
+        this.actionMapping = actionMapping;
     }
 
     @Override
@@ -57,14 +57,13 @@ public class ActionWrapper extends Action {
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
 
-        S2ActionMapping s2mapping = (S2ActionMapping) mapping;
-        String[] names = s2mapping.getExecuteMethodNames();
+        String[] names = actionMapping.getExecuteMethodNames();
         if (names.length == 1) {
-            return execute(s2mapping, names[0], request);
+            return execute(names[0], request);
         }
         for (String name : names) {
             if (!StringUtil.isEmpty(request.getParameter(name))) {
-                return execute(s2mapping, name, request);
+                return execute(name, request);
             }
         }
         return null;
@@ -73,36 +72,34 @@ public class ActionWrapper extends Action {
     /**
      * Actionを実行します。
      * 
-     * @param mapping
-     *            アクションマッピング
      * @param methodName
      *            メソッド名
      * @param request
      *            リクエスト
      * @return アクションフォワード
      */
-    protected ActionForward execute(S2ActionMapping mapping, String methodName,
+    protected ActionForward execute(String methodName,
             HttpServletRequest request) {
-        S2ExecuteConfig executeConfig = mapping.getExecuteConfig(methodName);
+        S2ExecuteConfig executeConfig = actionMapping
+                .getExecuteConfig(methodName);
         String next = (String) MethodUtil.invoke(executeConfig.getMethod(),
-                action, null);
-        exportPropertiesToRequest(mapping.getBeanDesc(), request);
-        return mapping.findForward(next);
+                actionMapping.getAction(), null);
+        exportPropertiesToRequest(request);
+        return actionMapping.findForward(next);
     }
 
     /**
-     * プロパティをリクエストに設定します。
+     * プロパティをリクエストに設定します。 *
      * 
-     * @param beanDesc
-     *            Bean記述
      * @param request
      *            リクエスト
      */
-    protected void exportPropertiesToRequest(BeanDesc beanDesc,
-            HttpServletRequest request) {
+    protected void exportPropertiesToRequest(HttpServletRequest request) {
+        BeanDesc beanDesc = actionMapping.getActionFormBeanDesc();
         for (int i = 0; i < beanDesc.getPropertyDescSize(); i++) {
             PropertyDesc pd = beanDesc.getPropertyDesc(i);
-            Object value = WrapperUtil.convert(pd.getValue(action));
+            Object value = WrapperUtil.convert(pd.getValue(actionMapping
+                    .getActionForm()));
             request.setAttribute(pd.getPropertyName(), value);
         }
 
