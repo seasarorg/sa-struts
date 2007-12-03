@@ -40,7 +40,7 @@ public class ActionFromWrapperTest extends S2TestCase {
         BeanDesc beanDesc = BeanDescFactory.getBeanDesc(BbbAction.class);
         PropertyDesc pd = beanDesc.getPropertyDesc("hoge");
         S2ActionMapping actionMapping = new S2ActionMapping();
-        S2DynaProperty property = new S2DynaProperty("hoge", String.class, pd);
+        S2DynaProperty property = new S2DynaProperty(pd);
         actionMapping.addDynaProperty(property);
         actionMapping.setComponentDef(getComponentDef("bbbAction"));
         ActionFormWrapperClass wrapperClass = new ActionFormWrapperClass(
@@ -58,7 +58,7 @@ public class ActionFromWrapperTest extends S2TestCase {
         BeanDesc beanDesc = BeanDescFactory.getBeanDesc(BbbAction.class);
         PropertyDesc pd = beanDesc.getPropertyDesc("hoge");
         S2ActionMapping actionMapping = new S2ActionMapping();
-        S2DynaProperty property = new S2DynaProperty("hoge", String.class, pd);
+        S2DynaProperty property = new S2DynaProperty(pd);
         actionMapping.addDynaProperty(property);
         actionMapping.setComponentDef(getComponentDef("bbbAction"));
         ActionFormWrapperClass wrapperClass = new ActionFormWrapperClass(

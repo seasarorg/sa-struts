@@ -15,23 +15,15 @@
  */
 package org.seasar.struts.action;
 
-import org.apache.commons.beanutils.DynaProperty;
 import org.seasar.framework.beans.PropertyDesc;
 
 /**
- * Seasar2用の動的プロパティです。
+ * インデックスで値にアクセスするプロパティです。
  * 
  * @author higa
  * 
  */
-public class S2DynaProperty extends DynaProperty {
-
-    private static final long serialVersionUID = 1L;
-
-    /**
-     * プロパティ記述です。
-     */
-    protected PropertyDesc propertyDesc;
+public abstract class S2DynaIndexedProperty extends S2DynaProperty {
 
     /**
      * インスタンスを構築します。
@@ -39,14 +31,13 @@ public class S2DynaProperty extends DynaProperty {
      * @param propertyDesc
      *            プロパティ記述
      */
-    public S2DynaProperty(PropertyDesc propertyDesc) {
-        super(propertyDesc.getPropertyName(), propertyDesc.getPropertyType());
-        this.propertyDesc = propertyDesc;
+    public S2DynaIndexedProperty(PropertyDesc propertyDesc) {
+        super(propertyDesc);
     }
 
     @Override
     public boolean isIndexed() {
-        return false;
+        return true;
     }
 
     @Override
@@ -55,34 +46,25 @@ public class S2DynaProperty extends DynaProperty {
     }
 
     /**
-     * プロパティ記述を返します。
-     * 
-     * @return プロパティ記述
-     */
-    public PropertyDesc getPropertyDesc() {
-        return propertyDesc;
-    }
-
-    /**
      * 値を返します。
      * 
      * @param bean
      *            Bean
+     * @param index
+     *            インデックス
      * @return 値
      */
-    public Object getValue(Object bean) {
-        return propertyDesc.getValue(bean);
-    }
+    public abstract Object getValue(Object bean, int index);
 
     /**
      * 値を設定します。
      * 
      * @param bean
      *            Bean
+     * @param index
+     *            インデックス
      * @param value
      *            値
      */
-    public void setValue(Object bean, Object value) {
-        propertyDesc.setValue(bean, value);
-    }
+    public abstract void setValue(Object bean, int index, Object value);
 }
