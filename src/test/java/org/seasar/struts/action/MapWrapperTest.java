@@ -13,24 +13,36 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.seasar.struts.exception;
+package org.seasar.struts.action;
+
+import java.util.Map;
 
 import junit.framework.TestCase;
+
+import org.seasar.framework.util.tiger.Maps;
 
 /**
  * @author higa
  * 
  */
-public class PropertyNotListRuntimeExceptionTest extends TestCase {
+public class MapWrapperTest extends TestCase {
 
     /**
      * @throws Exception
      */
-    public void testAll() throws Exception {
-        PropertyNotListRuntimeException e = new PropertyNotListRuntimeException(
-                getClass(), "hoge");
-        System.out.println(e);
-        assertEquals(getClass(), e.getTargetClass());
-        assertEquals("hoge", e.getPropertyName());
+    public void testGet() throws Exception {
+        MapWrapper wrapper = new MapWrapper(Maps.map("aaa", "111").$());
+        assertEquals("111", wrapper.get("aaa"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    @SuppressWarnings("unchecked")
+    public void testGet_nest() throws Exception {
+        MapWrapper wrapper = new MapWrapper(Maps.map("aaa",
+                Maps.map("bbb", "111").$()).$());
+        Map map = (Map) wrapper.get("aaa");
+        assertEquals("111", map.get("bbb"));
     }
 }

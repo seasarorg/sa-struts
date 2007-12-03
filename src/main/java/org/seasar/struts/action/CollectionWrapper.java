@@ -15,24 +15,42 @@
  */
 package org.seasar.struts.action;
 
-import junit.framework.TestCase;
-
-import org.seasar.struts.config.S2ActionMapping;
+import java.util.Collection;
+import java.util.Iterator;
 
 /**
+ * 集合をイテレータとして扱うクラスです。
+ * 
  * @author higa
  * 
  */
-public class ActionFormWrapperClassTest extends TestCase {
+@SuppressWarnings("unchecked")
+public class CollectionWrapper implements Iterator {
 
     /**
-     * @throws Exception
+     * イテレータです。
      */
-    public void testGetName() throws Exception {
-        S2ActionMapping actionMapping = new S2ActionMapping();
-        actionMapping.setName("hoge");
-        ActionFormWrapperClass formClass = new ActionFormWrapperClass(
-                actionMapping);
-        assertEquals("hoge", formClass.getName());
+    protected Iterator iterator;
+
+    /**
+     * インスタンスを構築します。
+     * 
+     * @param collection
+     *            集合
+     */
+    public CollectionWrapper(Collection collection) {
+        iterator = collection.iterator();
+    }
+
+    public Object next() {
+        return WrapperUtil.convert(iterator.next());
+    }
+
+    public boolean hasNext() {
+        return iterator.hasNext();
+    }
+
+    public void remove() {
+        iterator.remove();
     }
 }

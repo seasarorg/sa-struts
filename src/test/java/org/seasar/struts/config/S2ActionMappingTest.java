@@ -19,13 +19,8 @@ import java.lang.reflect.Method;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.beanutils.DynaProperty;
-import org.seasar.framework.beans.BeanDesc;
-import org.seasar.framework.beans.PropertyDesc;
-import org.seasar.framework.beans.factory.BeanDescFactory;
 import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.impl.ComponentDefImpl;
-import org.seasar.struts.action.S2DynaProperty;
 
 /**
  * @author higa
@@ -81,20 +76,6 @@ public class S2ActionMappingTest extends TestCase {
         ComponentDef cd = new ComponentDefImpl(MyAction.class);
         actionMapping.setComponentDef(cd);
         assertEquals(MyAction.class, actionMapping.getActionFormClass());
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testDynaProperty() throws Exception {
-        S2ActionMapping actionMapping = new S2ActionMapping();
-        BeanDesc beanDesc = BeanDescFactory.getBeanDesc(getClass());
-        PropertyDesc pd = beanDesc.getPropertyDesc("hoge");
-        S2DynaProperty property = new S2DynaProperty("hoge", String.class, pd);
-        actionMapping.addDynaProperty(property);
-        DynaProperty[] properties = actionMapping.getDynaProperties();
-        assertEquals(1, properties.length);
-        assertSame(property, actionMapping.getDynaProperty("hoge"));
     }
 
     /**

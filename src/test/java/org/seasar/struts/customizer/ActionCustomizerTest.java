@@ -17,7 +17,6 @@ package org.seasar.struts.customizer;
 
 import java.util.List;
 
-import org.apache.commons.beanutils.DynaProperty;
 import org.apache.struts.Globals;
 import org.apache.struts.config.ForwardConfig;
 import org.seasar.extension.unit.S2TestCase;
@@ -28,8 +27,6 @@ import org.seasar.struts.annotation.Results;
 import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.config.S2ModuleConfig;
-import org.seasar.struts.exception.FieldNotFoundRuntimeException;
-import org.seasar.struts.exception.GenericsNotSpecifiedRuntimeException;
 import org.seasar.struts.exception.IllegalExecuteMethodRuntimeException;
 
 /**
@@ -165,69 +162,6 @@ public class ActionCustomizerTest extends S2TestCase {
     }
 
     /**
-     * @throws Exception
-     */
-    public void testSetupDynaProperty_string() throws Exception {
-        S2ActionMapping actionMapping = customizer
-                .createActionMapping(getComponentDef("aaa_bbbAction"));
-        DynaProperty property = actionMapping.getDynaProperty("hoge");
-        assertNotNull(property);
-        assertEquals(String.class, property.getType());
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testSetupDynaProperty_boolean() throws Exception {
-        S2ActionMapping actionMapping = customizer
-                .createActionMapping(getComponentDef("aaa_bbbAction"));
-        DynaProperty property = actionMapping.getDynaProperty("hoge2");
-        assertNotNull(property);
-        assertEquals(boolean.class, property.getType());
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testSetupDynaProperty_list() throws Exception {
-        S2ActionMapping actionMapping = customizer
-                .createActionMapping(getComponentDef("aaa_bbbAction"));
-        DynaProperty property = actionMapping.getDynaProperty("hoge3");
-        assertNotNull(property);
-        assertEquals(List.class, property.getType());
-        assertEquals(String.class, property.getContentType());
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testSetupDynaProperty_list_notGenerics() throws Exception {
-        register(EeeAction.class, "aaa_eeeAction");
-        try {
-            customizer.createActionMapping(getComponentDef("aaa_eeeAction"));
-        } catch (GenericsNotSpecifiedRuntimeException e) {
-            System.out.println(e);
-            assertEquals(EeeAction.class, e.getTargetClass());
-            assertEquals("hoge", e.getPropertyName());
-        }
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testSetupDynaProperty_list_notField() throws Exception {
-        register(FffAction.class, "aaa_fffAction");
-        try {
-            customizer.createActionMapping(getComponentDef("aaa_fffAction"));
-            fail();
-        } catch (FieldNotFoundRuntimeException e) {
-            System.out.println(e);
-            assertEquals(FffAction.class, e.getTargetClass());
-            assertEquals("hoge", e.getPropertyName());
-        }
-    }
-
-    /**
      * 
      */
     @Input(path = "/aaa/input.jsp")
@@ -280,38 +214,4 @@ public class ActionCustomizerTest extends S2TestCase {
         }
     }
 
-    /**
-     * 
-     */
-    public static class EeeAction {
-        /**
-         * 
-         */
-        @SuppressWarnings("unchecked")
-        public List hoge;
-
-        private String _hoge2;
-
-        /**
-         * @return
-         */
-        public String getHoge2() {
-            return _hoge2;
-        }
-    }
-
-    /**
-     * 
-     */
-    public static class FffAction {
-
-        private List<String> _hoge;
-
-        /**
-         * @return
-         */
-        public List<String> getHoge() {
-            return _hoge;
-        }
-    }
 }

@@ -29,13 +29,18 @@ import org.seasar.struts.config.S2ExecuteConfig;
  */
 public class ActionWrapperTest extends S2TestCase {
 
+    public void setUp() {
+        register(BbbAction.class, "bbbAction");
+    }
+
     /**
      * @throws Exception
      */
     public void testExecute() throws Exception {
-        BbbAction action = new BbbAction();
+        BbbAction action = (BbbAction) getComponent("bbbAction");
         ActionWrapper wrapper = new ActionWrapper(action);
         S2ActionMapping actionMapping = new S2ActionMapping();
+        actionMapping.setComponentDef(getComponentDef("bbbAction"));
         Method m = BbbAction.class.getDeclaredMethod("execute");
         S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true);
         actionMapping.addExecuteConfig(executeConfig);
@@ -53,9 +58,10 @@ public class ActionWrapperTest extends S2TestCase {
      * @throws Exception
      */
     public void testExecute_results() throws Exception {
-        BbbAction action = new BbbAction();
+        BbbAction action = (BbbAction) getComponent("bbbAction");
         ActionWrapper wrapper = new ActionWrapper(action);
         S2ActionMapping actionMapping = new S2ActionMapping();
+        actionMapping.setComponentDef(getComponentDef("bbbAction"));
         Method m = BbbAction.class.getDeclaredMethod("execute");
         S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true);
         actionMapping.addExecuteConfig(executeConfig);
@@ -78,14 +84,39 @@ public class ActionWrapperTest extends S2TestCase {
     }
 
     /**
+     * @throws Exception
+     */
+    public void testExportPropertiesToRequest() throws Exception {
+        BbbAction action = (BbbAction) getComponent("bbbAction");
+        ActionWrapper wrapper = new ActionWrapper(action);
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        actionMapping.setComponentDef(getComponentDef("bbbAction"));
+        Method m = BbbAction.class.getDeclaredMethod("execute");
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true);
+        actionMapping.addExecuteConfig(executeConfig);
+        ActionForward fowardConfig = new ActionForward();
+        fowardConfig.setName("success");
+        fowardConfig.setPath("/aaa/bbb.jsp");
+        actionMapping.addForwardConfig(fowardConfig);
+        wrapper.execute(actionMapping, null, getRequest(), getResponse());
+        assertEquals("111", getRequest().getAttribute("hoge"));
+    }
+
+    /**
      * 
      */
     public static class BbbAction {
 
         /**
+         * 
+         */
+        public String hoge;
+
+        /**
          * @return
          */
         public String execute() {
+            hoge = "111";
             return "success";
         }
 
