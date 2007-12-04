@@ -16,7 +16,7 @@
 package org.seasar.struts.action;
 
 import java.util.Arrays;
-import java.util.Iterator;
+import java.util.Collection;
 import java.util.Map;
 
 import junit.framework.TestCase;
@@ -47,16 +47,18 @@ public class WrapperUtilTest extends TestCase {
      * @throws Exception
      */
     public void testConvert_array() throws Exception {
-        Iterator<String> i = WrapperUtil.convert(new String[] { "1" });
-        assertEquals("1", i.next());
+        Collection<String> c = WrapperUtil.convert(new String[] { "1" });
+        assertEquals(ArrayWrapper.class, c.getClass());
+        assertEquals("1", c.iterator().next());
     }
 
     /**
      * @throws Exception
      */
     public void testConvert_collection() throws Exception {
-        Iterator<String> i = WrapperUtil.convert(Arrays.asList("1"));
-        assertEquals("1", i.next());
+        Collection<String> c = WrapperUtil.convert(Arrays.asList("1"));
+        assertEquals(CollectionWrapper.class, c.getClass());
+        assertEquals("1", c.iterator().next());
     }
 
     /**

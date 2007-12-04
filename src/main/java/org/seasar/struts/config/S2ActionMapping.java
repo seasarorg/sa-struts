@@ -15,6 +15,7 @@
  */
 package org.seasar.struts.config;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,6 +62,11 @@ public class S2ActionMapping extends ActionMapping {
      * アクションフォーム用のプロパティ記述です。
      */
     protected PropertyDesc actionFormPropertyDesc;
+
+    /**
+     * リセットメソッドです。
+     */
+    protected Method resetMethod;
 
     /**
      * コンポーネント定義を返します。
@@ -178,5 +184,24 @@ public class S2ActionMapping extends ActionMapping {
         this.actionFormPropertyDesc = actionFormPropertyDesc;
         actionFormBeanDesc = BeanDescFactory.getBeanDesc(actionFormPropertyDesc
                 .getPropertyType());
+    }
+
+    /**
+     * リセットメソッドを返します。
+     * 
+     * @return リセットメソッド
+     */
+    public Method getResetMethod() {
+        return resetMethod;
+    }
+
+    /**
+     * リセットメソッドを設定します。
+     * 
+     * @param resetMethod
+     *            リセットメソッド
+     */
+    public void setResetMethod(Method resetMethod) {
+        this.resetMethod = resetMethod;
     }
 }

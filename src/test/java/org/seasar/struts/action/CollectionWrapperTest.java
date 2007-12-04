@@ -15,10 +15,9 @@
  */
 package org.seasar.struts.action;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 import junit.framework.TestCase;
 
@@ -31,61 +30,34 @@ public class CollectionWrapperTest extends TestCase {
     /**
      * @throws Exception
      */
-    public void testHasNext_empty() throws Exception {
-        CollectionWrapper wrapper = new CollectionWrapper(
-                new ArrayList<Integer>());
-        assertFalse(wrapper.hasNext());
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testNext_empty() throws Exception {
-        CollectionWrapper wrapper = new CollectionWrapper(
-                new ArrayList<Integer>());
-        try {
-            wrapper.next();
-            fail();
-        } catch (NoSuchElementException e) {
-            System.out.println(e);
-        }
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testHasNext_notEmpty() throws Exception {
+    @SuppressWarnings("unchecked")
+    public void testIterate() throws Exception {
         CollectionWrapper wrapper = new CollectionWrapper(Arrays.asList(1));
-        assertTrue(wrapper.hasNext());
-        assertTrue(wrapper.hasNext());
-        wrapper.next();
-        assertFalse(wrapper.hasNext());
-        assertFalse(wrapper.hasNext());
+        Iterator iterator = wrapper.iterator();
+        assertEquals(IteratorWrapper.class, iterator.getClass());
+        assertEquals(1, iterator.next());
     }
 
     /**
      * @throws Exception
      */
-    public void testNext_notEmpty() throws Exception {
+    public void testToArray() throws Exception {
         CollectionWrapper wrapper = new CollectionWrapper(Arrays.asList(1));
-        assertEquals(1, wrapper.next());
-        assertFalse(wrapper.hasNext());
-        try {
-            wrapper.next();
-            fail();
-        } catch (NoSuchElementException e) {
-            System.out.println(e);
-        }
+        Object[] array = wrapper.toArray();
+        assertEquals(1, array.length);
+        assertEquals(1, array[0]);
     }
 
     /**
      * @throws Exception
      */
     @SuppressWarnings("unchecked")
-    public void testNext_nest() throws Exception {
+    public void testIterator_nest() throws Exception {
         CollectionWrapper wrapper = new CollectionWrapper(Arrays.asList(Arrays
                 .asList(1)));
-        Iterator i = (Iterator) wrapper.next();
-        assertEquals(1, i.next());
+        Iterator i = wrapper.iterator();
+        Collection c = (Collection) i.next();
+        assertEquals(CollectionWrapper.class, c.getClass());
+        assertEquals(1, c.iterator().next());
     }
 }

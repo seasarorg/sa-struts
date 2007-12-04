@@ -67,6 +67,7 @@ public class ActionCustomizer implements ComponentCustomizer {
         setupResult(actionMapping, actionClass);
         setupMethod(actionMapping, actionClass);
         setupActionForm(actionMapping, actionClass);
+        setupReset(actionMapping, actionClass);
         return actionMapping;
     }
 
@@ -177,6 +178,23 @@ public class ActionCustomizer implements ComponentCustomizer {
                 actionMapping.setActionFormPropertyDesc(pd);
                 return;
             }
+        }
+    }
+
+    /**
+     * リセットの情報をセットアップします。
+     * 
+     * @param actionMapping
+     *            アクションマッピング
+     * @param actionClass
+     *            アクションクラス
+     */
+    protected void setupReset(S2ActionMapping actionMapping,
+            Class<?> actionClass) {
+        BeanDesc beanDesc = actionMapping.getActionFormBeanDesc();
+        Method method = beanDesc.getMethodNoException("reset");
+        if (method != null) {
+            actionMapping.setResetMethod(method);
         }
     }
 }

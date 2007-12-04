@@ -16,17 +16,17 @@
 package org.seasar.struts.action;
 
 import java.lang.reflect.Array;
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 /**
- * 配列をイテレータとして扱うクラスです。
+ * 配列を集合として扱うクラスです。
  * 
  * @author higa
  * 
  */
 @SuppressWarnings("unchecked")
-public class ArrayWrapper implements Iterator {
+public class ArrayWrapper implements Collection {
 
     /**
      * 配列です。
@@ -34,14 +34,9 @@ public class ArrayWrapper implements Iterator {
     protected Object array;
 
     /**
-     * 長さです。
+     * 配列のサイズです。
      */
-    protected int length;
-
-    /**
-     * インデックスです。
-     */
-    protected int index;
+    protected int size;
 
     /**
      * インスタンスを構築します。
@@ -51,22 +46,63 @@ public class ArrayWrapper implements Iterator {
      */
     public ArrayWrapper(Object array) {
         this.array = array;
-        length = Array.getLength(array);
+        size = Array.getLength(array);
     }
 
-    public Object next() {
-        if (!hasNext()) {
-            throw new NoSuchElementException("length:" + length + ", index:"
-                    + index);
-        }
-        return WrapperUtil.convert(Array.get(array, index++));
+    public boolean add(Object o) {
+        throw new UnsupportedOperationException("add");
     }
 
-    public boolean hasNext() {
-        return index < length;
+    public boolean addAll(Collection c) {
+        throw new UnsupportedOperationException("addAll");
     }
 
-    public void remove() {
+    public void clear() {
+        throw new UnsupportedOperationException("clear");
+    }
+
+    public boolean contains(Object o) {
+        throw new UnsupportedOperationException("contains");
+    }
+
+    public boolean containsAll(Collection c) {
+        throw new UnsupportedOperationException("containsAll");
+    }
+
+    public boolean isEmpty() {
+        throw new UnsupportedOperationException("isEmpty");
+    }
+
+    public Iterator iterator() {
+        return new ArrayIteratorWrapper(array);
+    }
+
+    public boolean remove(Object o) {
         throw new UnsupportedOperationException("remove");
+    }
+
+    public boolean removeAll(Collection c) {
+        throw new UnsupportedOperationException("removeAll");
+    }
+
+    public boolean retainAll(Collection c) {
+        throw new UnsupportedOperationException("retainAll");
+    }
+
+    public int size() {
+        return size;
+    }
+
+    public Object[] toArray() {
+        Object[] array = new Object[size()];
+        int i = 0;
+        for (Iterator ite = iterator(); ite.hasNext();) {
+            array[i++] = ite.next();
+        }
+        return array;
+    }
+
+    public Object[] toArray(Object[] a) {
+        throw new UnsupportedOperationException("toArray");
     }
 }

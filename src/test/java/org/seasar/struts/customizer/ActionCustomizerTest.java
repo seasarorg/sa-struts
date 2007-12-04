@@ -173,6 +173,25 @@ public class ActionCustomizerTest extends S2TestCase {
     }
 
     /**
+     * @throws Exception
+     */
+    public void testSetupReset_action() throws Exception {
+        S2ActionMapping actionMapping = customizer
+                .createActionMapping(getComponentDef("aaa_bbbAction"));
+        assertNotNull(actionMapping.getResetMethod());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testSetupReset_actionForm() throws Exception {
+        register(CccAction.class, "aaa_cccAction");
+        S2ActionMapping actionMapping = customizer
+                .createActionMapping(getComponentDef("aaa_cccAction"));
+        assertNotNull(actionMapping.getResetMethod());
+    }
+
+    /**
      * 
      */
     @Input(path = "/aaa/input.jsp")
@@ -200,6 +219,12 @@ public class ActionCustomizerTest extends S2TestCase {
         @Execute(validator = false)
         public String execute() {
             return "success";
+        }
+
+        /**
+         * 
+         */
+        public void reset() {
         }
     }
 
@@ -233,6 +258,10 @@ public class ActionCustomizerTest extends S2TestCase {
      * 
      */
     public static class CccActionForm {
-
+        /**
+         * 
+         */
+        public void reset() {
+        }
     }
 }

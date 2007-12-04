@@ -19,18 +19,18 @@ import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * 集合をイテレータとして扱うクラスです。
+ * 集合のラッパークラスです。
  * 
  * @author higa
  * 
  */
 @SuppressWarnings("unchecked")
-public class CollectionWrapper implements Iterator {
+public class CollectionWrapper implements Collection {
 
     /**
-     * イテレータです。
+     * 集合です。
      */
-    protected Iterator iterator;
+    protected Collection collection;
 
     /**
      * インスタンスを構築します。
@@ -39,18 +39,63 @@ public class CollectionWrapper implements Iterator {
      *            集合
      */
     public CollectionWrapper(Collection collection) {
-        iterator = collection.iterator();
+        this.collection = collection;
     }
 
-    public Object next() {
-        return WrapperUtil.convert(iterator.next());
+    public boolean add(Object o) {
+        return collection.add(o);
     }
 
-    public boolean hasNext() {
-        return iterator.hasNext();
+    public boolean addAll(Collection c) {
+        return collection.addAll(c);
     }
 
-    public void remove() {
-        iterator.remove();
+    public void clear() {
+        collection.clear();
+    }
+
+    public boolean contains(Object o) {
+        return collection.contains(o);
+    }
+
+    public boolean containsAll(Collection c) {
+        return collection.containsAll(c);
+    }
+
+    public boolean isEmpty() {
+        return collection.isEmpty();
+    }
+
+    public Iterator iterator() {
+        return new IteratorWrapper(collection.iterator());
+    }
+
+    public boolean remove(Object o) {
+        return collection.remove(o);
+    }
+
+    public boolean removeAll(Collection c) {
+        return collection.removeAll(c);
+    }
+
+    public boolean retainAll(Collection c) {
+        return collection.retainAll(c);
+    }
+
+    public int size() {
+        return collection.size();
+    }
+
+    public Object[] toArray() {
+        Object[] array = new Object[size()];
+        int i = 0;
+        for (Iterator ite = iterator(); ite.hasNext();) {
+            array[i++] = ite.next();
+        }
+        return array;
+    }
+
+    public Object[] toArray(Object[] a) {
+        throw new UnsupportedOperationException("toArray");
     }
 }
