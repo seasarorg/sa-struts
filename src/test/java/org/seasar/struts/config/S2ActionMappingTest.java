@@ -17,8 +17,7 @@ package org.seasar.struts.config;
 
 import java.lang.reflect.Method;
 
-import junit.framework.TestCase;
-
+import org.seasar.extension.unit.S2TestCase;
 import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.impl.ComponentDefImpl;
 
@@ -26,7 +25,7 @@ import org.seasar.framework.container.impl.ComponentDefImpl;
  * @author higa
  * 
  */
-public class S2ActionMappingTest extends TestCase {
+public class S2ActionMappingTest extends S2TestCase {
 
     /**
      * 
@@ -53,45 +52,84 @@ public class S2ActionMappingTest extends TestCase {
      */
     public void testActionBeanDesc() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
-        ComponentDef cd = new ComponentDefImpl(String.class);
+        ComponentDef cd = new ComponentDefImpl(MyAction.class);
         actionMapping.setComponentDef(cd);
-        assertNotNull(actionMapping.getActionBeanDesc());
+        assertEquals(MyAction.class, actionMapping.getActionFormBeanDesc()
+                .getBeanClass());
     }
 
     /**
      * @throws Exception
      */
-    public void testActionFormBeanDesc() throws Exception {
+    public void testActionFormBeanDesc_action() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
-        ComponentDef cd = new ComponentDefImpl(String.class);
+        ComponentDef cd = new ComponentDefImpl(MyAction.class);
         actionMapping.setComponentDef(cd);
-        assertNotNull(actionMapping.getActionFormBeanDesc());
+        assertEquals(MyAction.class, actionMapping.getActionFormBeanDesc()
+                .getBeanClass());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testActionFormBeanDesc_actionForm() throws Exception {
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        ComponentDef cd = new ComponentDefImpl(MyAction.class);
+        actionMapping.setComponentDef(cd);
+        actionMapping.setActionFormPropertyDesc(actionMapping
+                .getActionBeanDesc().getPropertyDesc("myActionForm"));
+        assertEquals(MyActionForm.class, actionMapping.getActionFormBeanDesc()
+                .getBeanClass());
     }
 
     /**
      * @throws Exception
      */
     public void testAction() throws Exception {
+        register(MyAction.class);
         S2ActionMapping actionMapping = new S2ActionMapping();
-        ComponentDef cd = new ComponentDefImpl(MyAction.class);
-        actionMapping.setComponentDef(cd);
+        actionMapping.setComponentDef(getComponentDef(MyAction.class));
         assertTrue(actionMapping.getAction() instanceof MyAction);
     }
 
     /**
      * @throws Exception
      */
-    public void testActionForm() throws Exception {
+    public void testActionForm_action() throws Exception {
+        register(MyAction.class);
         S2ActionMapping actionMapping = new S2ActionMapping();
-        ComponentDef cd = new ComponentDefImpl(MyAction.class);
-        actionMapping.setComponentDef(cd);
+        actionMapping.setComponentDef(getComponentDef(MyAction.class));
         assertTrue(actionMapping.getActionForm() instanceof MyAction);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testActionForm_actionForm() throws Exception {
+        register(MyAction.class);
+        register(MyActionForm.class, "myActionForm");
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        actionMapping.setComponentDef(getComponentDef(MyAction.class));
+        actionMapping.setActionFormPropertyDesc(actionMapping
+                .getActionBeanDesc().getPropertyDesc("myActionForm"));
+        assertTrue(actionMapping.getActionForm() instanceof MyActionForm);
     }
 
     /**
      * 
      */
     public static class MyAction {
+
+        /**
+         * 
+         */
+        public MyActionForm myActionForm;
+    }
+
+    /**
+     * 
+     */
+    public static class MyActionForm {
 
     }
 }

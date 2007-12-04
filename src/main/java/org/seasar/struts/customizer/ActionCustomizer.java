@@ -15,11 +15,15 @@
  */
 package org.seasar.struts.customizer;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import org.apache.struts.action.ActionForward;
+import org.seasar.framework.beans.BeanDesc;
+import org.seasar.framework.beans.PropertyDesc;
 import org.seasar.framework.container.ComponentCustomizer;
 import org.seasar.framework.container.ComponentDef;
+import org.seasar.struts.annotation.ActionForm;
 import org.seasar.struts.annotation.Execute;
 import org.seasar.struts.annotation.Input;
 import org.seasar.struts.annotation.Result;
@@ -62,6 +66,7 @@ public class ActionCustomizer implements ComponentCustomizer {
         setupInput(actionMapping, actionClass);
         setupResult(actionMapping, actionClass);
         setupMethod(actionMapping, actionClass);
+        setupActionForm(actionMapping, actionClass);
         return actionMapping;
     }
 
@@ -147,6 +152,30 @@ public class ActionCustomizer implements ComponentCustomizer {
                 S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, execute
                         .validator());
                 actionMapping.addExecuteConfig(executeConfig);
+            }
+        }
+    }
+
+    /**
+     * アクションフォームの情報をセットアップします。
+     * 
+     * @param actionMapping
+     *            アクションマッピング
+     * @param actionClass
+     *            アクションクラス
+     */
+    protected void setupActionForm(S2ActionMapping actionMapping,
+            Class<?> actionClass) {
+        BeanDesc beanDesc = actionMapping.getActionBeanDesc();
+        for (int i = 0; i < beanDesc.getPropertyDescSize(); i++) {
+            PropertyDesc pd = beanDesc.getPropertyDesc(i);
+            Field field = pd.getField();
+            if (field == null) {
+                continue;
+            }
+            if (field.getAnnotation(ActionForm.class) != null) {
+                actionMapping.setActionFormPropertyDesc(pd);
+                return;
             }
         }
     }

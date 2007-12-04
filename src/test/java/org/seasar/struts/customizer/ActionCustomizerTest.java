@@ -20,6 +20,7 @@ import java.util.List;
 import org.apache.struts.Globals;
 import org.apache.struts.config.ForwardConfig;
 import org.seasar.extension.unit.S2TestCase;
+import org.seasar.struts.annotation.ActionForm;
 import org.seasar.struts.annotation.Execute;
 import org.seasar.struts.annotation.Input;
 import org.seasar.struts.annotation.Result;
@@ -162,6 +163,16 @@ public class ActionCustomizerTest extends S2TestCase {
     }
 
     /**
+     * @throws Exception
+     */
+    public void testSetupActionForm() throws Exception {
+        register(CccAction.class, "aaa_cccAction");
+        S2ActionMapping actionMapping = customizer
+                .createActionMapping(getComponentDef("aaa_cccAction"));
+        assertNotNull(actionMapping.getActionFormPropertyDesc());
+    }
+
+    /**
      * 
      */
     @Input(path = "/aaa/input.jsp")
@@ -199,7 +210,11 @@ public class ActionCustomizerTest extends S2TestCase {
     @Results( { @Result(name = "success", path = "/aaa/bbb.jsp"),
             @Result(name = "success2", path = "/aaa/bbb2.jsp") })
     public static class CccAction {
-
+        /**
+         * 
+         */
+        @ActionForm
+        public CccActionForm cccActionForm;
     }
 
     /**
@@ -214,4 +229,10 @@ public class ActionCustomizerTest extends S2TestCase {
         }
     }
 
+    /**
+     * 
+     */
+    public static class CccActionForm {
+
+    }
 }

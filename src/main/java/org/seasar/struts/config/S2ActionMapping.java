@@ -158,4 +158,25 @@ public class S2ActionMapping extends ActionMapping {
     public void addExecuteConfig(S2ExecuteConfig executeConfig) {
         executeConfigs.put(executeConfig.method.getName(), executeConfig);
     }
+
+    /**
+     * アクションフォームのプロパティ記述を返します。
+     * 
+     * @return アクションフォームのプロパティ記述
+     */
+    public PropertyDesc getActionFormPropertyDesc() {
+        return actionFormPropertyDesc;
+    }
+
+    /**
+     * アクションフォームのプロパティ記述を設定します。
+     * 
+     * @param actionFormPropertyDesc
+     *            アクションフォームのプロパティ記述
+     */
+    public void setActionFormPropertyDesc(PropertyDesc actionFormPropertyDesc) {
+        this.actionFormPropertyDesc = actionFormPropertyDesc;
+        actionFormBeanDesc = BeanDescFactory.getBeanDesc(actionFormPropertyDesc
+                .getPropertyType());
+    }
 }
