@@ -43,6 +43,16 @@ public class ActionWrapper extends Action {
     protected S2ActionMapping actionMapping;
 
     /**
+     * アクションです。
+     */
+    protected Object action;
+
+    /**
+     * アクションフォームです。
+     */
+    protected Object actionForm;
+
+    /**
      * インスタンスを構築します。
      * 
      * @param actionMapping
@@ -50,6 +60,8 @@ public class ActionWrapper extends Action {
      */
     public ActionWrapper(S2ActionMapping actionMapping) {
         this.actionMapping = actionMapping;
+        action = actionMapping.getAction();
+        actionForm = actionMapping.getActionForm();
     }
 
     @Override
@@ -83,7 +95,7 @@ public class ActionWrapper extends Action {
         S2ExecuteConfig executeConfig = actionMapping
                 .getExecuteConfig(methodName);
         String next = (String) MethodUtil.invoke(executeConfig.getMethod(),
-                actionMapping.getAction(), null);
+                action, null);
         exportPropertiesToRequest(request);
         return actionMapping.findForward(next);
     }
@@ -98,8 +110,7 @@ public class ActionWrapper extends Action {
         BeanDesc beanDesc = actionMapping.getActionFormBeanDesc();
         for (int i = 0; i < beanDesc.getPropertyDescSize(); i++) {
             PropertyDesc pd = beanDesc.getPropertyDesc(i);
-            Object value = WrapperUtil.convert(pd.getValue(actionMapping
-                    .getActionForm()));
+            Object value = WrapperUtil.convert(pd.getValue(actionForm));
             request.setAttribute(pd.getPropertyName(), value);
         }
 

@@ -15,17 +15,15 @@
  */
 package org.seasar.struts.action;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.struts.Globals;
 import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionServlet;
 import org.seasar.extension.unit.S2TestCase;
 import org.seasar.framework.mock.servlet.MockHttpServletRequest;
 import org.seasar.struts.config.S2ActionMapping;
+import org.seasar.struts.config.S2FormBeanConfig;
 import org.seasar.struts.config.S2ModuleConfig;
 
 /**
@@ -34,6 +32,7 @@ import org.seasar.struts.config.S2ModuleConfig;
  */
 public class S2RequestProcessorTest extends S2TestCase {
 
+    @Override
     public void setUp() throws Exception {
         register(BbbAction.class, "aaa_bbbAction");
     }
@@ -57,8 +56,6 @@ public class S2RequestProcessorTest extends S2TestCase {
         S2ActionMapping mapping = new S2ActionMapping();
         mapping.setComponentDef(getComponentDef("aaa_bbbAction"));
         S2RequestProcessor processor = new S2RequestProcessor();
-        Map<String, Object> applicationScope = new HashMap<String, Object>();
-        applicationScope.put(Globals.SERVLET_KEY, "*.do");
         S2ModuleConfig moduleConfig = new S2ModuleConfig("");
         processor.init(new ActionServlet(), moduleConfig);
         Action action = processor.processActionCreate(getRequest(),
@@ -66,6 +63,30 @@ public class S2RequestProcessorTest extends S2TestCase {
         assertNotNull(action);
         assertEquals(ActionWrapper.class, action.getClass());
         assertNotNull(action.getServlet());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testProcessActionForm() throws Exception {
+        S2ActionMapping mapping = new S2ActionMapping();
+        mapping.setName("aaa_bbbActionForm");
+        mapping.setComponentDef(getComponentDef("aaa_bbbAction"));
+        S2RequestProcessor processor = new S2RequestProcessor();
+
+        S2ModuleConfig moduleConfig = new S2ModuleConfig("");
+        ActionFormWrapperClass wrapperClass = new ActionFormWrapperClass(
+                mapping);
+        S2FormBeanConfig formConfig = new S2FormBeanConfig();
+        formConfig.setName("aaa_bbbActionForm");
+        formConfig.setDynaClass(wrapperClass);
+        moduleConfig.addFormBeanConfig(formConfig);
+        processor.init(new ActionServlet(), moduleConfig);
+        ActionForm actionForm = processor.processActionForm(getRequest(),
+                getResponse(), mapping);
+        assertNotNull(actionForm);
+        assertEquals(ActionFormWrapper.class, actionForm.getClass());
+        assertNotNull(getRequest().getAttribute("aaa_bbbActionForm"));
     }
 
     /**

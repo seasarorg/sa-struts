@@ -71,18 +71,6 @@ public class S2DynaProperty extends DynaProperty {
      * @return 値
      */
     public Object getValue(Object bean) {
-        return propertyDesc.getValue(bean);
-    }
-
-    /**
-     * 値を設定します。
-     * 
-     * @param bean
-     *            Bean
-     * @param value
-     *            値
-     */
-    public void setValue(Object bean, Object value) {
-        propertyDesc.setValue(bean, value);
+        return WrapperUtil.convert(propertyDesc.getValue(bean));
     }
 }

@@ -13,39 +13,35 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.seasar.struts.util;
+package org.seasar.struts.config;
 
-import org.apache.struts.Globals;
 import org.seasar.extension.unit.S2TestCase;
-import org.seasar.struts.config.S2ModuleConfig;
+import org.seasar.struts.action.ActionFormWrapperClass;
 
 /**
  * @author higa
  * 
  */
-public class ServletContextUtilTest extends S2TestCase {
+public class S2FormBeanConfigTest extends S2TestCase {
 
     /**
      * @throws Exception
      */
-    public void testGetServletContext() throws Exception {
-        assertNotNull(ServletContextUtil.getServletContext());
+    public void testCreateActionForm() throws Exception {
+        register(MyAction.class, "myAction");
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        actionMapping.setComponentDef(getComponentDef("myAction"));
+        ActionFormWrapperClass wrapperClass = new ActionFormWrapperClass(
+                actionMapping);
+        S2FormBeanConfig formConfig = new S2FormBeanConfig();
+        formConfig.setDynaClass(wrapperClass);
+        assertNotNull(formConfig.createActionForm(null));
     }
 
     /**
-     * @throws Exception
+     * 
      */
-    public void testServletMapping() throws Exception {
-        getServletContext().setAttribute(Globals.SERVLET_KEY, "/*");
-        assertEquals("/*", ServletContextUtil.getServletMapping());
-    }
+    public static class MyAction {
 
-    /**
-     * @throws Exception
-     */
-    public void testGetModuleConfig() throws Exception {
-        getServletContext().setAttribute(Globals.MODULE_KEY,
-                new S2ModuleConfig(""));
-        assertNotNull(ServletContextUtil.getModuleConfig());
     }
 }

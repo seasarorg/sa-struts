@@ -17,6 +17,7 @@ package org.seasar.struts.customizer;
 
 import java.util.List;
 
+import org.apache.commons.beanutils.DynaClass;
 import org.apache.struts.Globals;
 import org.apache.struts.config.ForwardConfig;
 import org.seasar.extension.unit.S2TestCase;
@@ -27,7 +28,9 @@ import org.seasar.struts.annotation.Result;
 import org.seasar.struts.annotation.Results;
 import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
+import org.seasar.struts.config.S2FormBeanConfig;
 import org.seasar.struts.config.S2ModuleConfig;
+import org.seasar.struts.exception.ExecuteMethodNotFoundRuntimeException;
 import org.seasar.struts.exception.IllegalExecuteMethodRuntimeException;
 
 /**
@@ -40,6 +43,7 @@ public class ActionCustomizerTest extends S2TestCase {
 
     private S2ModuleConfig moduleConfig = new S2ModuleConfig("");
 
+    @Override
     public void setUp() {
         getServletContext().setAttribute(Globals.SERVLET_KEY, "/*");
         getServletContext().setAttribute(Globals.MODULE_KEY, moduleConfig);
@@ -49,9 +53,17 @@ public class ActionCustomizerTest extends S2TestCase {
     /**
      * @throws Exception
      */
-    public void testCustomize() throws Exception {
+    public void testCustomize_actionConfig() throws Exception {
         customizer.customize(getComponentDef("aaa_bbbAction"));
         assertNotNull(moduleConfig.findActionConfig("/aaa/bbb"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testCustomize_formBeanConfig() throws Exception {
+        customizer.customize(getComponentDef("aaa_bbbAction"));
+        assertNotNull(moduleConfig.findFormBeanConfig("aaa_bbbActionForm"));
     }
 
     /**
@@ -67,19 +79,19 @@ public class ActionCustomizerTest extends S2TestCase {
     /**
      * @throws Exception
      */
-    public void testCreateActionMapping_scope() throws Exception {
+    public void testCreateActionMapping_componentDef() throws Exception {
         S2ActionMapping actionMapping = customizer
                 .createActionMapping(getComponentDef("aaa_bbbAction"));
-        assertEquals("request", actionMapping.getScope());
+        assertNotNull(actionMapping.getComponentDef());
     }
 
     /**
      * @throws Exception
      */
-    public void testCreateActionMapping_componentDef() throws Exception {
+    public void testCreateActionMapping_name() throws Exception {
         S2ActionMapping actionMapping = customizer
                 .createActionMapping(getComponentDef("aaa_bbbAction"));
-        assertNotNull(actionMapping.getComponentDef());
+        assertEquals("aaa_bbbActionForm", actionMapping.getName());
     }
 
     /**
@@ -145,6 +157,7 @@ public class ActionCustomizerTest extends S2TestCase {
         assertNotNull(executeConfig);
         assertNotNull(executeConfig.getMethod());
         assertFalse(executeConfig.isValidator());
+        assertEquals(1, actionMapping.getExecuteConfigSize());
     }
 
     /**
@@ -159,6 +172,19 @@ public class ActionCustomizerTest extends S2TestCase {
             assertEquals(DddAction.class, e.getActionClass());
             assertEquals(DddAction.class.getMethod("execute"), e
                     .getExecuteMethod());
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testSetupMethod_executeMethodEmpty() throws Exception {
+        register(EeeAction.class, "aaa_eeeAction");
+        try {
+            customizer.createActionMapping(getComponentDef("aaa_eeeAction"));
+        } catch (ExecuteMethodNotFoundRuntimeException e) {
+            System.out.println(e);
+            assertEquals(EeeAction.class, e.getTargetClass());
         }
     }
 
@@ -189,6 +215,31 @@ public class ActionCustomizerTest extends S2TestCase {
         S2ActionMapping actionMapping = customizer
                 .createActionMapping(getComponentDef("aaa_cccAction"));
         assertNotNull(actionMapping.getResetMethod());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testCreateFormBeanConfig_name() throws Exception {
+        S2ActionMapping actionMapping = customizer
+                .createActionMapping(getComponentDef("aaa_bbbAction"));
+        S2FormBeanConfig formConfig = customizer
+                .createFormBeanConfig(actionMapping);
+        assertNotNull(formConfig);
+        assertEquals("aaa_bbbActionForm", formConfig.getName());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testCreateFormBeanConfig_dynaClass() throws Exception {
+        S2ActionMapping actionMapping = customizer
+                .createActionMapping(getComponentDef("aaa_bbbAction"));
+        S2FormBeanConfig formConfig = customizer
+                .createFormBeanConfig(actionMapping);
+        DynaClass dynaClass = formConfig.getDynaClass();
+        assertNotNull(dynaClass);
+        assertNotNull(dynaClass.getDynaProperty("hoge"));
     }
 
     /**
@@ -240,6 +291,14 @@ public class ActionCustomizerTest extends S2TestCase {
          */
         @ActionForm
         public CccActionForm cccActionForm;
+
+        /**
+         * @return
+         */
+        @Execute
+        public String execute() {
+            return "success";
+        }
     }
 
     /**
@@ -250,6 +309,17 @@ public class ActionCustomizerTest extends S2TestCase {
          * @return
          */
         @Execute
+        public void execute() {
+        }
+    }
+
+    /**
+     * 
+     */
+    public static class EeeAction {
+        /**
+         * @return
+         */
         public void execute() {
         }
     }

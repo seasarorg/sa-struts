@@ -94,12 +94,12 @@ public class ArrayWrapper implements Collection {
     }
 
     public Object[] toArray() {
-        Object[] array = new Object[size()];
+        Object[] arr = new Object[size()];
         int i = 0;
         for (Iterator ite = iterator(); ite.hasNext();) {
-            array[i++] = ite.next();
+            arr[i++] = ite.next();
         }
-        return array;
+        return arr;
     }
 
     public Object[] toArray(Object[] a) {

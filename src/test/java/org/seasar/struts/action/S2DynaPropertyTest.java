@@ -15,6 +15,7 @@
  */
 package org.seasar.struts.action;
 
+import java.util.Arrays;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -44,13 +45,14 @@ public class S2DynaPropertyTest extends TestCase {
     /**
      * @throws Exception
      */
-    public void testSetValue() throws Exception {
+    public void testGetValue_wrapper() throws Exception {
         BbbAction action = new BbbAction();
+        action.hogeList = Arrays.asList("1");
         BeanDesc beanDesc = BeanDescFactory.getBeanDesc(BbbAction.class);
-        PropertyDesc pd = beanDesc.getPropertyDesc("hoge");
+        PropertyDesc pd = beanDesc.getPropertyDesc("hogeList");
         S2DynaProperty property = new S2DynaProperty(pd);
-        property.setValue(action, "aaa");
-        assertEquals("aaa", action.hoge);
+        Object value = property.getValue(action);
+        assertEquals(CollectionWrapper.class, value.getClass());
     }
 
     /**

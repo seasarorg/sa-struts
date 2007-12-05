@@ -61,6 +61,7 @@ public class S2ModuleConfig extends ModuleConfigImpl implements Disposable {
     public void dispose() {
         actionConfigs.clear();
         actionConfigList.clear();
+        formBeans.clear();
         initialized = false;
     }
 

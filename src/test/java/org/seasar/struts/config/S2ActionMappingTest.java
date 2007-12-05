@@ -35,6 +35,14 @@ public class S2ActionMappingTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testScope() throws Exception {
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        assertEquals("request", actionMapping.getScope());
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testExecuteConfig() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
         Method m = getClass().getDeclaredMethod("testExecuteConfig");

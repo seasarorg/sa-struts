@@ -29,6 +29,7 @@ import org.seasar.struts.config.S2ExecuteConfig;
  */
 public class ActionWrapperTest extends S2TestCase {
 
+    @Override
     public void setUp() {
         register(BbbAction.class, "bbbAction");
     }

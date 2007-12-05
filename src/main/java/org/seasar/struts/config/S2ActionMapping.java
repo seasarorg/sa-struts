@@ -69,6 +69,13 @@ public class S2ActionMapping extends ActionMapping {
     protected Method resetMethod;
 
     /**
+     * インスタンスを構築します。
+     */
+    public S2ActionMapping() {
+        scope = "request";
+    }
+
+    /**
      * コンポーネント定義を返します。
      * 
      * @return コンポーネント定義
@@ -153,6 +160,15 @@ public class S2ActionMapping extends ActionMapping {
      */
     public S2ExecuteConfig getExecuteConfig(String name) {
         return executeConfigs.get(name);
+    }
+
+    /**
+     * 実行設定の数を返します。
+     * 
+     * @return 実行設定の数
+     */
+    public int getExecuteConfigSize() {
+        return executeConfigs.size();
     }
 
     /**

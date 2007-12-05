@@ -23,6 +23,8 @@ import org.seasar.framework.beans.BeanDesc;
 import org.seasar.framework.beans.PropertyDesc;
 import org.seasar.framework.container.ComponentCustomizer;
 import org.seasar.framework.container.ComponentDef;
+import org.seasar.struts.action.ActionFormWrapperClass;
+import org.seasar.struts.action.S2DynaProperty;
 import org.seasar.struts.annotation.ActionForm;
 import org.seasar.struts.annotation.Execute;
 import org.seasar.struts.annotation.Input;
@@ -30,7 +32,9 @@ import org.seasar.struts.annotation.Result;
 import org.seasar.struts.annotation.Results;
 import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
+import org.seasar.struts.config.S2FormBeanConfig;
 import org.seasar.struts.config.S2ModuleConfig;
+import org.seasar.struts.exception.ExecuteMethodNotFoundRuntimeException;
 import org.seasar.struts.exception.IllegalExecuteMethodRuntimeException;
 import org.seasar.struts.util.ActionUtil;
 import org.seasar.struts.util.ServletContextUtil;
@@ -45,8 +49,10 @@ public class ActionCustomizer implements ComponentCustomizer {
 
     public void customize(ComponentDef componentDef) {
         S2ActionMapping actionMapping = createActionMapping(componentDef);
+        S2FormBeanConfig formConfig = createFormBeanConfig(actionMapping);
         S2ModuleConfig moduleConfig = ServletContextUtil.getModuleConfig();
         moduleConfig.addActionConfig(actionMapping);
+        moduleConfig.addFormBeanConfig(formConfig);
     }
 
     /**
@@ -60,8 +66,8 @@ public class ActionCustomizer implements ComponentCustomizer {
         S2ActionMapping actionMapping = new S2ActionMapping();
         actionMapping.setPath(ActionUtil.fromActionNameToPath(componentDef
                 .getComponentName()));
-        actionMapping.setScope("request");
         actionMapping.setComponentDef(componentDef);
+        actionMapping.setName(componentDef.getComponentName() + "Form");
         Class<?> actionClass = componentDef.getComponentClass();
         setupInput(actionMapping, actionClass);
         setupResult(actionMapping, actionClass);
@@ -155,6 +161,9 @@ public class ActionCustomizer implements ComponentCustomizer {
                 actionMapping.addExecuteConfig(executeConfig);
             }
         }
+        if (actionMapping.getExecuteConfigSize() == 0) {
+            throw new ExecuteMethodNotFoundRuntimeException(actionClass);
+        }
     }
 
     /**
@@ -196,5 +205,29 @@ public class ActionCustomizer implements ComponentCustomizer {
         if (method != null) {
             actionMapping.setResetMethod(method);
         }
+    }
+
+    /**
+     * アクションフォーム設定を作成します。
+     * 
+     * @param actionMapping
+     *            アクションマッピング
+     * @return アクションフォーム設定
+     */
+    protected S2FormBeanConfig createFormBeanConfig(
+            S2ActionMapping actionMapping) {
+
+        S2FormBeanConfig formConfig = new S2FormBeanConfig();
+        formConfig.setName(actionMapping.getName());
+        ActionFormWrapperClass wrapperClass = new ActionFormWrapperClass(
+                actionMapping);
+        BeanDesc beanDesc = actionMapping.getActionFormBeanDesc();
+        for (int i = 0; i < beanDesc.getPropertyDescSize(); i++) {
+            PropertyDesc pd = beanDesc.getPropertyDesc(i);
+            S2DynaProperty property = new S2DynaProperty(pd);
+            wrapperClass.addDynaProperty(property);
+        }
+        formConfig.setDynaClass(wrapperClass);
+        return formConfig;
     }
 }

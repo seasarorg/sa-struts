@@ -27,12 +27,14 @@ public class S2ModuleConfigFactoryTest extends S2TestCase {
 
     private String factoryClass;
 
+    @Override
     public void setUp() {
         factoryClass = ModuleConfigFactory.getFactoryClass();
         ModuleConfigFactory.setFactoryClass(S2ModuleConfigFactory.class
                 .getName());
     }
 
+    @Override
     public void tearDown() {
         ModuleConfigFactory.setFactoryClass(factoryClass);
     }
