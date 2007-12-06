@@ -9,6 +9,7 @@
 	<classpathentry kind="lib" path="lib/commons-digester-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/commons-validator-1.1.4.jar" sourcepath="libsrc/commons-validator-1.1.4-src.zip"/>
 	<classpathentry kind="lib" path="lib/struts-1.2.9.jar" sourcepath="libsrc/struts-1.2.9-sources.jar"/>
+	<classpathentry kind="lib" path="lib/commons-fileupload-1.2.jar" sourcepath="libsrc/commons-fileupload-1.2-sources.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/s2-tiger"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/seasar2"/>
 	<classpathentry kind="output" path="target/classes"/>

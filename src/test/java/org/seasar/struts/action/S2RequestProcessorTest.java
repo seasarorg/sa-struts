@@ -15,11 +15,18 @@
  */
 package org.seasar.struts.action;
 
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionServlet;
+import org.apache.struts.upload.CommonsMultipartRequestHandler;
+import org.apache.struts.upload.MultipartRequestHandler;
+import org.apache.struts.upload.MultipartRequestWrapper;
 import org.seasar.extension.unit.S2TestCase;
 import org.seasar.framework.mock.servlet.MockHttpServletRequest;
 import org.seasar.struts.config.S2ActionMapping;
@@ -90,9 +97,123 @@ public class S2RequestProcessorTest extends S2TestCase {
     }
 
     /**
+     * @throws Exception
+     */
+    public void testGetMultipartHandler_request() throws Exception {
+        S2RequestProcessor processor = new S2RequestProcessor();
+        assertNotNull(processor
+                .getMultipartHandler("org.apache.struts.upload.CommonsMultipartRequestHandler"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testGetMultipartHandler_moduleConfig() throws Exception {
+        S2RequestProcessor processor = new S2RequestProcessor();
+        S2ModuleConfig moduleConfig = new S2ModuleConfig("");
+        processor.init(null, moduleConfig);
+        assertNotNull(processor.getMultipartHandler(null));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testGetAllParameterNamesForMultipartRequest() throws Exception {
+        MultipartRequestHandler multipartHandler = new CommonsMultipartRequestHandler() {
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public Hashtable getAllElements() {
+                Hashtable elements = new Hashtable();
+                elements.put("aaa", "111");
+                return elements;
+            }
+
+        };
+        getRequest().addParameter("bbb", "222");
+        HttpServletRequest request = new MultipartRequestWrapper(getRequest());
+        S2RequestProcessor processor = new S2RequestProcessor();
+        Iterator<String> i = processor.getAllParameterNamesForMultipartRequest(
+                request, multipartHandler);
+        assertEquals("aaa", i.next());
+        assertEquals("bbb", i.next());
+        assertFalse(i.hasNext());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testProcessPopulate_reset() throws Exception {
+        register(BbbAction.class, "bbbAction");
+        BbbAction actionForm = (BbbAction) getComponent("bbbAction");
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        actionMapping.setComponentDef(getComponentDef("bbbAction"));
+        actionMapping.setResetMethod(BbbAction.class.getMethod("reset"));
+        ActionFormWrapperClass wrapperClass = new ActionFormWrapperClass(
+                actionMapping);
+        ActionFormWrapper formWrapper = new ActionFormWrapper(wrapperClass);
+        S2RequestProcessor processor = new S2RequestProcessor();
+        processor.processPopulate(getRequest(), getResponse(), formWrapper,
+                actionMapping);
+        assertEquals("aaa", actionForm.hoge);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testPopulateSimpleProperty_ignore() throws Exception {
+        BbbAction bean = new BbbAction();
+        S2RequestProcessor processor = new S2RequestProcessor();
+        processor.populate(bean, "xxx", null);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testPopulateSimpleProperty_array() throws Exception {
+        BbbAction bean = new BbbAction();
+        S2RequestProcessor processor = new S2RequestProcessor();
+        processor.populate(bean, "hogeArray", new String[] { "111" });
+        assertEquals(1, bean.hogeArray.length);
+        assertEquals("111", bean.hogeArray[0]);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testPopulateSimpleProperty_list() throws Exception {
+        BbbAction bean = new BbbAction();
+        S2RequestProcessor processor = new S2RequestProcessor();
+        processor.populate(bean, "hogeList", new String[] { "111" });
+        assertEquals(1, bean.hogeList.size());
+        assertEquals("111", bean.hogeList.get(0));
+    }
+
+    /**
      * 
      */
     public static class BbbAction {
 
+        /**
+         * 
+         */
+        public String hoge;
+
+        /**
+         * 
+         */
+        public String[] hogeArray;
+
+        /**
+         * 
+         */
+        public List<String> hogeList;
+
+        /**
+         * 
+         */
+        public void reset() {
+            hoge = "aaa";
+        }
     }
 }
