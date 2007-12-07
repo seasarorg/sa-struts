@@ -21,13 +21,13 @@ import junit.framework.TestCase;
  * @author higa
  * 
  */
-public class GenericsNotSpecifiedRuntimeExceptionTest extends TestCase {
+public class NoParameterizedListRuntimeExceptionTest extends TestCase {
 
     /**
      * @throws Exception
      */
     public void testAll() throws Exception {
-        GenericsNotSpecifiedRuntimeException e = new GenericsNotSpecifiedRuntimeException(
+        NoParameterizedListRuntimeException e = new NoParameterizedListRuntimeException(
                 getClass(), "hoge");
         System.out.println(e);
         assertEquals(getClass(), e.getTargetClass());

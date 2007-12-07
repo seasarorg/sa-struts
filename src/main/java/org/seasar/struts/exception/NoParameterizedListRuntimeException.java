@@ -25,7 +25,7 @@ import org.seasar.framework.exception.SRuntimeException;
  * @author higa
  * 
  */
-public class FieldNotFoundRuntimeException extends SRuntimeException {
+public class NoParameterizedListRuntimeException extends SRuntimeException {
 
     private static final long serialVersionUID = 1L;
 
@@ -42,9 +42,9 @@ public class FieldNotFoundRuntimeException extends SRuntimeException {
      *            プロパティ名
      * 
      */
-    public FieldNotFoundRuntimeException(Class<?> targetClass,
+    public NoParameterizedListRuntimeException(Class<?> targetClass,
             String propertyName) {
-        super("ESAS0002", new Object[] { targetClass.getName(), propertyName });
+        super("ESAS0003", new Object[] { targetClass.getName(), propertyName });
         this.targetClass = targetClass;
         this.propertyName = propertyName;
     }
