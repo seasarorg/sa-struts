@@ -38,6 +38,7 @@ import org.apache.struts.action.RequestProcessor;
 import org.apache.struts.config.FormBeanConfig;
 import org.apache.struts.upload.MultipartRequestHandler;
 import org.apache.struts.upload.MultipartRequestWrapper;
+import org.seasar.framework.aop.javassist.AspectWeaver;
 import org.seasar.framework.beans.BeanDesc;
 import org.seasar.framework.beans.IllegalPropertyRuntimeException;
 import org.seasar.framework.beans.ParameterizedClassDesc;
@@ -49,6 +50,7 @@ import org.seasar.framework.util.ClassUtil;
 import org.seasar.framework.util.EnumerationIterator;
 import org.seasar.framework.util.ModifierUtil;
 import org.seasar.struts.config.S2ActionMapping;
+import org.seasar.struts.exception.IndexedPropertyNotListArrayRuntimeException;
 import org.seasar.struts.exception.NoParameterizedListRuntimeException;
 
 /**
@@ -210,6 +212,8 @@ public class S2RequestProcessor extends RequestProcessor {
             setProperty(
                     getSimpleProperty(bean, name.substring(0, nestedIndex)),
                     name.substring(nestedIndex + 1), values);
+        } else {
+            throw new IllegalArgumentException(name);
         }
     }
 
@@ -322,8 +326,14 @@ public class S2RequestProcessor extends RequestProcessor {
             for (int i = 0; i < indexes.length; i++) {
                 if (pcd == null || !pcd.isParameterizedClass()
                         || !List.class.isAssignableFrom(pcd.getRawClass())) {
-                    throw new NoParameterizedListRuntimeException(beanDesc
-                            .getBeanClass(), pd.getPropertyName());
+                    StringBuilder sb = new StringBuilder();
+                    for (int j = 0; j <= i; j++) {
+                        sb.append("[").append(indexes[j]).append("]");
+                    }
+                    throw new NoParameterizedListRuntimeException(
+                            getRealClass(beanDesc.getBeanClass()), pd
+                                    .getPropertyName()
+                                    + sb);
                 }
                 int size = list.size();
                 pcd = pcd.getArguments()[0];
@@ -340,7 +350,8 @@ public class S2RequestProcessor extends RequestProcessor {
             }
             return list.get(indexes[indexes.length - 1]);
         } else {
-            return null;
+            throw new IndexedPropertyNotListArrayRuntimeException(
+                    getRealClass(beanDesc.getBeanClass()), pd.getPropertyName());
         }
     }
 
@@ -447,6 +458,20 @@ public class S2RequestProcessor extends RequestProcessor {
         }
         result.name = name;
         return result;
+    }
+
+    /**
+     * AOPで拡張されている場合は、拡張前の本当のクラスを返します。
+     * 
+     * @param clazz
+     *            クラス
+     * @return 本当のクラス
+     */
+    protected Class<?> getRealClass(Class<?> clazz) {
+        if (clazz.getName().indexOf(AspectWeaver.SUFFIX_ENHANCED_CLASS) > 0) {
+            return clazz.getSuperclass();
+        }
+        return clazz;
     }
 
     /**

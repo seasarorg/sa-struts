@@ -15,6 +15,7 @@
  */
 package org.seasar.struts.action;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -29,11 +30,19 @@ import org.apache.struts.upload.CommonsMultipartRequestHandler;
 import org.apache.struts.upload.MultipartRequestHandler;
 import org.apache.struts.upload.MultipartRequestWrapper;
 import org.seasar.extension.unit.S2TestCase;
+import org.seasar.framework.aop.Aspect;
+import org.seasar.framework.aop.Pointcut;
+import org.seasar.framework.aop.impl.AspectImpl;
+import org.seasar.framework.aop.impl.PointcutImpl;
+import org.seasar.framework.aop.interceptors.TraceInterceptor;
+import org.seasar.framework.aop.proxy.AopProxy;
 import org.seasar.framework.mock.servlet.MockHttpServletRequest;
 import org.seasar.struts.action.S2RequestProcessor.IndexParsedResult;
 import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2FormBeanConfig;
 import org.seasar.struts.config.S2ModuleConfig;
+import org.seasar.struts.exception.IndexedPropertyNotListArrayRuntimeException;
+import org.seasar.struts.exception.NoParameterizedListRuntimeException;
 
 /**
  * @author higa
@@ -194,6 +203,21 @@ public class S2RequestProcessorTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testSetProperty_illegal() throws Exception {
+        BbbAction bean = new BbbAction();
+        S2RequestProcessor processor = new S2RequestProcessor();
+        try {
+            processor.setProperty(bean, "myBeanArrayArray[1][1]",
+                    new String[] { "111" });
+            fail();
+        } catch (IllegalArgumentException e) {
+            System.out.println(e);
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testSetSimpleProperty() throws Exception {
         BbbAction bean = new BbbAction();
         S2RequestProcessor processor = new S2RequestProcessor();
@@ -349,7 +373,8 @@ public class S2RequestProcessorTest extends S2TestCase {
         BbbAction bean = new BbbAction();
         MyBean myBean = new MyBean();
         myBean.aaa = "111";
-        bean.myBeanListList = Arrays.asList(Arrays.asList(myBean));
+        bean.myBeanListList = new ArrayList<List<MyBean>>();
+        bean.myBeanListList.add(Arrays.asList(myBean));
         MyBean result = (MyBean) processor.getIndexedProperty(bean,
                 "myBeanListList", new int[] { 1, 2 });
         assertNotNull(result);
@@ -357,6 +382,40 @@ public class S2RequestProcessorTest extends S2TestCase {
         assertEquals(1, bean.myBeanListList.get(0).size());
         assertEquals("111", bean.myBeanListList.get(0).get(0).aaa);
         assertEquals(3, bean.myBeanListList.get(1).size());
+    }
+
+    /**
+     * @throws Exception
+     */
+    @SuppressWarnings("unchecked")
+    public void testGetIndexedProperty_list_nest_notParameterizedList()
+            throws Exception {
+        S2RequestProcessor processor = new S2RequestProcessor();
+        BbbAction bean = new BbbAction();
+        try {
+            processor
+                    .getIndexedProperty(bean, "myBeanList", new int[] { 1, 2 });
+            fail();
+        } catch (NoParameterizedListRuntimeException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    @SuppressWarnings("unchecked")
+    public void testGetIndexedProperty_notListArray() throws Exception {
+        S2RequestProcessor processor = new S2RequestProcessor();
+        BbbAction bean = new BbbAction();
+        try {
+            processor.getIndexedProperty(bean, "hoge", new int[] { 1, 2 });
+            fail();
+        } catch (IndexedPropertyNotListArrayRuntimeException e) {
+            System.out.println(e.getMessage());
+            assertEquals(BbbAction.class, e.getTargetClass());
+            assertEquals("hoge", e.getPropertyName());
+        }
     }
 
     /**
@@ -419,6 +478,20 @@ public class S2RequestProcessorTest extends S2TestCase {
     }
 
     /**
+     * @throws Exception
+     */
+    public void testGetRealClass() throws Exception {
+        Pointcut pointcut = new PointcutImpl(new String[] { "execte" });
+        Aspect aspect = new AspectImpl(new TraceInterceptor(), pointcut);
+        AopProxy aopProxy = new AopProxy(BbbAction.class,
+                new Aspect[] { aspect });
+        BbbAction proxy = (BbbAction) aopProxy.create();
+        System.out.println(proxy.getClass());
+        S2RequestProcessor processor = new S2RequestProcessor();
+        assertEquals(BbbAction.class, processor.getRealClass(proxy.getClass()));
+    }
+
+    /**
      * 
      */
     public static class BbbAction {
@@ -462,6 +535,13 @@ public class S2RequestProcessorTest extends S2TestCase {
          * 
          */
         public List<List<MyBean>> myBeanListList;
+
+        /**
+         * @return
+         */
+        public String execute() {
+            return "success";
+        }
 
         /**
          * 
