@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.apache.commons.beanutils.DynaClass;
 import org.apache.struts.Globals;
+import org.apache.struts.action.ActionMessages;
 import org.apache.struts.config.ForwardConfig;
 import org.seasar.extension.unit.S2TestCase;
 import org.seasar.struts.annotation.ActionForm;
@@ -30,8 +31,11 @@ import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.config.S2FormBeanConfig;
 import org.seasar.struts.config.S2ModuleConfig;
+import org.seasar.struts.exception.ExecuteMethodForValidateNotFoundRuntimeException;
 import org.seasar.struts.exception.ExecuteMethodNotFoundRuntimeException;
 import org.seasar.struts.exception.IllegalExecuteMethodRuntimeException;
+import org.seasar.struts.exception.IllegalValidateMethodRuntimeException;
+import org.seasar.struts.exception.InputNotDefinedRuntimeException;
 
 /**
  * @author higa
@@ -157,6 +161,7 @@ public class ActionCustomizerTest extends S2TestCase {
         assertNotNull(executeConfig);
         assertNotNull(executeConfig.getMethod());
         assertFalse(executeConfig.isValidator());
+        assertNotNull(executeConfig.getValidateMethod());
         assertEquals(1, actionMapping.getExecuteConfigSize());
     }
 
@@ -167,11 +172,11 @@ public class ActionCustomizerTest extends S2TestCase {
         register(DddAction.class, "aaa_dddAction");
         try {
             customizer.createActionMapping(getComponentDef("aaa_dddAction"));
+            fail();
         } catch (IllegalExecuteMethodRuntimeException e) {
             System.out.println(e);
             assertEquals(DddAction.class, e.getActionClass());
-            assertEquals(DddAction.class.getMethod("execute"), e
-                    .getExecuteMethod());
+            assertEquals("execute", e.getExecuteMethodName());
         }
     }
 
@@ -182,9 +187,74 @@ public class ActionCustomizerTest extends S2TestCase {
         register(EeeAction.class, "aaa_eeeAction");
         try {
             customizer.createActionMapping(getComponentDef("aaa_eeeAction"));
+            fail();
         } catch (ExecuteMethodNotFoundRuntimeException e) {
             System.out.println(e);
             assertEquals(EeeAction.class, e.getTargetClass());
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testSetupMethod_inputNotDefined() throws Exception {
+        register(FffAction.class, "aaa_fffAction");
+        try {
+            customizer.createActionMapping(getComponentDef("aaa_fffAction"));
+            fail();
+        } catch (InputNotDefinedRuntimeException e) {
+            System.out.println(e);
+            assertEquals(FffAction.class, e.getActionClass());
+            assertEquals("validateForExecute", e.getValidateMethodName());
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testSetupMethod_illegalValidateMethod() throws Exception {
+        register(GggAction.class, "aaa_gggAction");
+        try {
+            customizer.createActionMapping(getComponentDef("aaa_gggAction"));
+            fail();
+        } catch (IllegalValidateMethodRuntimeException e) {
+            System.out.println(e);
+            assertEquals(GggAction.class, e.getActionClass());
+            assertEquals("validateForExecute", e.getValidateMethodName());
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testSetupMethod_executeMethodForValidateNotFound()
+            throws Exception {
+        register(HhhAction.class, "aaa_hhhAction");
+        try {
+            customizer.createActionMapping(getComponentDef("aaa_hhhAction"));
+            fail();
+        } catch (ExecuteMethodForValidateNotFoundRuntimeException e) {
+            System.out.println(e);
+            assertEquals(HhhAction.class, e.getActionClass());
+            assertEquals("validateForExecute2", e.getValidateMethodName());
+            assertEquals("execute2", e.getExecuteMethodName());
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testSetupMethod_executeMethodForValidateNotFound2()
+            throws Exception {
+        register(IiiAction.class, "aaa_iiiAction");
+        try {
+            customizer.createActionMapping(getComponentDef("aaa_iiiAction"));
+            fail();
+        } catch (ExecuteMethodForValidateNotFoundRuntimeException e) {
+            System.out.println(e);
+            assertEquals(IiiAction.class, e.getActionClass());
+            assertEquals("validateFor", e.getValidateMethodName());
+            assertEquals("", e.getExecuteMethodName());
         }
     }
 
@@ -273,6 +343,13 @@ public class ActionCustomizerTest extends S2TestCase {
         }
 
         /**
+         * @return
+         */
+        public ActionMessages validateForExecute() {
+            return null;
+        }
+
+        /**
          * 
          */
         public void reset() {
@@ -321,6 +398,90 @@ public class ActionCustomizerTest extends S2TestCase {
          * @return
          */
         public void execute() {
+        }
+    }
+
+    /**
+     * 
+     */
+    public static class FffAction {
+        /**
+         * @return
+         */
+        @Execute
+        public String execute() {
+            return "success";
+        }
+
+        /**
+         * @return
+         */
+        public ActionMessages validateForExecute() {
+            return null;
+        }
+    }
+
+    /**
+     * 
+     */
+    public static class GggAction {
+        /**
+         * @return
+         */
+        @Execute
+        public String execute() {
+            return "success";
+        }
+
+        /**
+         * @return
+         */
+        public String validateForExecute() {
+            return null;
+        }
+    }
+
+    /**
+     * 
+     */
+    @Input(path = "/aaa/input.jsp")
+    @Result(path = "/aaa/bbb.jsp")
+    public static class HhhAction {
+        /**
+         * @return
+         */
+        @Execute
+        public String execute() {
+            return "success";
+        }
+
+        /**
+         * @return
+         */
+        public ActionMessages validateForExecute2() {
+            return null;
+        }
+    }
+
+    /**
+     * 
+     */
+    @Input(path = "/aaa/input.jsp")
+    @Result(path = "/aaa/bbb.jsp")
+    public static class IiiAction {
+        /**
+         * @return
+         */
+        @Execute
+        public String execute() {
+            return "success";
+        }
+
+        /**
+         * @return
+         */
+        public ActionMessages validateFor() {
+            return null;
         }
     }
 

@@ -17,7 +17,10 @@ package org.seasar.struts.action;
 
 import java.lang.reflect.Method;
 
+import org.apache.struts.Globals;
 import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
 import org.apache.struts.config.ForwardConfig;
 import org.seasar.extension.unit.S2TestCase;
 import org.seasar.struts.config.S2ActionMapping;
@@ -41,7 +44,7 @@ public class ActionWrapperTest extends S2TestCase {
         S2ActionMapping actionMapping = new S2ActionMapping();
         actionMapping.setComponentDef(getComponentDef("bbbAction"));
         Method m = BbbAction.class.getDeclaredMethod("execute");
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true);
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null);
         actionMapping.addExecuteConfig(executeConfig);
         ActionForward fowardConfig = new ActionForward();
         fowardConfig.setName("success");
@@ -61,10 +64,10 @@ public class ActionWrapperTest extends S2TestCase {
         S2ActionMapping actionMapping = new S2ActionMapping();
         actionMapping.setComponentDef(getComponentDef("bbbAction"));
         Method m = BbbAction.class.getDeclaredMethod("execute");
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true);
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null);
         actionMapping.addExecuteConfig(executeConfig);
         m = BbbAction.class.getDeclaredMethod("execute2");
-        executeConfig = new S2ExecuteConfig(m, true);
+        executeConfig = new S2ExecuteConfig(m, true, null);
         actionMapping.addExecuteConfig(executeConfig);
         ActionForward fowardConfig = new ActionForward();
         fowardConfig.setName("success");
@@ -85,11 +88,39 @@ public class ActionWrapperTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testExecute_validate() throws Exception {
+        register(CccAction.class, "cccAction");
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        actionMapping.setComponentDef(getComponentDef("cccAction"));
+        Method m = CccAction.class.getDeclaredMethod("execute");
+        Method m2 = CccAction.class.getDeclaredMethod("validateForExecute");
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, m2);
+        actionMapping.addExecuteConfig(executeConfig);
+        ActionForward fowardConfig = new ActionForward();
+        fowardConfig.setName("success");
+        fowardConfig.setPath("/aaa/bbb.jsp");
+        actionMapping.addForwardConfig(fowardConfig);
+        fowardConfig = new ActionForward();
+        fowardConfig.setName("input");
+        fowardConfig.setPath("/aaa/input.jsp");
+        actionMapping.addForwardConfig(fowardConfig);
+        actionMapping.setInput("input");
+        ActionWrapper wrapper = new ActionWrapper(actionMapping);
+        ForwardConfig forward = wrapper.execute(actionMapping, null,
+                getRequest(), getResponse());
+        assertNotNull(forward);
+        assertEquals("/aaa/input.jsp", forward.getPath());
+        assertNotNull(getRequest().getAttribute(Globals.ERROR_KEY));
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testExportPropertiesToRequest() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
         actionMapping.setComponentDef(getComponentDef("bbbAction"));
         Method m = BbbAction.class.getDeclaredMethod("execute");
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true);
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null);
         actionMapping.addExecuteConfig(executeConfig);
         ActionForward fowardConfig = new ActionForward();
         fowardConfig.setName("success");
@@ -123,6 +154,28 @@ public class ActionWrapperTest extends S2TestCase {
          */
         public String execute2() {
             return "success2";
+        }
+    }
+
+    /**
+     * 
+     */
+    public static class CccAction {
+
+        /**
+         * @return
+         */
+        public String execute() {
+            return "success";
+        }
+
+        /**
+         * @return
+         */
+        public ActionMessages validateForExecute() {
+            ActionMessages errors = new ActionMessages();
+            errors.add("hoge", new ActionMessage("errors.required", "hoge"));
+            return errors;
         }
     }
 }

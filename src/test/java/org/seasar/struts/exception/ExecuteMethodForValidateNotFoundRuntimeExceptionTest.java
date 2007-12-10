@@ -21,16 +21,18 @@ import junit.framework.TestCase;
  * @author higa
  * 
  */
-public class IllegalExecuteMethodRuntimeExceptionTest extends TestCase {
+public class ExecuteMethodForValidateNotFoundRuntimeExceptionTest extends
+        TestCase {
 
     /**
      * @throws Exception
      */
     public void testAll() throws Exception {
-        IllegalExecuteMethodRuntimeException e = new IllegalExecuteMethodRuntimeException(
-                getClass(), "testAll");
+        ExecuteMethodForValidateNotFoundRuntimeException e = new ExecuteMethodForValidateNotFoundRuntimeException(
+                getClass(), "validateForExecute", "execute");
         System.out.println(e);
         assertEquals(getClass(), e.getActionClass());
-        assertEquals("testAll", e.getExecuteMethodName());
+        assertEquals("validateForExecute", e.getValidateMethodName());
+        assertEquals("execute", e.getExecuteMethodName());
     }
 }

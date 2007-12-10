@@ -19,10 +19,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMessages;
 import org.seasar.framework.beans.BeanDesc;
 import org.seasar.framework.beans.PropertyDesc;
 import org.seasar.framework.container.ComponentCustomizer;
 import org.seasar.framework.container.ComponentDef;
+import org.seasar.framework.util.StringUtil;
 import org.seasar.struts.action.ActionFormWrapperClass;
 import org.seasar.struts.action.S2DynaProperty;
 import org.seasar.struts.annotation.ActionForm;
@@ -34,8 +36,11 @@ import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.config.S2FormBeanConfig;
 import org.seasar.struts.config.S2ModuleConfig;
+import org.seasar.struts.exception.ExecuteMethodForValidateNotFoundRuntimeException;
 import org.seasar.struts.exception.ExecuteMethodNotFoundRuntimeException;
 import org.seasar.struts.exception.IllegalExecuteMethodRuntimeException;
+import org.seasar.struts.exception.IllegalValidateMethodRuntimeException;
+import org.seasar.struts.exception.InputNotDefinedRuntimeException;
 import org.seasar.struts.util.ActionUtil;
 import org.seasar.struts.util.ServletContextUtil;
 
@@ -46,6 +51,11 @@ import org.seasar.struts.util.ServletContextUtil;
  * 
  */
 public class ActionCustomizer implements ComponentCustomizer {
+
+    /**
+     * 検証メソッドのプレフィックスです。
+     */
+    public static final String VALIDATE_METHOD_PREFIX = "validateFor";
 
     public void customize(ComponentDef componentDef) {
         S2ActionMapping actionMapping = createActionMapping(componentDef);
@@ -154,11 +164,38 @@ public class ActionCustomizer implements ComponentCustomizer {
                 if (m.getParameterTypes().length > 0
                         || m.getReturnType() != String.class) {
                     throw new IllegalExecuteMethodRuntimeException(actionClass,
-                            m);
+                            m.getName());
+                }
+                Method validateMethod = actionMapping.getActionBeanDesc()
+                        .getMethodNoException(
+                                VALIDATE_METHOD_PREFIX
+                                        + StringUtil.capitalize(m.getName()));
+                if (validateMethod != null) {
+                    if (validateMethod.getParameterTypes().length > 0
+                            || !ActionMessages.class
+                                    .isAssignableFrom(validateMethod
+                                            .getReturnType())) {
+                        throw new IllegalValidateMethodRuntimeException(
+                                actionClass, validateMethod.getName());
+
+                    }
+                    if (actionMapping.getInput() == null) {
+                        throw new InputNotDefinedRuntimeException(actionClass,
+                                validateMethod.getName());
+                    }
                 }
                 S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, execute
-                        .validator());
+                        .validator(), validateMethod);
                 actionMapping.addExecuteConfig(executeConfig);
+            }
+            if (m.getName().startsWith(VALIDATE_METHOD_PREFIX)) {
+                String executeMethodName = StringUtil.decapitalize(m.getName()
+                        .substring(VALIDATE_METHOD_PREFIX.length()));
+                if (actionMapping.getActionBeanDesc().getMethodNoException(
+                        executeMethodName) == null) {
+                    throw new ExecuteMethodForValidateNotFoundRuntimeException(
+                            actionClass, m.getName(), executeMethodName);
+                }
             }
         }
         if (actionMapping.getExecuteConfigSize() == 0) {

@@ -18,33 +18,34 @@ package org.seasar.struts.exception;
 import org.seasar.framework.exception.SRuntimeException;
 
 /**
- * 実行メソッドのシグニチャが間違っている場合の例外です。
+ * Inputアノテーションが定義されていない場合の例外です。
+ * 
  * 
  * @author higa
  * 
  */
-public class IllegalExecuteMethodRuntimeException extends SRuntimeException {
+public class InputNotDefinedRuntimeException extends SRuntimeException {
 
     private static final long serialVersionUID = 1L;
 
     private Class<?> actionClass;
 
-    private String executeMethodName;
+    private String validateMethodName;
 
     /**
      * インスタンスを構築します。
      * 
      * @param actionClass
      *            アクションクラス
-     * @param executeMethodName
-     *            実行メソッド名
+     * @param validateMethodName
+     *            検証メソッド名
      */
-    public IllegalExecuteMethodRuntimeException(Class<?> actionClass,
-            String executeMethodName) {
-        super("ESAS0001", new Object[] { actionClass.getName(),
-                executeMethodName });
+    public InputNotDefinedRuntimeException(Class<?> actionClass,
+            String validateMethodName) {
+        super("ESAS0005", new Object[] { actionClass.getName(),
+                validateMethodName });
         this.actionClass = actionClass;
-        this.executeMethodName = executeMethodName;
+        this.validateMethodName = validateMethodName;
     }
 
     /**
@@ -57,11 +58,11 @@ public class IllegalExecuteMethodRuntimeException extends SRuntimeException {
     }
 
     /**
-     * 実行メソッド名を返します。
+     * 検証メソッド名を返します。
      * 
-     * @return 実行メソッド名
+     * @return 検証メソッド名
      */
-    public String getExecuteMethodName() {
-        return executeMethodName;
+    public String getValidateMethodName() {
+        return validateMethodName;
     }
 }

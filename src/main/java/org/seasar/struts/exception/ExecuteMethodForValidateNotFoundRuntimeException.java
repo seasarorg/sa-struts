@@ -18,16 +18,19 @@ package org.seasar.struts.exception;
 import org.seasar.framework.exception.SRuntimeException;
 
 /**
- * 実行メソッドのシグニチャが間違っている場合の例外です。
+ * 検証メソッドに対応する実行メソッドが見つからない場合の例外です。
  * 
  * @author higa
  * 
  */
-public class IllegalExecuteMethodRuntimeException extends SRuntimeException {
+public class ExecuteMethodForValidateNotFoundRuntimeException extends
+        SRuntimeException {
 
     private static final long serialVersionUID = 1L;
 
     private Class<?> actionClass;
+
+    private String validateMethodName;
 
     private String executeMethodName;
 
@@ -36,14 +39,18 @@ public class IllegalExecuteMethodRuntimeException extends SRuntimeException {
      * 
      * @param actionClass
      *            アクションクラス
+     * @param validateMethodName
+     *            検証メソッド名
      * @param executeMethodName
      *            実行メソッド名
      */
-    public IllegalExecuteMethodRuntimeException(Class<?> actionClass,
+    public ExecuteMethodForValidateNotFoundRuntimeException(
+            Class<?> actionClass, String validateMethodName,
             String executeMethodName) {
-        super("ESAS0001", new Object[] { actionClass.getName(),
-                executeMethodName });
+        super("ESAS0007", new Object[] { actionClass.getName(),
+                validateMethodName, executeMethodName });
         this.actionClass = actionClass;
+        this.validateMethodName = validateMethodName;
         this.executeMethodName = executeMethodName;
     }
 
@@ -54,6 +61,15 @@ public class IllegalExecuteMethodRuntimeException extends SRuntimeException {
      */
     public Class<?> getActionClass() {
         return actionClass;
+    }
+
+    /**
+     * 検証メソッド名を返します。
+     * 
+     * @return 検証メソッド名
+     */
+    public String getValidateMethodName() {
+        return validateMethodName;
     }
 
     /**

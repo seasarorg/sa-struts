@@ -15,13 +15,17 @@
  */
 package org.seasar.struts.action;
 
+import java.lang.reflect.Method;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.struts.Globals;
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionMessages;
 import org.seasar.framework.beans.BeanDesc;
 import org.seasar.framework.beans.PropertyDesc;
 import org.seasar.framework.util.MethodUtil;
@@ -94,6 +98,15 @@ public class ActionWrapper extends Action {
             HttpServletRequest request) {
         S2ExecuteConfig executeConfig = actionMapping
                 .getExecuteConfig(methodName);
+        Method validateMethod = executeConfig.getValidateMethod();
+        if (validateMethod != null) {
+            ActionMessages errors = (ActionMessages) MethodUtil.invoke(
+                    validateMethod, action, null);
+            if (errors != null && !errors.isEmpty()) {
+                request.setAttribute(Globals.ERROR_KEY, errors);
+                return actionMapping.findForward(actionMapping.getInput());
+            }
+        }
         String next = (String) MethodUtil.invoke(executeConfig.getMethod(),
                 action, null);
         exportPropertiesToRequest(request);

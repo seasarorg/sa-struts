@@ -21,16 +21,16 @@ import junit.framework.TestCase;
  * @author higa
  * 
  */
-public class IllegalExecuteMethodRuntimeExceptionTest extends TestCase {
+public class InputNotDefinedRuntimeExceptionTest extends TestCase {
 
     /**
      * @throws Exception
      */
     public void testAll() throws Exception {
-        IllegalExecuteMethodRuntimeException e = new IllegalExecuteMethodRuntimeException(
+        InputNotDefinedRuntimeException e = new InputNotDefinedRuntimeException(
                 getClass(), "testAll");
         System.out.println(e);
         assertEquals(getClass(), e.getActionClass());
-        assertEquals("testAll", e.getExecuteMethodName());
+        assertEquals("testAll", e.getValidateMethodName());
     }
 }
