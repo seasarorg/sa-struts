@@ -32,6 +32,7 @@ import org.seasar.framework.util.MethodUtil;
 import org.seasar.framework.util.StringUtil;
 import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
+import org.seasar.struts.enums.SaveType;
 
 /**
  * POJO Actionのラッパーです。
@@ -103,7 +104,12 @@ public class ActionWrapper extends Action {
             ActionMessages errors = (ActionMessages) MethodUtil.invoke(
                     validateMethod, action, null);
             if (errors != null && !errors.isEmpty()) {
-                request.setAttribute(Globals.ERROR_KEY, errors);
+                if (executeConfig.getSaveErrors() == SaveType.REQUEST) {
+                    request.setAttribute(Globals.ERROR_KEY, errors);
+                } else {
+                    request.getSession()
+                            .setAttribute(Globals.ERROR_KEY, errors);
+                }
                 return actionMapping.findForward(actionMapping.getInput());
             }
         }

@@ -18,6 +18,8 @@ package org.seasar.struts.config;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
+import org.seasar.struts.enums.SaveType;
+
 /**
  * Actionの実行メソッド用の設定です。
  * 
@@ -47,6 +49,11 @@ public class S2ExecuteConfig implements Serializable {
     protected Method validateMethod;
 
     /**
+     * エラーメッセージの保存場所です。
+     */
+    protected SaveType saveErrors;
+
+    /**
      * インスタンスを構築します。
      * 
      * @param method
@@ -55,12 +62,15 @@ public class S2ExecuteConfig implements Serializable {
      *            バリデータを呼び出すかどうか
      * @param validateMethod
      *            検証メソッド
+     * @param saveErrors
+     *            エラーメッセージの保存場所
      */
     public S2ExecuteConfig(Method method, boolean validator,
-            Method validateMethod) {
+            Method validateMethod, SaveType saveErrors) {
         this.method = method;
         this.validator = validator;
         this.validateMethod = validateMethod;
+        this.saveErrors = saveErrors;
     }
 
     /**
@@ -88,5 +98,14 @@ public class S2ExecuteConfig implements Serializable {
      */
     public Method getValidateMethod() {
         return validateMethod;
+    }
+
+    /**
+     * エラーメッセージの保存場所を返します。
+     * 
+     * @return エラーメッセージの保存場所
+     */
+    public SaveType getSaveErrors() {
+        return saveErrors;
     }
 }

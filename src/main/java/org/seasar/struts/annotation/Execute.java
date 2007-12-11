@@ -20,6 +20,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.seasar.struts.enums.SaveType;
+
 /**
  * Actionの実行メソッドを指定するためのアノテーションです。
  * 
@@ -35,4 +37,16 @@ public @interface Execute {
      * 
      */
     boolean validator() default true;
+
+    /**
+     * 検証メソッドです。
+     * 
+     */
+    String validate() default "";
+
+    /**
+     * エラーメッセージの保存場所です。
+     * 
+     */
+    SaveType saveErrors() default SaveType.REQUEST;
 }

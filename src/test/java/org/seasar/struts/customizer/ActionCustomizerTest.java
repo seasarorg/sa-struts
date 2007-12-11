@@ -22,6 +22,7 @@ import org.apache.struts.Globals;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.config.ForwardConfig;
 import org.seasar.extension.unit.S2TestCase;
+import org.seasar.framework.beans.MethodNotFoundRuntimeException;
 import org.seasar.struts.annotation.ActionForm;
 import org.seasar.struts.annotation.Execute;
 import org.seasar.struts.annotation.Input;
@@ -31,7 +32,7 @@ import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.config.S2FormBeanConfig;
 import org.seasar.struts.config.S2ModuleConfig;
-import org.seasar.struts.exception.ExecuteMethodForValidateNotFoundRuntimeException;
+import org.seasar.struts.enums.SaveType;
 import org.seasar.struts.exception.ExecuteMethodNotFoundRuntimeException;
 import org.seasar.struts.exception.IllegalExecuteMethodRuntimeException;
 import org.seasar.struts.exception.IllegalValidateMethodRuntimeException;
@@ -162,6 +163,7 @@ public class ActionCustomizerTest extends S2TestCase {
         assertNotNull(executeConfig.getMethod());
         assertFalse(executeConfig.isValidator());
         assertNotNull(executeConfig.getValidateMethod());
+        assertEquals(SaveType.REQUEST, executeConfig.getSaveErrors());
         assertEquals(1, actionMapping.getExecuteConfigSize());
     }
 
@@ -205,7 +207,7 @@ public class ActionCustomizerTest extends S2TestCase {
         } catch (InputNotDefinedRuntimeException e) {
             System.out.println(e);
             assertEquals(FffAction.class, e.getActionClass());
-            assertEquals("validateForExecute", e.getValidateMethodName());
+            assertEquals("validate", e.getValidateMethodName());
         }
     }
 
@@ -220,41 +222,22 @@ public class ActionCustomizerTest extends S2TestCase {
         } catch (IllegalValidateMethodRuntimeException e) {
             System.out.println(e);
             assertEquals(GggAction.class, e.getActionClass());
-            assertEquals("validateForExecute", e.getValidateMethodName());
+            assertEquals("validate", e.getValidateMethodName());
         }
     }
 
     /**
      * @throws Exception
      */
-    public void testSetupMethod_executeMethodForValidateNotFound()
-            throws Exception {
+    public void testSetupMethod_validateNotFound() throws Exception {
         register(HhhAction.class, "aaa_hhhAction");
         try {
             customizer.createActionMapping(getComponentDef("aaa_hhhAction"));
             fail();
-        } catch (ExecuteMethodForValidateNotFoundRuntimeException e) {
+        } catch (MethodNotFoundRuntimeException e) {
             System.out.println(e);
-            assertEquals(HhhAction.class, e.getActionClass());
-            assertEquals("validateForExecute2", e.getValidateMethodName());
-            assertEquals("execute2", e.getExecuteMethodName());
-        }
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testSetupMethod_executeMethodForValidateNotFound2()
-            throws Exception {
-        register(IiiAction.class, "aaa_iiiAction");
-        try {
-            customizer.createActionMapping(getComponentDef("aaa_iiiAction"));
-            fail();
-        } catch (ExecuteMethodForValidateNotFoundRuntimeException e) {
-            System.out.println(e);
-            assertEquals(IiiAction.class, e.getActionClass());
-            assertEquals("validateFor", e.getValidateMethodName());
-            assertEquals("", e.getExecuteMethodName());
+            assertEquals(HhhAction.class, e.getTargetClass());
+            assertEquals("validate", e.getMethodName());
         }
     }
 
@@ -337,7 +320,7 @@ public class ActionCustomizerTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute(validator = false)
+        @Execute(validator = false, validate = "validate")
         public String execute() {
             return "success";
         }
@@ -345,7 +328,7 @@ public class ActionCustomizerTest extends S2TestCase {
         /**
          * @return
          */
-        public ActionMessages validateForExecute() {
+        public ActionMessages validate() {
             return null;
         }
 
@@ -408,7 +391,7 @@ public class ActionCustomizerTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute
+        @Execute(validate = "validate")
         public String execute() {
             return "success";
         }
@@ -416,7 +399,7 @@ public class ActionCustomizerTest extends S2TestCase {
         /**
          * @return
          */
-        public ActionMessages validateForExecute() {
+        public ActionMessages validate() {
             return null;
         }
     }
@@ -428,7 +411,7 @@ public class ActionCustomizerTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute
+        @Execute(validate = "validate")
         public String execute() {
             return "success";
         }
@@ -436,7 +419,7 @@ public class ActionCustomizerTest extends S2TestCase {
         /**
          * @return
          */
-        public String validateForExecute() {
+        public String validate() {
             return null;
         }
     }
@@ -450,7 +433,7 @@ public class ActionCustomizerTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute
+        @Execute(validate = "validate")
         public String execute() {
             return "success";
         }
@@ -458,29 +441,7 @@ public class ActionCustomizerTest extends S2TestCase {
         /**
          * @return
          */
-        public ActionMessages validateForExecute2() {
-            return null;
-        }
-    }
-
-    /**
-     * 
-     */
-    @Input(path = "/aaa/input.jsp")
-    @Result(path = "/aaa/bbb.jsp")
-    public static class IiiAction {
-        /**
-         * @return
-         */
-        @Execute
-        public String execute() {
-            return "success";
-        }
-
-        /**
-         * @return
-         */
-        public ActionMessages validateFor() {
+        public ActionMessages validate2() {
             return null;
         }
     }

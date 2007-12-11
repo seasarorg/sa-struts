@@ -36,7 +36,6 @@ import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.config.S2FormBeanConfig;
 import org.seasar.struts.config.S2ModuleConfig;
-import org.seasar.struts.exception.ExecuteMethodForValidateNotFoundRuntimeException;
 import org.seasar.struts.exception.ExecuteMethodNotFoundRuntimeException;
 import org.seasar.struts.exception.IllegalExecuteMethodRuntimeException;
 import org.seasar.struts.exception.IllegalValidateMethodRuntimeException;
@@ -51,11 +50,6 @@ import org.seasar.struts.util.ServletContextUtil;
  * 
  */
 public class ActionCustomizer implements ComponentCustomizer {
-
-    /**
-     * 検証メソッドのプレフィックスです。
-     */
-    public static final String VALIDATE_METHOD_PREFIX = "validateFor";
 
     public void customize(ComponentDef componentDef) {
         S2ActionMapping actionMapping = createActionMapping(componentDef);
@@ -166,11 +160,11 @@ public class ActionCustomizer implements ComponentCustomizer {
                     throw new IllegalExecuteMethodRuntimeException(actionClass,
                             m.getName());
                 }
-                Method validateMethod = actionMapping.getActionBeanDesc()
-                        .getMethodNoException(
-                                VALIDATE_METHOD_PREFIX
-                                        + StringUtil.capitalize(m.getName()));
-                if (validateMethod != null) {
+                Method validateMethod = null;
+                String validate = execute.validate();
+                if (!StringUtil.isEmpty(validate)) {
+                    validateMethod = actionMapping.getActionBeanDesc()
+                            .getMethod(validate);
                     if (validateMethod.getParameterTypes().length > 0
                             || !ActionMessages.class
                                     .isAssignableFrom(validateMethod
@@ -184,18 +178,10 @@ public class ActionCustomizer implements ComponentCustomizer {
                                 validateMethod.getName());
                     }
                 }
+
                 S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, execute
-                        .validator(), validateMethod);
+                        .validator(), validateMethod, execute.saveErrors());
                 actionMapping.addExecuteConfig(executeConfig);
-            }
-            if (m.getName().startsWith(VALIDATE_METHOD_PREFIX)) {
-                String executeMethodName = StringUtil.decapitalize(m.getName()
-                        .substring(VALIDATE_METHOD_PREFIX.length()));
-                if (actionMapping.getActionBeanDesc().getMethodNoException(
-                        executeMethodName) == null) {
-                    throw new ExecuteMethodForValidateNotFoundRuntimeException(
-                            actionClass, m.getName(), executeMethodName);
-                }
             }
         }
         if (actionMapping.getExecuteConfigSize() == 0) {
