@@ -15,18 +15,22 @@
  */
 package org.seasar.struts.util;
 
+import org.apache.struts.Globals;
 import org.seasar.extension.unit.S2TestCase;
+import org.seasar.struts.config.S2ModuleConfig;
 
 /**
  * @author higa
  * 
  */
-public class ServletContextUtilTest extends S2TestCase {
+public class ModuleConfigUtilTest extends S2TestCase {
 
     /**
      * @throws Exception
      */
-    public void testGetServletContext() throws Exception {
-        assertNotNull(ServletContextUtil.getServletContext());
+    public void testGetModuleConfig() throws Exception {
+        getServletContext().setAttribute(Globals.MODULE_KEY,
+                new S2ModuleConfig(""));
+        assertNotNull(ModuleConfigUtil.getModuleConfig());
     }
 }

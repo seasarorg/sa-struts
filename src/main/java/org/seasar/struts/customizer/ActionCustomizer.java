@@ -41,7 +41,7 @@ import org.seasar.struts.exception.IllegalExecuteMethodRuntimeException;
 import org.seasar.struts.exception.IllegalValidateMethodRuntimeException;
 import org.seasar.struts.exception.InputNotDefinedRuntimeException;
 import org.seasar.struts.util.ActionUtil;
-import org.seasar.struts.util.ServletContextUtil;
+import org.seasar.struts.util.ModuleConfigUtil;
 
 /**
  * Actionのカスタマイザです。
@@ -54,7 +54,7 @@ public class ActionCustomizer implements ComponentCustomizer {
     public void customize(ComponentDef componentDef) {
         S2ActionMapping actionMapping = createActionMapping(componentDef);
         S2FormBeanConfig formConfig = createFormBeanConfig(actionMapping);
-        S2ModuleConfig moduleConfig = ServletContextUtil.getModuleConfig();
+        S2ModuleConfig moduleConfig = ModuleConfigUtil.getModuleConfig();
         moduleConfig.addActionConfig(actionMapping);
         moduleConfig.addFormBeanConfig(formConfig);
     }

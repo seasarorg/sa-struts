@@ -17,9 +17,7 @@ package org.seasar.struts.util;
 
 import javax.servlet.ServletContext;
 
-import org.apache.struts.Globals;
 import org.seasar.framework.container.SingletonS2Container;
-import org.seasar.struts.config.S2ModuleConfig;
 
 /**
  * サーブレットコンテキストに関するユーティリティです。
@@ -39,24 +37,5 @@ public final class ServletContextUtil {
      */
     public static ServletContext getServletContext() {
         return SingletonS2Container.getComponent(ServletContext.class);
-    }
-
-    /**
-     * モジュール設定を返します。
-     * 
-     * @return モジュール設定
-     */
-    public static S2ModuleConfig getModuleConfig() {
-        return (S2ModuleConfig) getServletContext().getAttribute(
-                Globals.MODULE_KEY);
-    }
-
-    /**
-     * サーブレットマッピングを返します。
-     * 
-     * @return サーブレットマッピング
-     */
-    public static String getServletMapping() {
-        return (String) getServletContext().getAttribute(Globals.SERVLET_KEY);
     }
 }
