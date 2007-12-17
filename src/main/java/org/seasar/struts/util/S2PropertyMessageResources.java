@@ -21,6 +21,8 @@ import org.apache.struts.util.MessageResources;
 import org.apache.struts.util.MessageResourcesFactory;
 import org.seasar.framework.message.MessageResourceBundle;
 import org.seasar.framework.message.MessageResourceBundleFactory;
+import org.seasar.framework.util.Disposable;
+import org.seasar.framework.util.DisposableUtil;
 
 /**
  * Seasar2用のプロパティメッセージリソースです。
@@ -28,9 +30,12 @@ import org.seasar.framework.message.MessageResourceBundleFactory;
  * @author higa
  * 
  */
-public class S2PropertyMessageResources extends MessageResources {
+public class S2PropertyMessageResources extends MessageResources implements
+        Disposable {
 
     private static final long serialVersionUID = 1L;
+
+    private volatile boolean initialized = false;
 
     /**
      * インスタンスを構築します。
@@ -43,12 +48,30 @@ public class S2PropertyMessageResources extends MessageResources {
     public S2PropertyMessageResources(MessageResourcesFactory factory,
             String config) {
         super(factory, config);
+        initialize();
     }
 
     @Override
     public String getMessage(Locale locale, String key) {
+        if (!initialized) {
+            initialize();
+        }
         MessageResourceBundle bundle = MessageResourceBundleFactory.getBundle(
                 config, locale);
         return bundle.get(key);
+    }
+
+    /**
+     * 初期化します。
+     */
+    public void initialize() {
+        DisposableUtil.add(this);
+        initialized = true;
+    }
+
+    public void dispose() {
+        formats.clear();
+        initialized = false;
+
     }
 }
