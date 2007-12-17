@@ -15,6 +15,7 @@
  */
 package org.seasar.struts.customizer;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -24,6 +25,8 @@ import org.seasar.framework.beans.BeanDesc;
 import org.seasar.framework.beans.PropertyDesc;
 import org.seasar.framework.container.ComponentCustomizer;
 import org.seasar.framework.container.ComponentDef;
+import org.seasar.framework.util.ClassUtil;
+import org.seasar.framework.util.MethodUtil;
 import org.seasar.framework.util.StringUtil;
 import org.seasar.struts.action.ActionFormWrapperClass;
 import org.seasar.struts.action.S2DynaProperty;
@@ -252,5 +255,11 @@ public class ActionCustomizer implements ComponentCustomizer {
         }
         formConfig.setDynaClass(wrapperClass);
         return formConfig;
+    }
+
+    protected String getValidatorName(Annotation annotation) {
+        Class<? extends Annotation> annoType = annotation.annotationType();
+        Method m = ClassUtil.getMethod(annoType, "value", null);
+        return (String) MethodUtil.invoke(m, annotation, null);
     }
 }

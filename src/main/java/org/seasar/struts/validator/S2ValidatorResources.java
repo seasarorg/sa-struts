@@ -13,24 +13,23 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.seasar.struts.util;
+package org.seasar.struts.validator;
 
-import java.util.Locale;
+import java.io.IOException;
+import java.io.InputStream;
 
-import org.apache.struts.util.MessageResources;
-import org.apache.struts.util.MessageResourcesFactory;
-import org.seasar.framework.message.MessageResourceBundle;
-import org.seasar.framework.message.MessageResourceBundleFactory;
+import org.apache.commons.validator.ValidatorResources;
 import org.seasar.framework.util.Disposable;
 import org.seasar.framework.util.DisposableUtil;
+import org.xml.sax.SAXException;
 
 /**
- * Seasar2用のプロパティメッセージリソースです。
+ * Seasar2用の検証リソースです。
  * 
  * @author higa
  * 
  */
-public class S2PropertyMessageResources extends MessageResources implements
+public class S2ValidatorResources extends ValidatorResources implements
         Disposable {
 
     private static final long serialVersionUID = 1L;
@@ -43,25 +42,17 @@ public class S2PropertyMessageResources extends MessageResources implements
     /**
      * インスタンスを構築します。
      * 
-     * @param factory
-     *            メッセージリソースファクトリ
-     * @param config
-     *            設定
+     * @param streams
+     *            入力ストリームの配列
+     * @throws IOException
+     *             IO例外が発生した場合。
+     * @throws SAXException
+     *             SAX例外が発生した場合。
      */
-    public S2PropertyMessageResources(MessageResourcesFactory factory,
-            String config) {
-        super(factory, config);
+    public S2ValidatorResources(InputStream[] streams) throws IOException,
+            SAXException {
+        super(streams);
         initialize();
-    }
-
-    @Override
-    public String getMessage(Locale locale, String key) {
-        if (!initialized) {
-            initialize();
-        }
-        MessageResourceBundle bundle = MessageResourceBundleFactory.getBundle(
-                config, locale);
-        return bundle.get(key);
     }
 
     /**
@@ -73,8 +64,7 @@ public class S2PropertyMessageResources extends MessageResources implements
     }
 
     public void dispose() {
-        formats.clear();
+        hFormSets.clear();
         initialized = false;
-
     }
 }
