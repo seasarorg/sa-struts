@@ -21,31 +21,29 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 必須かどうかを指定するためのアノテーションです。
+ * 検証用のメッセージを指定するためのアノテーションです。
  * 
  * @author higa
  * 
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-@Validator("required")
-public @interface Required {
-
+public @interface Msg {
     /**
-     * メッセージです。
+     * キーです。
      * 
      */
-    Msg msg() default @Msg(key = "errors.required");
+    String key();
 
     /**
-     * メッセージの引数の配列です。
+     * リソースバンドル名です。
      * 
      */
-    Arg[] args() default {};
+    String bundle() default "";
 
     /**
-     * 検証の対象となるメソッド名を指定します。 複数ある場合はカンマで区切ります。
+     * リソースから値をとってくるかどうかです。
      * 
      */
-    String target() default "";
+    boolean resource() default true;
 }

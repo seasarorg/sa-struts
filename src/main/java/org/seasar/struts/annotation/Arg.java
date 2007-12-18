@@ -1,5 +1,5 @@
 /*
- * Copyright 2004-2007 the Seasar Foundation and the Others.
+ * Copyright 2004-2005 the Seasar Foundation and the Others.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,31 +21,36 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 必須かどうかを指定するためのアノテーションです。
+ * メッセージの引数です。
  * 
  * @author higa
  * 
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-@Validator("required")
-public @interface Required {
+public @interface Arg {
 
     /**
-     * メッセージです。
+     * キーです。
      * 
      */
-    Msg msg() default @Msg(key = "errors.required");
+    String key();
 
     /**
-     * メッセージの引数の配列です。
+     * リソースバンドル名です。
      * 
      */
-    Arg[] args() default {};
+    String bundle() default "";
 
     /**
-     * 検証の対象となるメソッド名を指定します。 複数ある場合はカンマで区切ります。
+     * リソースから値をとってくるかどうかです。
      * 
      */
-    String target() default "";
+    boolean resource() default true;
+
+    /**
+     * 引数の位置です。
+     * 
+     */
+    int position() default 0;
 }
