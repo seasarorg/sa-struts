@@ -17,16 +17,23 @@ package org.seasar.struts.action;
 
 import java.lang.reflect.Method;
 
+import javax.servlet.ServletContext;
+
 import org.apache.struts.Globals;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionServlet;
 import org.apache.struts.config.ForwardConfig;
 import org.seasar.extension.unit.S2TestCase;
 import org.seasar.struts.annotation.Execute;
+import org.seasar.struts.annotation.Required;
 import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
+import org.seasar.struts.config.S2ModuleConfig;
+import org.seasar.struts.customizer.ActionCustomizer;
 import org.seasar.struts.enums.SaveType;
+import org.seasar.struts.validator.S2ValidatorPlugIn;
 
 /**
  * @author higa
@@ -34,8 +41,15 @@ import org.seasar.struts.enums.SaveType;
  */
 public class ActionWrapperTest extends S2TestCase {
 
+    private S2ModuleConfig moduleConfig = new S2ModuleConfig("");
+
     @Override
-    public void setUp() {
+    public void setUp() throws Exception {
+        getServletContext().setAttribute(Globals.SERVLET_KEY, "/*");
+        getServletContext().setAttribute(Globals.MODULE_KEY, moduleConfig);
+        S2ValidatorPlugIn plugIn = new S2ValidatorPlugIn();
+        plugIn.setPathnames("validator-rules.xml,validation.xml");
+        plugIn.init(new MyActionServlet(getServletContext()), moduleConfig);
         register(BbbAction.class, "bbbAction");
     }
 
@@ -164,6 +178,20 @@ public class ActionWrapperTest extends S2TestCase {
     }
 
     /**
+     * @throws Exception
+     */
+    public void testValidate() throws Exception {
+        register(EeeAction.class, "aaa_eeeAction");
+        ActionCustomizer customizer = new ActionCustomizer();
+        customizer.customize(getComponentDef("aaa_eeeAction"));
+        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
+                .findActionConfig("/aaa/eee");
+        ActionWrapper wrapper = new ActionWrapper(actionMapping);
+        ActionMessages errors = wrapper.validate("execute", getRequest());
+        assertFalse(errors.isEmpty());
+    }
+
+    /**
      * 
      */
     public static class BbbAction {
@@ -232,6 +260,45 @@ public class ActionWrapperTest extends S2TestCase {
             ActionMessages errors = new ActionMessages();
             errors.add("hoge", new ActionMessage("errors.required", "hoge"));
             return errors;
+        }
+    }
+
+    /**
+     * 
+     */
+    public static class EeeAction {
+
+        /**
+         * 
+         */
+        @Required
+        public String hoge;
+
+        /**
+         * @return
+         */
+        @Execute(validator = true)
+        public String execute() {
+            return "success";
+        }
+    }
+
+    private static class MyActionServlet extends ActionServlet {
+        private static final long serialVersionUID = 1L;
+
+        private ServletContext servletContext;
+
+        /**
+         * @param servletContext
+         */
+        public MyActionServlet(ServletContext servletContext) {
+            super();
+            this.servletContext = servletContext;
+        }
+
+        @Override
+        public ServletContext getServletContext() {
+            return servletContext;
         }
     }
 }

@@ -18,7 +18,14 @@ package org.seasar.struts.customizer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
+import org.apache.commons.validator.Form;
+import org.apache.commons.validator.FormSet;
+import org.apache.commons.validator.ValidatorResources;
+import org.apache.commons.validator.Var;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMessages;
 import org.seasar.framework.beans.BeanDesc;
@@ -28,13 +35,17 @@ import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.util.ClassUtil;
 import org.seasar.framework.util.MethodUtil;
 import org.seasar.framework.util.StringUtil;
+import org.seasar.framework.util.tiger.AnnotationUtil;
 import org.seasar.struts.action.ActionFormWrapperClass;
 import org.seasar.struts.action.S2DynaProperty;
 import org.seasar.struts.annotation.ActionForm;
+import org.seasar.struts.annotation.Arg;
 import org.seasar.struts.annotation.Execute;
 import org.seasar.struts.annotation.Input;
+import org.seasar.struts.annotation.Msg;
 import org.seasar.struts.annotation.Result;
 import org.seasar.struts.annotation.Results;
+import org.seasar.struts.annotation.Validator;
 import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.config.S2FormBeanConfig;
@@ -45,6 +56,7 @@ import org.seasar.struts.exception.IllegalValidateMethodRuntimeException;
 import org.seasar.struts.exception.InputNotDefinedRuntimeException;
 import org.seasar.struts.util.ActionUtil;
 import org.seasar.struts.util.ModuleConfigUtil;
+import org.seasar.struts.util.ValidatorResourcesUtil;
 
 /**
  * Actionのカスタマイザです。
@@ -60,6 +72,10 @@ public class ActionCustomizer implements ComponentCustomizer {
         S2ModuleConfig moduleConfig = ModuleConfigUtil.getModuleConfig();
         moduleConfig.addActionConfig(actionMapping);
         moduleConfig.addFormBeanConfig(formConfig);
+        FormSet formSet = createFormSet(actionMapping);
+        ValidatorResources validatorResources = ValidatorResourcesUtil
+                .getValidatorResources();
+        validatorResources.addFormSet(formSet);
     }
 
     /**
@@ -257,9 +273,178 @@ public class ActionCustomizer implements ComponentCustomizer {
         return formConfig;
     }
 
+    /**
+     * フォームセットを作成します。
+     * 
+     * @param actionMapping
+     *            アクションマッピング
+     * @return フォームセット
+     */
+    protected FormSet createFormSet(S2ActionMapping actionMapping) {
+        FormSet formSet = new FormSet();
+        Map<String, Form> forms = new HashMap<String, Form>();
+        for (String methodName : actionMapping.getExecuteMethodNames()) {
+            Form form = new Form();
+            form.setName(actionMapping.getName() + "_" + methodName);
+            formSet.addForm(form);
+            forms.put(methodName, form);
+        }
+        BeanDesc beanDesc = actionMapping.getActionFormBeanDesc();
+        for (int i = 0; i < beanDesc.getPropertyDescSize(); i++) {
+            PropertyDesc pd = beanDesc.getPropertyDesc(i);
+            Field field = pd.getField();
+            if (field == null) {
+                continue;
+            }
+            for (Annotation anno : field.getDeclaredAnnotations()) {
+                processAnnotation(forms, pd.getPropertyName(), anno);
+            }
+        }
+        return formSet;
+    }
+
+    /**
+     * アノテーションを処理します。
+     * 
+     * @param forms
+     *            メソッド名をキーにしたフォームのマップ
+     * @param propertyName
+     *            プロパティ名
+     * @param annotation
+     *            アノテーション
+     */
+    protected void processAnnotation(Map<String, Form> forms,
+            String propertyName, Annotation annotation) {
+        Class<? extends Annotation> annotationType = annotation
+                .annotationType();
+        Annotation metaAnnotation = annotationType
+                .getAnnotation(Validator.class);
+        if (metaAnnotation == null) {
+            return;
+        }
+        String validatorName = getValidatorName(metaAnnotation);
+        Map<String, Object> props = AnnotationUtil.getProperties(annotation);
+        registerValidator(forms, propertyName, validatorName, props);
+    }
+
+    /**
+     * バリデータ名を返します。
+     * 
+     * @param annotation
+     *            検証アノテーション
+     * @return バリデータ名
+     */
     protected String getValidatorName(Annotation annotation) {
         Class<? extends Annotation> annoType = annotation.annotationType();
         Method m = ClassUtil.getMethod(annoType, "value", null);
         return (String) MethodUtil.invoke(m, annotation, null);
+    }
+
+    /**
+     * バリデータを登録します。
+     * 
+     * @param forms
+     *            メソッド名をキーにしたフォームのマップ
+     * @param propertyName
+     *            プロパティ名
+     * @param validatorName
+     *            バリデータ名
+     * @param props
+     *            バリデータのプロパティ
+     */
+    protected void registerValidator(Map<String, Form> forms,
+            String propertyName, String validatorName, Map<String, Object> props) {
+        org.apache.commons.validator.Field field = createField(propertyName,
+                validatorName, props);
+        for (Iterator<String> i = forms.keySet().iterator(); i.hasNext();) {
+            String methodName = i.next();
+            if (!isTarget(methodName, (String) props.get("target"))) {
+                continue;
+            }
+            Form form = forms.get(methodName);
+            form.addField(field);
+        }
+    }
+
+    /**
+     * 検証用のフィールドを作成します。
+     * 
+     * @param propertyName
+     *            プロパティ名
+     * @param validatorName
+     *            バリデータ名
+     * @param props
+     *            バリデータのプロパティ
+     * @return 検証用のフィールド
+     */
+    protected org.apache.commons.validator.Field createField(
+            String propertyName, String validatorName, Map<String, Object> props) {
+        org.apache.commons.validator.Field field = new org.apache.commons.validator.Field();
+        field.setDepends(validatorName);
+        field.setProperty(propertyName);
+        Msg msg = (Msg) props.remove("msg");
+        if (msg != null) {
+            org.apache.commons.validator.Msg m = new org.apache.commons.validator.Msg();
+            m.setName(validatorName);
+            m.setKey(msg.key());
+            String bundle = msg.bundle();
+            if (!StringUtil.isEmpty(bundle)) {
+                m.setBundle(bundle);
+            }
+            m.setResource(msg.resource());
+            field.addMsg(m);
+        }
+        Arg[] args = (Arg[]) props.remove("args");
+        if (args != null) {
+            for (Arg arg : args) {
+                org.apache.commons.validator.Arg a = new org.apache.commons.validator.Arg();
+                a.setName(validatorName);
+                a.setKey(arg.key());
+                String bundle = arg.bundle();
+                if (!StringUtil.isEmpty(bundle)) {
+                    a.setBundle(bundle);
+                }
+                a.setResource(arg.resource());
+                a.setPosition(arg.position());
+                field.addArg(a);
+            }
+        }
+        for (Iterator<String> i = props.keySet().iterator(); i.hasNext();) {
+            String name = i.next();
+            if (name.equals("target")) {
+                continue;
+            }
+            Object value = props.get(name);
+            String jsType = Var.JSTYPE_STRING;
+            if (value instanceof Number) {
+                jsType = Var.JSTYPE_INT;
+            } else if (name.equals("mask")) {
+                jsType = Var.JSTYPE_REGEXP;
+            }
+            field.addVar(name, value.toString(), jsType);
+        }
+        return field;
+    }
+
+    /**
+     * 対象のメソッドかどうかを返します。
+     * 
+     * @param methodName
+     *            メソッド名
+     * @param target
+     *            メソッド名がカンマ区切りで指定されたもの
+     * @return 対象のメソッドかどうか
+     */
+    protected boolean isTarget(String methodName, String target) {
+        if (StringUtil.isEmpty(target)) {
+            return true;
+        }
+        String[] names = StringUtil.split(target, ", ");
+        for (String name : names) {
+            if (methodName.equals(name.trim())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

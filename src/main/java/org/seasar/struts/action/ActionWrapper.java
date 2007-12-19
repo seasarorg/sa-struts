@@ -17,15 +17,19 @@ package org.seasar.struts.action;
 
 import java.lang.reflect.Method;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.validator.Validator;
+import org.apache.commons.validator.ValidatorException;
 import org.apache.struts.Globals;
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessages;
+import org.apache.struts.validator.Resources;
 import org.seasar.framework.beans.BeanDesc;
 import org.seasar.framework.beans.PropertyDesc;
 import org.seasar.framework.util.MethodUtil;
@@ -33,6 +37,7 @@ import org.seasar.framework.util.StringUtil;
 import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.enums.SaveType;
+import org.seasar.struts.util.ServletContextUtil;
 
 /**
  * POJO Actionのラッパーです。
@@ -99,24 +104,48 @@ public class ActionWrapper extends Action {
             HttpServletRequest request) {
         S2ExecuteConfig executeConfig = actionMapping
                 .getExecuteConfig(methodName);
+        if (executeConfig.isValidator()) {
+            ActionMessages errors = validate(methodName, request);
+            if (errors != null && !errors.isEmpty()) {
+                return processErrors(errors, request, executeConfig);
+            }
+        }
         Method validateMethod = executeConfig.getValidateMethod();
         if (validateMethod != null) {
             ActionMessages errors = (ActionMessages) MethodUtil.invoke(
                     validateMethod, action, null);
             if (errors != null && !errors.isEmpty()) {
-                if (executeConfig.getSaveErrors() == SaveType.REQUEST) {
-                    request.setAttribute(Globals.ERROR_KEY, errors);
-                } else {
-                    request.getSession()
-                            .setAttribute(Globals.ERROR_KEY, errors);
-                }
-                return actionMapping.findForward(actionMapping.getInput());
+                return processErrors(errors, request, executeConfig);
             }
         }
         String next = (String) MethodUtil.invoke(executeConfig.getMethod(),
                 action, null);
         exportPropertiesToRequest(request);
         return actionMapping.findForward(next);
+    }
+
+    /**
+     * バリデータによる検証を行います。
+     * 
+     * @param methodName
+     *            メソッド名
+     * @param request
+     *            リクエスト
+     * @return エラーメッセージ
+     */
+    protected ActionMessages validate(String methodName,
+            HttpServletRequest request) {
+        ServletContext application = ServletContextUtil.getServletContext();
+        ActionMessages errors = new ActionMessages();
+        String validationKey = actionMapping.getName() + "_" + methodName;
+        Validator validator = Resources.initValidator(validationKey,
+                actionMapping.getActionForm(), application, request, errors, 0);
+        try {
+            validator.validate();
+        } catch (ValidatorException e) {
+            throw new RuntimeException(e);
+        }
+        return errors;
     }
 
     /**
@@ -133,5 +162,27 @@ public class ActionWrapper extends Action {
             request.setAttribute(pd.getPropertyName(), value);
         }
 
+    }
+
+    /**
+     * 検証エラーの処理を行います。
+     * 
+     * @param errors
+     *            エラーメッセージ
+     * @param request
+     *            リクエスト
+     * @param executeConfig
+     *            実行設定
+     * @return アクションフォワード
+     */
+    protected ActionForward processErrors(ActionMessages errors,
+            HttpServletRequest request, S2ExecuteConfig executeConfig) {
+        if (executeConfig.getSaveErrors() == SaveType.REQUEST) {
+            request.setAttribute(Globals.ERROR_KEY, errors);
+        } else {
+            request.getSession().setAttribute(Globals.ERROR_KEY, errors);
+        }
+        exportPropertiesToRequest(request);
+        return actionMapping.findForward(actionMapping.getInput());
     }
 }

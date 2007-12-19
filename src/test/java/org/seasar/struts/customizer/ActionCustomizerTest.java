@@ -15,19 +15,34 @@
  */
 package org.seasar.struts.customizer;
 
+import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.beanutils.DynaClass;
+import org.apache.commons.validator.Form;
+import org.apache.commons.validator.FormSet;
+import org.apache.commons.validator.ValidatorResources;
+import org.apache.commons.validator.Var;
 import org.apache.struts.Globals;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.config.ForwardConfig;
+import org.apache.struts.validator.ValidatorPlugIn;
 import org.seasar.extension.unit.S2TestCase;
 import org.seasar.framework.beans.MethodNotFoundRuntimeException;
+import org.seasar.framework.util.tiger.AnnotationUtil;
 import org.seasar.struts.annotation.ActionForm;
+import org.seasar.struts.annotation.Arg;
 import org.seasar.struts.annotation.Execute;
 import org.seasar.struts.annotation.Input;
+import org.seasar.struts.annotation.Msg;
+import org.seasar.struts.annotation.Required;
 import org.seasar.struts.annotation.Result;
 import org.seasar.struts.annotation.Results;
+import org.seasar.struts.annotation.Validator;
+import org.seasar.struts.annotation.Validwhen;
 import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.config.S2FormBeanConfig;
@@ -37,6 +52,7 @@ import org.seasar.struts.exception.ExecuteMethodNotFoundRuntimeException;
 import org.seasar.struts.exception.IllegalExecuteMethodRuntimeException;
 import org.seasar.struts.exception.IllegalValidateMethodRuntimeException;
 import org.seasar.struts.exception.InputNotDefinedRuntimeException;
+import org.seasar.struts.util.ValidatorResourcesUtil;
 
 /**
  * @author higa
@@ -53,6 +69,8 @@ public class ActionCustomizerTest extends S2TestCase {
         getServletContext().setAttribute(Globals.SERVLET_KEY, "/*");
         getServletContext().setAttribute(Globals.MODULE_KEY, moduleConfig);
         register(BbbAction.class, "aaa_bbbAction");
+        getServletContext().setAttribute(ValidatorPlugIn.VALIDATOR_KEY,
+                new ValidatorResources());
     }
 
     /**
@@ -69,6 +87,15 @@ public class ActionCustomizerTest extends S2TestCase {
     public void testCustomize_formBeanConfig() throws Exception {
         customizer.customize(getComponentDef("aaa_bbbAction"));
         assertNotNull(moduleConfig.findFormBeanConfig("aaa_bbbActionForm"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testCustomize_formSet() throws Exception {
+        customizer.customize(getComponentDef("aaa_bbbAction"));
+        assertNotNull(ValidatorResourcesUtil.getValidatorResources().getForm(
+                Locale.getDefault(), "aaa_bbbActionForm_execute"));
     }
 
     /**
@@ -296,6 +323,128 @@ public class ActionCustomizerTest extends S2TestCase {
     }
 
     /**
+     * @throws Exception
+     */
+    public void testGetValidatorName() throws Exception {
+        Field field = BbbAction.class.getDeclaredField("hoge");
+        Required r = field.getAnnotation(Required.class);
+        Validator v = r.annotationType().getAnnotation(Validator.class);
+        assertEquals("required", customizer.getValidatorName(v));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testIsTarget() throws Exception {
+        assertTrue(customizer.isTarget("hoge", ""));
+        assertTrue(customizer.isTarget("hoge", " hoge, foo"));
+        assertFalse(customizer.isTarget("bar", "hoge, foo"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testCreateField() throws Exception {
+        Field field = BbbAction.class.getDeclaredField("hoge");
+        Required r = field.getAnnotation(Required.class);
+        Map<String, Object> props = AnnotationUtil.getProperties(r);
+        org.apache.commons.validator.Field f = customizer.createField("hoge",
+                "required", props);
+        assertEquals("hoge", f.getProperty());
+        assertEquals("required", f.getDepends());
+        org.apache.commons.validator.Msg m = f.getMessage("required");
+        assertNotNull(m);
+        assertEquals("errors.required", m.getKey());
+        assertEquals("required", m.getName());
+        assertTrue(m.isResource());
+        assertNull(m.getBundle());
+        org.apache.commons.validator.Arg a = f.getArg("required", 0);
+        assertNotNull(a);
+        assertEquals("labels.hoge", a.getKey());
+        assertEquals("required", a.getName());
+        assertTrue(a.isResource());
+        assertNull(a.getBundle());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testCreateField_var() throws Exception {
+        Field field = BbbAction.class.getDeclaredField("hoge2");
+        Validwhen v = field.getAnnotation(Validwhen.class);
+        Map<String, Object> props = AnnotationUtil.getProperties(v);
+        org.apache.commons.validator.Field f = customizer.createField("hoge2",
+                "validwhen", props);
+        org.apache.commons.validator.Var var = f.getVar("test");
+        assertNotNull(var);
+        assertEquals("test", var.getName());
+        assertEquals("true", var.getValue());
+        assertEquals(Var.JSTYPE_STRING, var.getJsType());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testRegisterValidator() throws Exception {
+        Map<String, Form> forms = new HashMap<String, Form>();
+        Form form = new Form();
+        forms.put("execute", form);
+        Form form2 = new Form();
+        forms.put("execute2", form2);
+        Field field = BbbAction.class.getDeclaredField("hoge");
+        Required r = field.getAnnotation(Required.class);
+        Map<String, Object> props = AnnotationUtil.getProperties(r);
+        customizer.registerValidator(forms, "hoge", "required", props);
+        assertNotNull(form.getField("hoge"));
+        assertNotNull(form2.getField("hoge"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testRegisterValidator_target() throws Exception {
+        Map<String, Form> forms = new HashMap<String, Form>();
+        Form form = new Form();
+        forms.put("execute", form);
+        Form form2 = new Form();
+        forms.put("execute2", form2);
+        Field field = BbbAction.class.getDeclaredField("hoge2");
+        Validwhen v = field.getAnnotation(Validwhen.class);
+        Map<String, Object> props = AnnotationUtil.getProperties(v);
+        customizer.registerValidator(forms, "hoge2", "validwhen", props);
+        assertNotNull(form.getField("hoge2"));
+        assertNull(form2.getField("hoge2"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testProcessAnnotation() throws Exception {
+        Map<String, Form> forms = new HashMap<String, Form>();
+        Form form = new Form();
+        forms.put("execute", form);
+        Field field = BbbAction.class.getDeclaredField("hoge");
+        Required r = field.getAnnotation(Required.class);
+        customizer.processAnnotation(forms, "hoge", r);
+        assertNotNull(form.getField("hoge"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testCreateFormSet() throws Exception {
+        S2ActionMapping actionMapping = customizer
+                .createActionMapping(getComponentDef("aaa_bbbAction"));
+        FormSet formSet = customizer.createFormSet(actionMapping);
+        assertNotNull(formSet);
+        Form form = formSet.getForm("aaa_bbbActionForm_execute");
+        assertNotNull(form);
+        org.apache.commons.validator.Field f = form.getField("hoge");
+        assertEquals("hoge", f.getProperty());
+        assertEquals("required", f.getDepends());
+    }
+
+    /**
      * 
      */
     @Input(path = "/aaa/input.jsp")
@@ -305,11 +454,13 @@ public class ActionCustomizerTest extends S2TestCase {
         /**
          * 
          */
+        @Required(args = @Arg(key = "labels.hoge"))
         public String hoge;
 
         /**
          * 
          */
+        @Validwhen(test = "true", msg = @Msg(key = "errors.validwhen"), target = "execute")
         public boolean hoge2;
 
         /**
