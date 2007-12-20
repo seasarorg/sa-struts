@@ -59,6 +59,9 @@ public class S2PropertyMessageResources extends MessageResources implements
         if (!initialized) {
             initialize();
         }
+        if (locale == null) {
+            locale = defaultLocale;
+        }
         MessageResourceBundle bundle = MessageResourceBundleFactory.getBundle(
                 config, locale);
         return bundle.get(key);

@@ -52,6 +52,7 @@ import org.seasar.framework.util.ModifierUtil;
 import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.exception.IndexedPropertyNotListArrayRuntimeException;
 import org.seasar.struts.exception.NoParameterizedListRuntimeException;
+import org.seasar.struts.util.ActionFormUtil;
 
 /**
  * Seasar2用のリクエストプロセッサです。
@@ -86,7 +87,10 @@ public class S2RequestProcessor extends RequestProcessor {
         if (formConfig == null) {
             return null;
         }
-        ActionForm actionForm = null;
+        ActionForm actionForm = ActionFormUtil.getActionForm(request, mapping);
+        if (actionForm != null) {
+            return actionForm;
+        }
         try {
             actionForm = formConfig.createActionForm(servlet);
         } catch (Throwable t) {

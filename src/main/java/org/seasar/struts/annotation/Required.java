@@ -38,10 +38,10 @@ public @interface Required {
     Msg msg() default @Msg(key = "errors.required");
 
     /**
-     * メッセージの引数の配列です。
+     * メッセージの最初の引数です。
      * 
      */
-    Arg[] args() default {};
+    Arg arg0() default @Arg(key = "");
 
     /**
      * 検証の対象となるメソッド名を指定します。 複数ある場合はカンマで区切ります。

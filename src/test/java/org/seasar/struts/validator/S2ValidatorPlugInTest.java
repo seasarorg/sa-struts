@@ -17,6 +17,7 @@ package org.seasar.struts.validator;
 
 import javax.servlet.ServletContext;
 
+import org.apache.commons.validator.ValidatorResources;
 import org.apache.struts.action.ActionServlet;
 import org.apache.struts.config.impl.ModuleConfigImpl;
 import org.apache.struts.validator.ValidatorPlugIn;
@@ -36,8 +37,10 @@ public class S2ValidatorPlugInTest extends S2TestCase {
         plugIn.setPathnames("validator-rules.xml,validation.xml");
         plugIn.init(new MyActionServlet(getServletContext()),
                 new ModuleConfigImpl(""));
-        assertNotNull(getServletContext().getAttribute(
-                ValidatorPlugIn.VALIDATOR_KEY));
+        ValidatorResources vr = (ValidatorResources) getServletContext()
+                .getAttribute(ValidatorPlugIn.VALIDATOR_KEY);
+        assertNotNull(vr);
+        assertTrue(vr instanceof S2ValidatorResources);
     }
 
     private static class MyActionServlet extends ActionServlet {

@@ -27,7 +27,6 @@ import javax.servlet.ServletException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.validator.ValidatorResources;
 import org.apache.struts.validator.ValidatorPlugIn;
 import org.seasar.framework.util.InputStreamUtil;
 import org.seasar.struts.util.ServletContextUtil;
@@ -85,7 +84,7 @@ public class S2ValidatorPlugIn extends ValidatorPlugIn {
             int streamSize = streamList.size();
             InputStream[] streamArray = streamList
                     .toArray(new InputStream[streamSize]);
-            resources = new ValidatorResources(streamArray);
+            resources = new S2ValidatorResources(streamArray);
         } catch (SAXException sex) {
             log.error("Skipping all validation", sex);
             throw new ServletException(sex);

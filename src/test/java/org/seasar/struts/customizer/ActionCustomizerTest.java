@@ -23,8 +23,6 @@ import java.util.Map;
 
 import org.apache.commons.beanutils.DynaClass;
 import org.apache.commons.validator.Form;
-import org.apache.commons.validator.FormSet;
-import org.apache.commons.validator.ValidatorResources;
 import org.apache.commons.validator.Var;
 import org.apache.struts.Globals;
 import org.apache.struts.action.ActionMessages;
@@ -34,7 +32,6 @@ import org.seasar.extension.unit.S2TestCase;
 import org.seasar.framework.beans.MethodNotFoundRuntimeException;
 import org.seasar.framework.util.tiger.AnnotationUtil;
 import org.seasar.struts.annotation.ActionForm;
-import org.seasar.struts.annotation.Arg;
 import org.seasar.struts.annotation.Execute;
 import org.seasar.struts.annotation.Input;
 import org.seasar.struts.annotation.Msg;
@@ -53,6 +50,7 @@ import org.seasar.struts.exception.IllegalExecuteMethodRuntimeException;
 import org.seasar.struts.exception.IllegalValidateMethodRuntimeException;
 import org.seasar.struts.exception.InputNotDefinedRuntimeException;
 import org.seasar.struts.util.ValidatorResourcesUtil;
+import org.seasar.struts.validator.S2ValidatorResources;
 
 /**
  * @author higa
@@ -64,13 +62,15 @@ public class ActionCustomizerTest extends S2TestCase {
 
     private S2ModuleConfig moduleConfig = new S2ModuleConfig("");
 
+    private S2ValidatorResources validatorResources = new S2ValidatorResources();
+
     @Override
     public void setUp() {
         getServletContext().setAttribute(Globals.SERVLET_KEY, "/*");
         getServletContext().setAttribute(Globals.MODULE_KEY, moduleConfig);
         register(BbbAction.class, "aaa_bbbAction");
         getServletContext().setAttribute(ValidatorPlugIn.VALIDATOR_KEY,
-                new ValidatorResources());
+                validatorResources);
     }
 
     /**
@@ -349,7 +349,7 @@ public class ActionCustomizerTest extends S2TestCase {
         Required r = field.getAnnotation(Required.class);
         Map<String, Object> props = AnnotationUtil.getProperties(r);
         org.apache.commons.validator.Field f = customizer.createField("hoge",
-                "required", props);
+                "required", props, validatorResources);
         assertEquals("hoge", f.getProperty());
         assertEquals("required", f.getDepends());
         org.apache.commons.validator.Msg m = f.getMessage("required");
@@ -374,7 +374,7 @@ public class ActionCustomizerTest extends S2TestCase {
         Validwhen v = field.getAnnotation(Validwhen.class);
         Map<String, Object> props = AnnotationUtil.getProperties(v);
         org.apache.commons.validator.Field f = customizer.createField("hoge2",
-                "validwhen", props);
+                "validwhen", props, validatorResources);
         org.apache.commons.validator.Var var = f.getVar("test");
         assertNotNull(var);
         assertEquals("test", var.getName());
@@ -394,7 +394,8 @@ public class ActionCustomizerTest extends S2TestCase {
         Field field = BbbAction.class.getDeclaredField("hoge");
         Required r = field.getAnnotation(Required.class);
         Map<String, Object> props = AnnotationUtil.getProperties(r);
-        customizer.registerValidator(forms, "hoge", "required", props);
+        customizer.registerValidator("hoge", "required", props,
+                validatorResources, forms);
         assertNotNull(form.getField("hoge"));
         assertNotNull(form2.getField("hoge"));
     }
@@ -411,7 +412,8 @@ public class ActionCustomizerTest extends S2TestCase {
         Field field = BbbAction.class.getDeclaredField("hoge2");
         Validwhen v = field.getAnnotation(Validwhen.class);
         Map<String, Object> props = AnnotationUtil.getProperties(v);
-        customizer.registerValidator(forms, "hoge2", "validwhen", props);
+        customizer.registerValidator("hoge2", "validwhen", props,
+                validatorResources, forms);
         assertNotNull(form.getField("hoge2"));
         assertNull(form2.getField("hoge2"));
     }
@@ -425,23 +427,40 @@ public class ActionCustomizerTest extends S2TestCase {
         forms.put("execute", form);
         Field field = BbbAction.class.getDeclaredField("hoge");
         Required r = field.getAnnotation(Required.class);
-        customizer.processAnnotation(forms, "hoge", r);
+        customizer.processAnnotation("hoge", r, validatorResources, forms);
         assertNotNull(form.getField("hoge"));
     }
 
     /**
      * @throws Exception
      */
-    public void testCreateFormSet() throws Exception {
+    public void testSetupValidator() throws Exception {
         S2ActionMapping actionMapping = customizer
                 .createActionMapping(getComponentDef("aaa_bbbAction"));
-        FormSet formSet = customizer.createFormSet(actionMapping);
-        assertNotNull(formSet);
-        Form form = formSet.getForm("aaa_bbbActionForm_execute");
+        customizer.setupValidator(actionMapping, validatorResources);
+        Form form = validatorResources.getForm(Locale.getDefault(),
+                "aaa_bbbActionForm_execute");
         assertNotNull(form);
         org.apache.commons.validator.Field f = form.getField("hoge");
         assertEquals("hoge", f.getProperty());
         assertEquals("required", f.getDepends());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testResolveKey() throws Exception {
+        assertEquals("hoge", customizer.resolveKey("hoge", true, null, null));
+        assertEquals("hoge", customizer.resolveKey("hoge", false, null, null));
+        Map<String, Object> props = new HashMap<String, Object>();
+        assertEquals("null", customizer.resolveKey("${var:hoge}", false, props,
+                validatorResources));
+        props.put("hoge", "aaa");
+        assertEquals("aaa", customizer.resolveKey("${var:hoge}", false, props,
+                validatorResources));
+        validatorResources.addConstant("hoge", "bbb");
+        assertEquals("bbb", customizer.resolveKey("${hoge}", false, props,
+                validatorResources));
     }
 
     /**
@@ -454,7 +473,7 @@ public class ActionCustomizerTest extends S2TestCase {
         /**
          * 
          */
-        @Required(args = @Arg(key = "labels.hoge"))
+        @Required
         public String hoge;
 
         /**

@@ -37,6 +37,7 @@ import org.seasar.framework.util.StringUtil;
 import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.enums.SaveType;
+import org.seasar.struts.util.ActionFormUtil;
 import org.seasar.struts.util.ServletContextUtil;
 
 /**
@@ -139,7 +140,8 @@ public class ActionWrapper extends Action {
         ActionMessages errors = new ActionMessages();
         String validationKey = actionMapping.getName() + "_" + methodName;
         Validator validator = Resources.initValidator(validationKey,
-                actionMapping.getActionForm(), application, request, errors, 0);
+                ActionFormUtil.getActionForm(request, actionMapping),
+                application, request, errors, 0);
         try {
             validator.validate();
         } catch (ValidatorException e) {

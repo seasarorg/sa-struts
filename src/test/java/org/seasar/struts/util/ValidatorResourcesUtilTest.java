@@ -15,9 +15,9 @@
  */
 package org.seasar.struts.util;
 
-import org.apache.commons.validator.ValidatorResources;
 import org.apache.struts.validator.ValidatorPlugIn;
 import org.seasar.extension.unit.S2TestCase;
+import org.seasar.struts.validator.S2ValidatorResources;
 
 /**
  * @author higa
@@ -30,7 +30,7 @@ public class ValidatorResourcesUtilTest extends S2TestCase {
      */
     public void testGetModuleConfig() throws Exception {
         getServletContext().setAttribute(ValidatorPlugIn.VALIDATOR_KEY,
-                new ValidatorResources());
+                new S2ValidatorResources());
         assertNotNull(ValidatorResourcesUtil.getValidatorResources());
     }
 }

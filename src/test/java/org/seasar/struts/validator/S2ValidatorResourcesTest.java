@@ -13,29 +13,22 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.seasar.struts.util;
+package org.seasar.struts.validator;
 
-import org.apache.struts.validator.ValidatorPlugIn;
-import org.seasar.struts.validator.S2ValidatorResources;
+import junit.framework.TestCase;
 
 /**
- * 検証リソースに関するユーティリティです。
- * 
  * @author higa
  * 
  */
-public final class ValidatorResourcesUtil {
-
-    private ValidatorResourcesUtil() {
-    }
+public class S2ValidatorResourcesTest extends TestCase {
 
     /**
-     * 検証リソースを返します。
-     * 
-     * @return 検証リソース
+     * @throws Exception
      */
-    public static S2ValidatorResources getValidatorResources() {
-        return (S2ValidatorResources) ServletContextUtil.getServletContext()
-                .getAttribute(ValidatorPlugIn.VALIDATOR_KEY);
+    public void testGetConstant() throws Exception {
+        S2ValidatorResources vr = new S2ValidatorResources();
+        vr.addConstant("hoge", "aaa");
+        assertEquals("aaa", vr.getConstant("hoge"));
     }
 }

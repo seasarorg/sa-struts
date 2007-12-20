@@ -27,12 +27,15 @@ import org.apache.struts.action.ActionServlet;
 import org.apache.struts.config.ForwardConfig;
 import org.seasar.extension.unit.S2TestCase;
 import org.seasar.struts.annotation.Execute;
+import org.seasar.struts.annotation.Input;
 import org.seasar.struts.annotation.Required;
 import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.config.S2ModuleConfig;
 import org.seasar.struts.customizer.ActionCustomizer;
 import org.seasar.struts.enums.SaveType;
+import org.seasar.struts.util.S2PropertyMessageResources;
+import org.seasar.struts.util.S2PropertyMessageResourcesFactory;
 import org.seasar.struts.validator.S2ValidatorPlugIn;
 
 /**
@@ -44,12 +47,16 @@ public class ActionWrapperTest extends S2TestCase {
     private S2ModuleConfig moduleConfig = new S2ModuleConfig("");
 
     @Override
-    public void setUp() throws Exception {
+    public void setUpAfterContainerInit() throws Exception {
         getServletContext().setAttribute(Globals.SERVLET_KEY, "/*");
         getServletContext().setAttribute(Globals.MODULE_KEY, moduleConfig);
         S2ValidatorPlugIn plugIn = new S2ValidatorPlugIn();
         plugIn.setPathnames("validator-rules.xml,validation.xml");
         plugIn.init(new MyActionServlet(getServletContext()), moduleConfig);
+        S2PropertyMessageResourcesFactory factory = new S2PropertyMessageResourcesFactory();
+        S2PropertyMessageResources resources = new S2PropertyMessageResources(
+                factory, "application");
+        getServletContext().setAttribute(Globals.MESSAGES_KEY, resources);
         register(BbbAction.class, "bbbAction");
     }
 
@@ -133,6 +140,23 @@ public class ActionWrapperTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testExecute_validator() throws Exception {
+        register(EeeAction.class, "aaa_eeeAction");
+        ActionCustomizer customizer = new ActionCustomizer();
+        customizer.customize(getComponentDef("aaa_eeeAction"));
+        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
+                .findActionConfig("/aaa/eee");
+        ActionWrapper wrapper = new ActionWrapper(actionMapping);
+        ForwardConfig forward = wrapper.execute(actionMapping, null,
+                getRequest(), getResponse());
+        assertNotNull(forward);
+        assertEquals("/aaa/input.jsp", forward.getPath());
+        assertNotNull(getRequest().getAttribute(Globals.ERROR_KEY));
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testExecute_validate_session() throws Exception {
         register(DddAction.class, "dddAction");
         S2ActionMapping actionMapping = new S2ActionMapping();
@@ -188,6 +212,7 @@ public class ActionWrapperTest extends S2TestCase {
                 .findActionConfig("/aaa/eee");
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
         ActionMessages errors = wrapper.validate("execute", getRequest());
+        System.out.println(errors);
         assertFalse(errors.isEmpty());
     }
 
@@ -266,6 +291,7 @@ public class ActionWrapperTest extends S2TestCase {
     /**
      * 
      */
+    @Input(path = "/aaa/input.jsp")
     public static class EeeAction {
 
         /**

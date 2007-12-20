@@ -21,33 +21,27 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 条件式に一致するかどうかを指定するためのアノテーションです。
+ * 必須かどうかを指定するためのアノテーションです。
  * 
  * @author higa
  * 
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-@Validator("validwhen")
-public @interface Validwhen {
-
-    /**
-     * 条件です。
-     * 
-     */
-    String test();
+@Validator("mask")
+public @interface Mask {
 
     /**
      * メッセージです。
      * 
      */
-    Msg msg();
+    Msg msg() default @Msg(key = "errors.invalid");
 
     /**
-     * メッセージの引数の配列です。
+     * メッセージの最初の引数です。
      * 
      */
-    Arg[] args() default {};
+    Arg arg0() default @Arg(key = "");
 
     /**
      * 検証の対象となるメソッド名を指定します。 複数ある場合はカンマで区切ります。

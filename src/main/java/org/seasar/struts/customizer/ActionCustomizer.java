@@ -24,7 +24,6 @@ import java.util.Map;
 
 import org.apache.commons.validator.Form;
 import org.apache.commons.validator.FormSet;
-import org.apache.commons.validator.ValidatorResources;
 import org.apache.commons.validator.Var;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMessages;
@@ -57,6 +56,7 @@ import org.seasar.struts.exception.InputNotDefinedRuntimeException;
 import org.seasar.struts.util.ActionUtil;
 import org.seasar.struts.util.ModuleConfigUtil;
 import org.seasar.struts.util.ValidatorResourcesUtil;
+import org.seasar.struts.validator.S2ValidatorResources;
 
 /**
  * Actionのカスタマイザです。
@@ -72,10 +72,9 @@ public class ActionCustomizer implements ComponentCustomizer {
         S2ModuleConfig moduleConfig = ModuleConfigUtil.getModuleConfig();
         moduleConfig.addActionConfig(actionMapping);
         moduleConfig.addFormBeanConfig(formConfig);
-        FormSet formSet = createFormSet(actionMapping);
-        ValidatorResources validatorResources = ValidatorResourcesUtil
+        S2ValidatorResources validatorResources = ValidatorResourcesUtil
                 .getValidatorResources();
-        validatorResources.addFormSet(formSet);
+        setupValidator(actionMapping, validatorResources);
     }
 
     /**
@@ -274,13 +273,16 @@ public class ActionCustomizer implements ComponentCustomizer {
     }
 
     /**
-     * フォームセットを作成します。
+     * バリデータをセットアップします。
+     * 
      * 
      * @param actionMapping
      *            アクションマッピング
-     * @return フォームセット
+     * @param validatorResources
+     *            検証リソース
      */
-    protected FormSet createFormSet(S2ActionMapping actionMapping) {
+    protected void setupValidator(S2ActionMapping actionMapping,
+            S2ValidatorResources validatorResources) {
         FormSet formSet = new FormSet();
         Map<String, Form> forms = new HashMap<String, Form>();
         for (String methodName : actionMapping.getExecuteMethodNames()) {
@@ -297,24 +299,29 @@ public class ActionCustomizer implements ComponentCustomizer {
                 continue;
             }
             for (Annotation anno : field.getDeclaredAnnotations()) {
-                processAnnotation(forms, pd.getPropertyName(), anno);
+                processAnnotation(pd.getPropertyName(), anno,
+                        validatorResources, forms);
             }
         }
-        return formSet;
+        validatorResources.addFormSet(formSet);
     }
 
     /**
      * アノテーションを処理します。
      * 
-     * @param forms
-     *            メソッド名をキーにしたフォームのマップ
+     * 
      * @param propertyName
      *            プロパティ名
      * @param annotation
      *            アノテーション
+     * @param validatorResources
+     *            検証リソース
+     * @param forms
+     *            メソッド名をキーにしたフォームのマップ
      */
-    protected void processAnnotation(Map<String, Form> forms,
-            String propertyName, Annotation annotation) {
+    protected void processAnnotation(String propertyName,
+            Annotation annotation, S2ValidatorResources validatorResources,
+            Map<String, Form> forms) {
         Class<? extends Annotation> annotationType = annotation
                 .annotationType();
         Annotation metaAnnotation = annotationType
@@ -324,7 +331,8 @@ public class ActionCustomizer implements ComponentCustomizer {
         }
         String validatorName = getValidatorName(metaAnnotation);
         Map<String, Object> props = AnnotationUtil.getProperties(annotation);
-        registerValidator(forms, propertyName, validatorName, props);
+        registerValidator(propertyName, validatorName, props,
+                validatorResources, forms);
     }
 
     /**
@@ -343,19 +351,23 @@ public class ActionCustomizer implements ComponentCustomizer {
     /**
      * バリデータを登録します。
      * 
-     * @param forms
-     *            メソッド名をキーにしたフォームのマップ
+     * 
      * @param propertyName
      *            プロパティ名
      * @param validatorName
      *            バリデータ名
      * @param props
      *            バリデータのプロパティ
+     * @param validatorResources
+     *            検証リソース
+     * @param forms
+     *            メソッド名をキーにしたフォームのマップ
      */
-    protected void registerValidator(Map<String, Form> forms,
-            String propertyName, String validatorName, Map<String, Object> props) {
+    protected void registerValidator(String propertyName, String validatorName,
+            Map<String, Object> props, S2ValidatorResources validatorResources,
+            Map<String, Form> forms) {
         org.apache.commons.validator.Field field = createField(propertyName,
-                validatorName, props);
+                validatorName, props, validatorResources);
         for (Iterator<String> i = forms.keySet().iterator(); i.hasNext();) {
             String methodName = i.next();
             if (!isTarget(methodName, (String) props.get("target"))) {
@@ -375,10 +387,13 @@ public class ActionCustomizer implements ComponentCustomizer {
      *            バリデータ名
      * @param props
      *            バリデータのプロパティ
+     * @param validatorResources
+     *            検証リソース
      * @return 検証用のフィールド
      */
     protected org.apache.commons.validator.Field createField(
-            String propertyName, String validatorName, Map<String, Object> props) {
+            String propertyName, String validatorName,
+            Map<String, Object> props, S2ValidatorResources validatorResources) {
         org.apache.commons.validator.Field field = new org.apache.commons.validator.Field();
         field.setDepends(validatorName);
         field.setProperty(propertyName);
@@ -395,11 +410,12 @@ public class ActionCustomizer implements ComponentCustomizer {
             field.addMsg(m);
         }
         Arg[] args = (Arg[]) props.remove("args");
-        if (args != null) {
+        if (args != null && args.length > 0) {
             for (Arg arg : args) {
                 org.apache.commons.validator.Arg a = new org.apache.commons.validator.Arg();
                 a.setName(validatorName);
-                a.setKey(arg.key());
+                a.setKey(resolveKey(arg.key(), arg.resource(), props,
+                        validatorResources));
                 String bundle = arg.bundle();
                 if (!StringUtil.isEmpty(bundle)) {
                     a.setBundle(bundle);
@@ -407,6 +423,28 @@ public class ActionCustomizer implements ComponentCustomizer {
                 a.setResource(arg.resource());
                 a.setPosition(arg.position());
                 field.addArg(a);
+            }
+        } else {
+            for (int i = 0; i < 5; i++) {
+                Arg arg = (Arg) props.remove("arg" + i);
+                if (arg != null && !StringUtil.isEmpty(arg.key())) {
+                    org.apache.commons.validator.Arg a = new org.apache.commons.validator.Arg();
+                    a.setName(validatorName);
+                    a.setKey(resolveKey(arg.key(), arg.resource(), props,
+                            validatorResources));
+                    String bundle = arg.bundle();
+                    if (!StringUtil.isEmpty(bundle)) {
+                        a.setBundle(bundle);
+                    }
+                    a.setResource(arg.resource());
+                    a.setPosition(i);
+                    field.addArg(a);
+                } else if (i == 0) {
+                    org.apache.commons.validator.Arg a = new org.apache.commons.validator.Arg();
+                    a.setName(validatorName);
+                    a.setKey("labels." + propertyName);
+                    field.addArg(a);
+                }
             }
         }
         for (Iterator<String> i = props.keySet().iterator(); i.hasNext();) {
@@ -424,6 +462,36 @@ public class ActionCustomizer implements ComponentCustomizer {
             field.addVar(name, value.toString(), jsType);
         }
         return field;
+    }
+
+    /**
+     * キーに変数が使われていた場合にその変数を解決します。
+     * 
+     * @param key
+     *            キー
+     * @param resource
+     *            リソースを使うかどうか
+     * @param props
+     *            バリデータのプロパティ
+     * @param validatorResources
+     *            検証リソース
+     * 
+     * @return 解決されたキー
+     */
+    protected String resolveKey(String key, boolean resource,
+            Map<String, Object> props, S2ValidatorResources validatorResources) {
+        if (resource) {
+            return key;
+        }
+        if (key.startsWith("${") && key.endsWith("}")) {
+            String s = key.substring(2, key.length() - 1);
+            if (s.startsWith("var:")) {
+                s = s.substring(4);
+                return String.valueOf(props.get(s));
+            }
+            return validatorResources.getConstant(s);
+        }
+        return key;
     }
 
     /**

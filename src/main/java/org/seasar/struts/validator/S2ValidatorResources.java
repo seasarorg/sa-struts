@@ -17,7 +17,12 @@ package org.seasar.struts.validator;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.util.Locale;
 
+import org.apache.commons.digester.Digester;
+import org.apache.commons.digester.xmlrules.DigesterLoader;
+import org.apache.commons.validator.Form;
 import org.apache.commons.validator.ValidatorResources;
 import org.seasar.framework.util.Disposable;
 import org.seasar.framework.util.DisposableUtil;
@@ -35,9 +40,28 @@ public class S2ValidatorResources extends ValidatorResources implements
     private static final long serialVersionUID = 1L;
 
     /**
+     * DTDがどこに登録されているかです。
+     */
+    protected static final String registrations[] = {
+            "-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.0//EN",
+            "/org/apache/commons/validator/resources/validator_1_0.dtd",
+            "-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.0.1//EN",
+            "/org/apache/commons/validator/resources/validator_1_0_1.dtd",
+            "-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.1//EN",
+            "/org/apache/commons/validator/resources/validator_1_1.dtd",
+            "-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.1.3//EN",
+            "/org/apache/commons/validator/resources/validator_1_1_3.dtd" };
+
+    /**
      * 初期化されたかどうかです。
      */
     protected volatile boolean initialized = false;
+
+    /**
+     * インスタンスを構築します。
+     */
+    public S2ValidatorResources() {
+    }
 
     /**
      * インスタンスを構築します。
@@ -51,7 +75,23 @@ public class S2ValidatorResources extends ValidatorResources implements
      */
     public S2ValidatorResources(InputStream[] streams) throws IOException,
             SAXException {
-        super(streams);
+        URL rulesUrl = ValidatorResources.class
+                .getResource("digester-rules.xml");
+        Digester digester = DigesterLoader.createDigester(rulesUrl);
+        digester.setNamespaceAware(true);
+        digester.setValidating(true);
+        digester.setUseContextClassLoader(true);
+        for (int i = 0; i < registrations.length; i += 2) {
+            URL url = ValidatorResources.class
+                    .getResource(registrations[i + 1]);
+            if (url != null) {
+                digester.register(registrations[i], url.toString());
+            }
+        }
+        for (int i = 0; i < streams.length; i++) {
+            digester.push(this);
+            digester.parse(streams[i]);
+        }
         initialize();
     }
 
@@ -66,5 +106,27 @@ public class S2ValidatorResources extends ValidatorResources implements
     public void dispose() {
         hFormSets.clear();
         initialized = false;
+    }
+
+    @Override
+    public Form getForm(Locale locale, String formKey) {
+        if (!initialized) {
+            initialize();
+        }
+        return super.getForm(locale, formKey);
+    }
+
+    /**
+     * 定数を返します。
+     * 
+     * @param name
+     * @return
+     */
+    public String getConstant(String name) {
+        return (String) hConstants.get(name);
+    }
+
+    @Override
+    public void process() {
     }
 }
