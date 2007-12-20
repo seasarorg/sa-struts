@@ -21,7 +21,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 必須かどうかを指定するためのアノテーションです。
+ * 正規表現に一致するどうかを指定するためのアノテーションです。
  * 
  * @author higa
  * 
@@ -30,6 +30,12 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @Validator("mask")
 public @interface Mask {
+
+    /**
+     * 正規表現です。
+     * 
+     */
+    String mask();
 
     /**
      * メッセージです。
