@@ -23,7 +23,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.validator.Form;
-import org.apache.commons.validator.FormSet;
 import org.apache.commons.validator.Var;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMessages;
@@ -283,12 +282,10 @@ public class ActionCustomizer implements ComponentCustomizer {
      */
     protected void setupValidator(S2ActionMapping actionMapping,
             S2ValidatorResources validatorResources) {
-        FormSet formSet = new FormSet();
         Map<String, Form> forms = new HashMap<String, Form>();
         for (String methodName : actionMapping.getExecuteMethodNames()) {
             Form form = new Form();
             form.setName(actionMapping.getName() + "_" + methodName);
-            formSet.addForm(form);
             forms.put(methodName, form);
         }
         BeanDesc beanDesc = actionMapping.getActionFormBeanDesc();
@@ -303,7 +300,10 @@ public class ActionCustomizer implements ComponentCustomizer {
                         validatorResources, forms);
             }
         }
-        validatorResources.addFormSet(formSet);
+        for (Iterator<Form> i = forms.values().iterator(); i.hasNext();) {
+            validatorResources.addForm(i.next());
+        }
+
     }
 
     /**
@@ -413,7 +413,10 @@ public class ActionCustomizer implements ComponentCustomizer {
         if (args != null && args.length > 0) {
             for (Arg arg : args) {
                 org.apache.commons.validator.Arg a = new org.apache.commons.validator.Arg();
-                a.setName(validatorName);
+                String name = arg.name();
+                if (!StringUtil.isEmpty(name)) {
+                    a.setName(name);
+                }
                 a.setKey(resolveKey(arg.key(), arg.resource(), props,
                         validatorResources));
                 String bundle = arg.bundle();
@@ -424,29 +427,31 @@ public class ActionCustomizer implements ComponentCustomizer {
                 a.setPosition(arg.position());
                 field.addArg(a);
             }
-        } else {
-            for (int i = 0; i < 5; i++) {
-                Arg arg = (Arg) props.remove("arg" + i);
-                if (arg != null && !StringUtil.isEmpty(arg.key())) {
-                    org.apache.commons.validator.Arg a = new org.apache.commons.validator.Arg();
-                    a.setName(validatorName);
-                    a.setKey(resolveKey(arg.key(), arg.resource(), props,
-                            validatorResources));
-                    String bundle = arg.bundle();
-                    if (!StringUtil.isEmpty(bundle)) {
-                        a.setBundle(bundle);
-                    }
-                    a.setResource(arg.resource());
-                    a.setPosition(i);
-                    field.addArg(a);
-                } else if (i == 0) {
-                    org.apache.commons.validator.Arg a = new org.apache.commons.validator.Arg();
-                    a.setName(validatorName);
-                    a.setKey("labels." + propertyName);
-                    field.addArg(a);
+        }
+        for (int i = 0; i < 5; i++) {
+            Arg arg = (Arg) props.remove("arg" + i);
+            if (arg != null && !StringUtil.isEmpty(arg.key())) {
+                org.apache.commons.validator.Arg a = new org.apache.commons.validator.Arg();
+                String name = arg.name();
+                if (!StringUtil.isEmpty(name)) {
+                    a.setName(name);
                 }
+                a.setKey(resolveKey(arg.key(), arg.resource(), props,
+                        validatorResources));
+                String bundle = arg.bundle();
+                if (!StringUtil.isEmpty(bundle)) {
+                    a.setBundle(bundle);
+                }
+                a.setResource(arg.resource());
+                a.setPosition(i);
+                field.addArg(a);
+            } else if (i == 0) {
+                org.apache.commons.validator.Arg a = new org.apache.commons.validator.Arg();
+                a.setKey("labels." + propertyName);
+                field.addArg(a);
             }
         }
+
         for (Iterator<String> i = props.keySet().iterator(); i.hasNext();) {
             String name = i.next();
             if (name.equals("target")) {

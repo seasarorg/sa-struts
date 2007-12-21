@@ -1,5 +1,5 @@
 /*
- * Copyright 2004-2005 the Seasar Foundation and the Others.
+ * Copyright 2004-2007 the Seasar Foundation and the Others.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,42 +21,55 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * メッセージの引数です。
+ * 倍精度実数が指定した範囲内かどうかを検証するためのアノテーションです。
  * 
  * @author higa
  * 
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface Arg {
+@Validator("doubleRange")
+public @interface DoubleRange {
 
     /**
-     * キーです。
+     * 最小値です。
      * 
      */
-    String key();
+    String min();
 
     /**
-     * バリデータ名です。
+     * 最大値です。
      * 
      */
-    String name() default "";
+    String max();
 
     /**
-     * リソースバンドル名です。
+     * メッセージです。
      * 
      */
-    String bundle() default "";
+    Msg msg() default @Msg(key = "errors.range");
 
     /**
-     * リソースから値をとってくるかどうかです。
+     * メッセージの最初の引数です。
      * 
      */
-    boolean resource() default true;
+    Arg arg0() default @Arg(key = "");
 
     /**
-     * 引数の位置です。
+     * メッセージの二番目の引数です。
      * 
      */
-    int position() default 0;
+    Arg arg1() default @Arg(key = "${var:min}", resource = false);
+
+    /**
+     * メッセージの三番目の引数です。
+     * 
+     */
+    Arg arg2() default @Arg(key = "${var:max}", resource = false);
+
+    /**
+     * 検証の対象となるメソッド名を指定します。 複数ある場合はカンマで区切ります。
+     * 
+     */
+    String target() default "";
 }

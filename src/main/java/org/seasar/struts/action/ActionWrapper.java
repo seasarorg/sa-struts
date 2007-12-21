@@ -89,6 +89,9 @@ public class ActionWrapper extends Action {
                 return execute(name, request);
             }
         }
+        if (actionMapping.getExecuteConfig("execute") != null) {
+            return execute("execute", request);
+        }
         return null;
     }
 

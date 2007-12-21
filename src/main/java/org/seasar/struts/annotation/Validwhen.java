@@ -21,7 +21,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 条件式に一致するかどうかを指定するためのアノテーションです。
+ * 条件式に一致するかどうかを検証するためのアノテーションです。
  * 
  * @author higa
  * 

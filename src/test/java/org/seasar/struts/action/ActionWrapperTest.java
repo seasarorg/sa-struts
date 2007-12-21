@@ -111,6 +111,33 @@ public class ActionWrapperTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testExecute_results_execute() throws Exception {
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        actionMapping.setComponentDef(getComponentDef("bbbAction"));
+        Method m = BbbAction.class.getDeclaredMethod("execute");
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null, null);
+        actionMapping.addExecuteConfig(executeConfig);
+        m = BbbAction.class.getDeclaredMethod("execute2");
+        executeConfig = new S2ExecuteConfig(m, true, null, null);
+        actionMapping.addExecuteConfig(executeConfig);
+        ActionForward fowardConfig = new ActionForward();
+        fowardConfig.setName("success");
+        fowardConfig.setPath("/aaa/bbb.jsp");
+        actionMapping.addForwardConfig(fowardConfig);
+        fowardConfig = new ActionForward();
+        fowardConfig.setName("success2");
+        fowardConfig.setPath("/aaa/bbb2.jsp");
+        actionMapping.addForwardConfig(fowardConfig);
+        ActionWrapper wrapper = new ActionWrapper(actionMapping);
+        ForwardConfig forward = wrapper.execute(actionMapping, null,
+                getRequest(), getResponse());
+        assertNotNull(forward);
+        assertEquals("/aaa/bbb.jsp", forward.getPath());
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testExecute_validate() throws Exception {
         register(CccAction.class, "cccAction");
         S2ActionMapping actionMapping = new S2ActionMapping();

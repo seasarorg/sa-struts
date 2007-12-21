@@ -18,7 +18,9 @@ package org.seasar.struts.validator;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.xmlrules.DigesterLoader;
@@ -42,7 +44,7 @@ public class S2ValidatorResources extends ValidatorResources implements
     /**
      * DTDがどこに登録されているかです。
      */
-    protected static final String registrations[] = {
+    protected static final String REGISTRATIONS[] = {
             "-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.0//EN",
             "/org/apache/commons/validator/resources/validator_1_0.dtd",
             "-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.0.1//EN",
@@ -50,12 +52,21 @@ public class S2ValidatorResources extends ValidatorResources implements
             "-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.1//EN",
             "/org/apache/commons/validator/resources/validator_1_1.dtd",
             "-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.1.3//EN",
-            "/org/apache/commons/validator/resources/validator_1_1_3.dtd" };
+            "/org/apache/commons/validator/resources/validator_1_1_3.dtd",
+            "-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.2.0//EN",
+            "/org/apache/commons/validator/resources/validator_1_2_0.dtd",
+            "-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.3.0//EN",
+            "/org/apache/commons/validator/resources/validator_1_3_0.dtd" };
 
     /**
      * 初期化されたかどうかです。
      */
     protected volatile boolean initialized = false;
+
+    /**
+     * フォームのマップです。
+     */
+    protected Map<String, Form> forms = new HashMap<String, Form>();
 
     /**
      * インスタンスを構築します。
@@ -81,11 +92,11 @@ public class S2ValidatorResources extends ValidatorResources implements
         digester.setNamespaceAware(true);
         digester.setValidating(true);
         digester.setUseContextClassLoader(true);
-        for (int i = 0; i < registrations.length; i += 2) {
+        for (int i = 0; i < REGISTRATIONS.length; i += 2) {
             URL url = ValidatorResources.class
-                    .getResource(registrations[i + 1]);
+                    .getResource(REGISTRATIONS[i + 1]);
             if (url != null) {
-                digester.register(registrations[i], url.toString());
+                digester.register(REGISTRATIONS[i], url.toString());
             }
         }
         for (int i = 0; i < streams.length; i++) {
@@ -104,7 +115,7 @@ public class S2ValidatorResources extends ValidatorResources implements
     }
 
     public void dispose() {
-        hFormSets.clear();
+        forms.clear();
         initialized = false;
     }
 
@@ -113,20 +124,27 @@ public class S2ValidatorResources extends ValidatorResources implements
         if (!initialized) {
             initialize();
         }
-        return super.getForm(locale, formKey);
+        return forms.get(formKey);
+    }
+
+    /**
+     * フォームを追加します。
+     * 
+     * @param form
+     *            フォーム
+     */
+    public void addForm(Form form) {
+        forms.put(form.getName(), form);
     }
 
     /**
      * 定数を返します。
      * 
      * @param name
-     * @return
+     * @return 定数
      */
+    @SuppressWarnings("deprecation")
     public String getConstant(String name) {
         return (String) hConstants.get(name);
-    }
-
-    @Override
-    public void process() {
     }
 }

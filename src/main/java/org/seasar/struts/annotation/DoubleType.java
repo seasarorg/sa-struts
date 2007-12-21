@@ -1,5 +1,5 @@
 /*
- * Copyright 2004-2005 the Seasar Foundation and the Others.
+ * Copyright 2004-2007 the Seasar Foundation and the Others.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,42 +21,31 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * メッセージの引数です。
+ * 倍精度実数かどうかを検証するためのアノテーションです。
  * 
  * @author higa
  * 
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface Arg {
+@Validator("double")
+public @interface DoubleType {
 
     /**
-     * キーです。
+     * メッセージです。
      * 
      */
-    String key();
+    Msg msg() default @Msg(key = "errors.double");
 
     /**
-     * バリデータ名です。
+     * メッセージの最初の引数です。
      * 
      */
-    String name() default "";
+    Arg arg0() default @Arg(key = "");
 
     /**
-     * リソースバンドル名です。
+     * 検証の対象となるメソッド名を指定します。 複数ある場合はカンマで区切ります。
      * 
      */
-    String bundle() default "";
-
-    /**
-     * リソースから値をとってくるかどうかです。
-     * 
-     */
-    boolean resource() default true;
-
-    /**
-     * 引数の位置です。
-     * 
-     */
-    int position() default 0;
+    String target() default "";
 }

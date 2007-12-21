@@ -1,5 +1,5 @@
 /*
- * Copyright 2004-2005 the Seasar Foundation and the Others.
+ * Copyright 2004-2007 the Seasar Foundation and the Others.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,42 +21,55 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * メッセージの引数です。
+ * URLかどうかを検証するためのアノテーションです。
  * 
  * @author higa
  * 
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface Arg {
+@Validator("url")
+public @interface UrlType {
 
     /**
-     * キーです。
+     * すべてのスキームを許可するかどうかです。
      * 
      */
-    String key();
+    boolean allowallschemes() default false;
 
     /**
-     * バリデータ名です。
+     * ダブルスラッシュ（//）を許可するかどうかです。
      * 
      */
-    String name() default "";
+    boolean allow2slashes() default false;
 
     /**
-     * リソースバンドル名です。
+     * 分割を許可するかどうかです。
      * 
      */
-    String bundle() default "";
+    boolean nofragments() default false;
 
     /**
-     * リソースから値をとってくるかどうかです。
+     * 許可するスキームを（カンマ）で指定します。
      * 
      */
-    boolean resource() default true;
+    String schemes() default "http,https,ftp";
 
     /**
-     * 引数の位置です。
+     * メッセージです。
      * 
      */
-    int position() default 0;
+    Msg msg() default @Msg(key = "errors.url");
+
+    /**
+     * メッセージの最初の引数です。
+     * 
+     */
+    Arg arg0() default @Arg(key = "");
+
+    /**
+     * 検証の対象となるメソッド名を指定します。 複数ある場合はカンマで区切ります。
+     * 
+     */
+    String target() default "";
 }

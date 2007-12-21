@@ -21,7 +21,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 必須かどうかを指定するためのアノテーションです。
+ * 必須かどうかを検証するためのアノテーションです。
  * 
  * @author higa
  * 

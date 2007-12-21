@@ -361,7 +361,7 @@ public class ActionCustomizerTest extends S2TestCase {
         org.apache.commons.validator.Arg a = f.getArg("required", 0);
         assertNotNull(a);
         assertEquals("labels.hoge", a.getKey());
-        assertEquals("required", a.getName());
+        assertNull(a.getName());
         assertTrue(a.isResource());
         assertNull(a.getBundle());
     }

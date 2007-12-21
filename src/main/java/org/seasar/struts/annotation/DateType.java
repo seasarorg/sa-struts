@@ -1,5 +1,5 @@
 /*
- * Copyright 2004-2005 the Seasar Foundation and the Others.
+ * Copyright 2004-2007 the Seasar Foundation and the Others.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,42 +21,43 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * メッセージの引数です。
+ * 日付かどうかを検証するためのアノテーションです。
  * 
  * @author higa
  * 
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface Arg {
+@Validator("date")
+public @interface DateType {
 
     /**
-     * キーです。
+     * 日付のパターンです。
      * 
      */
-    String key();
+    String datePattern() default "";
 
     /**
-     * バリデータ名です。
+     * 厳密な日付のパターンです。
      * 
      */
-    String name() default "";
+    String datePatternStrict() default "";
 
     /**
-     * リソースバンドル名です。
+     * メッセージです。
      * 
      */
-    String bundle() default "";
+    Msg msg() default @Msg(key = "errors.date");
 
     /**
-     * リソースから値をとってくるかどうかです。
+     * メッセージの最初の引数です。
      * 
      */
-    boolean resource() default true;
+    Arg arg0() default @Arg(key = "");
 
     /**
-     * 引数の位置です。
+     * 検証の対象となるメソッド名を指定します。 複数ある場合はカンマで区切ります。
      * 
      */
-    int position() default 0;
+    String target() default "";
 }
