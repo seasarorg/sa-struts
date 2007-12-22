@@ -21,27 +21,33 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 文字列長の最小値を指定するためのアノテーションです。
+ * 文字列のバイト長の最大値を指定するためのアノテーションです。
  * 
  * @author higa
  * 
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-@Validator("minlength")
-public @interface Minlength {
+@Validator("maxbytelength")
+public @interface Maxbytelength {
 
     /**
-     * 最小値です。
+     * 最大値です。
      * 
      */
-    int minlength();
+    int maxbytelength();
+
+    /**
+     * チャーセットです。
+     * 
+     */
+    String charset() default "";
 
     /**
      * メッセージです。
      * 
      */
-    Msg msg() default @Msg(key = "errors.minlength");
+    Msg msg() default @Msg(key = "errors.maxbytelength");
 
     /**
      * メッセージの最初の引数です。
@@ -53,7 +59,7 @@ public @interface Minlength {
      * メッセージの二番目の引数です。
      * 
      */
-    Arg arg1() default @Arg(key = "${var:minlength}", resource = false);
+    Arg arg1() default @Arg(key = "${var:maxbytelength}", resource = false);
 
     /**
      * 検証の対象となるメソッド名を指定します。 複数ある場合はカンマで区切ります。

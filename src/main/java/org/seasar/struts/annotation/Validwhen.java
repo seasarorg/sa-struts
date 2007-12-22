@@ -44,6 +44,12 @@ public @interface Validwhen {
     Msg msg();
 
     /**
+     * メッセージの最初の引数です。
+     * 
+     */
+    Arg arg0() default @Arg(key = "");
+
+    /**
      * メッセージの引数の配列です。
      * 
      */

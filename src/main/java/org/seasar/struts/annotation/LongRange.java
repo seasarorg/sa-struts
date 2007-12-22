@@ -21,27 +21,33 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 文字列長の最小値を指定するためのアノテーションです。
+ * 長整数が指定した範囲内かどうかを検証するためのアノテーションです。
  * 
  * @author higa
  * 
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-@Validator("minlength")
-public @interface Minlength {
+@Validator("longRange")
+public @interface LongRange {
 
     /**
      * 最小値です。
      * 
      */
-    int minlength();
+    long min();
+
+    /**
+     * 最大値です。
+     * 
+     */
+    long max();
 
     /**
      * メッセージです。
      * 
      */
-    Msg msg() default @Msg(key = "errors.minlength");
+    Msg msg() default @Msg(key = "errors.range");
 
     /**
      * メッセージの最初の引数です。
@@ -53,7 +59,13 @@ public @interface Minlength {
      * メッセージの二番目の引数です。
      * 
      */
-    Arg arg1() default @Arg(key = "${var:minlength}", resource = false);
+    Arg arg1() default @Arg(key = "${var:min}", resource = false);
+
+    /**
+     * メッセージの三番目の引数です。
+     * 
+     */
+    Arg arg2() default @Arg(key = "${var:max}", resource = false);
 
     /**
      * 検証の対象となるメソッド名を指定します。 複数ある場合はカンマで区切ります。

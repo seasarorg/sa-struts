@@ -448,6 +448,7 @@ public class ActionCustomizer implements ComponentCustomizer {
             } else if (i == 0) {
                 org.apache.commons.validator.Arg a = new org.apache.commons.validator.Arg();
                 a.setKey("labels." + propertyName);
+                a.setPosition(0);
                 field.addArg(a);
             }
         }

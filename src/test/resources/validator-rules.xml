@@ -299,7 +299,7 @@
                   msg="errors.url"/>
 
       <validator name="minbytelength"
-            classname="org.seasar.struts.validator.FieldChecks"
+            classname="org.seasar.struts.validator.S2FieldChecks"
                method="validateMinByteLength"
          methodParams="java.lang.Object,
                        org.apache.commons.validator.ValidatorAction,
@@ -312,7 +312,7 @@
 
 
       <validator name="maxbytelength"
-            classname="org.seasar.struts.validator.FieldChecks"
+            classname="org.seasar.struts.validator.S2FieldChecks"
                method="validateMaxByteLength"
          methodParams="java.lang.Object,
                        org.apache.commons.validator.ValidatorAction,
@@ -322,6 +322,18 @@
                        javax.servlet.http.HttpServletRequest"
               depends=""
                   msg="errors.maxbytelength"/>
+                  
+     <validator name="longRange"
+            classname="org.seasar.struts.validator.S2FieldChecks"
+               method="validateLongRange"
+         methodParams="java.lang.Object,
+                       org.apache.commons.validator.ValidatorAction,
+                       org.apache.commons.validator.Field,
+                       org.apache.struts.action.ActionMessages,
+                       org.apache.commons.validator.Validator,
+                       javax.servlet.http.HttpServletRequest"
+              depends="long"
+                  msg="errors.range"/>
 
      <!--
        This simply allows struts to include the validateUtilities into a page, it should
