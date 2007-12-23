@@ -53,6 +53,7 @@ import org.seasar.struts.exception.IllegalExecuteMethodRuntimeException;
 import org.seasar.struts.exception.IllegalValidateMethodRuntimeException;
 import org.seasar.struts.exception.InputNotDefinedRuntimeException;
 import org.seasar.struts.util.ActionUtil;
+import org.seasar.struts.util.MessageResourcesUtil;
 import org.seasar.struts.util.ModuleConfigUtil;
 import org.seasar.struts.util.ValidatorResourcesUtil;
 import org.seasar.struts.validator.S2ValidatorResources;
@@ -447,7 +448,14 @@ public class ActionCustomizer implements ComponentCustomizer {
                 field.addArg(a);
             } else if (i == 0) {
                 org.apache.commons.validator.Arg a = new org.apache.commons.validator.Arg();
-                a.setKey("labels." + propertyName);
+                String key = "labels." + propertyName;
+                String message = MessageResourcesUtil.getMessage(key);
+                if (!StringUtil.isEmpty(message)) {
+                    a.setKey(key);
+                } else {
+                    a.setKey(propertyName);
+                    a.setResource(false);
+                }
                 a.setPosition(0);
                 field.addArg(a);
             }

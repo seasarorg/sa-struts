@@ -27,6 +27,7 @@ import org.apache.commons.validator.Var;
 import org.apache.struts.Globals;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.config.ForwardConfig;
+import org.apache.struts.util.MessageResourcesFactory;
 import org.apache.struts.validator.ValidatorPlugIn;
 import org.seasar.extension.unit.S2TestCase;
 import org.seasar.framework.beans.MethodNotFoundRuntimeException;
@@ -49,6 +50,7 @@ import org.seasar.struts.exception.ExecuteMethodNotFoundRuntimeException;
 import org.seasar.struts.exception.IllegalExecuteMethodRuntimeException;
 import org.seasar.struts.exception.IllegalValidateMethodRuntimeException;
 import org.seasar.struts.exception.InputNotDefinedRuntimeException;
+import org.seasar.struts.util.S2PropertyMessageResourcesFactory;
 import org.seasar.struts.util.ValidatorResourcesUtil;
 import org.seasar.struts.validator.S2ValidatorResources;
 
@@ -68,6 +70,9 @@ public class ActionCustomizerTest extends S2TestCase {
     public void setUp() {
         getServletContext().setAttribute(Globals.SERVLET_KEY, "/*");
         getServletContext().setAttribute(Globals.MODULE_KEY, moduleConfig);
+        MessageResourcesFactory mrf = new S2PropertyMessageResourcesFactory();
+        getServletContext().setAttribute(Globals.MESSAGES_KEY,
+                mrf.createResources("SASMessages"));
         register(BbbAction.class, "aaa_bbbAction");
         getServletContext().setAttribute(ValidatorPlugIn.VALIDATOR_KEY,
                 validatorResources);
