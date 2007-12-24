@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 @Validator("creditCard")
-public @interface CreditCard {
+public @interface CreditCardType {
 
     /**
      * メッセージです。
