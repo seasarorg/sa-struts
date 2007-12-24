@@ -73,6 +73,13 @@ public class WrapperUtilTest extends TestCase {
     /**
      * @throws Exception
      */
+    public void testConvert_enum() throws Exception {
+        assertEquals(MyEnum.ONE, WrapperUtil.convert(MyEnum.ONE));
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testConvert_bean() throws Exception {
         MyBean bean = new MyBean();
         bean.aaa = "111";
@@ -85,5 +92,31 @@ public class WrapperUtilTest extends TestCase {
          * 
          */
         public String aaa;
+    }
+
+    private static enum MyEnum {
+        /**
+         * 
+         */
+        ONE {
+            @Override
+            public String hoge() {
+                return name();
+            }
+        },
+        /**
+         * 
+         */
+        TWO {
+            @Override
+            public String hoge() {
+                return name();
+            }
+        };
+
+        /**
+         * @return
+         */
+        public abstract String hoge();
     }
 }

@@ -58,6 +58,10 @@ public final class WrapperUtil {
         if (Map.class.isAssignableFrom(clazz)) {
             return (T) new MapWrapper((Map) value);
         }
+        if (clazz.getSuperclass().isEnum()) {
+            return (T) value;
+        }
+
         return (T) new BeanWrapper(value);
     }
 }
