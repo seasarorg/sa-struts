@@ -26,6 +26,7 @@ import org.apache.struts.action.ActionMessages;
 import org.apache.struts.action.ActionServlet;
 import org.apache.struts.config.ForwardConfig;
 import org.seasar.extension.unit.S2TestCase;
+import org.seasar.struts.annotation.ActionForm;
 import org.seasar.struts.annotation.Execute;
 import org.seasar.struts.annotation.Input;
 import org.seasar.struts.annotation.Required;
@@ -231,6 +232,32 @@ public class ActionWrapperTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testExportPropertiesToRequest_actionAndForm() throws Exception {
+        register(FffAction.class, "fffAction");
+        register(MyForm.class, "myForm");
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        actionMapping.setComponentDef(getComponentDef("fffAction"));
+        Method m = FffAction.class.getDeclaredMethod("execute");
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null, null);
+        actionMapping.addExecuteConfig(executeConfig);
+        ActionForward fowardConfig = new ActionForward();
+        fowardConfig.setName("success");
+        fowardConfig.setPath("/aaa/bbb.jsp");
+        actionMapping.addForwardConfig(fowardConfig);
+        actionMapping.setActionFormPropertyDesc(actionMapping
+                .getActionBeanDesc().getPropertyDesc("myForm"));
+        FffAction action = (FffAction) getComponent("fffAction");
+        action.hoge = "111";
+        action.myForm.aaa = "222";
+        ActionWrapper wrapper = new ActionWrapper(actionMapping);
+        wrapper.execute(actionMapping, null, getRequest(), getResponse());
+        assertEquals("111", getRequest().getAttribute("hoge"));
+        assertEquals("222", getRequest().getAttribute("aaa"));
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testValidate() throws Exception {
         register(EeeAction.class, "aaa_eeeAction");
         ActionCustomizer customizer = new ActionCustomizer();
@@ -336,6 +363,32 @@ public class ActionWrapperTest extends S2TestCase {
         }
     }
 
+    /**
+     * 
+     */
+    @Input(path = "/aaa/input.jsp")
+    public static class FffAction {
+
+        /**
+         * 
+         */
+        @ActionForm
+        public MyForm myForm;
+
+        /**
+         * 
+         */
+        public String hoge;
+
+        /**
+         * @return
+         */
+        @Execute
+        public String execute() {
+            return "success";
+        }
+    }
+
     private static class MyActionServlet extends ActionServlet {
         private static final long serialVersionUID = 1L;
 
@@ -353,5 +406,15 @@ public class ActionWrapperTest extends S2TestCase {
         public ServletContext getServletContext() {
             return servletContext;
         }
+    }
+
+    /**
+     * 
+     */
+    public static class MyForm {
+        /**
+         * 
+         */
+        public String aaa;
     }
 }

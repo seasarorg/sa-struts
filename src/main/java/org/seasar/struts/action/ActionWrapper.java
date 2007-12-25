@@ -166,7 +166,12 @@ public class ActionWrapper extends Action {
             Object value = WrapperUtil.convert(pd.getValue(actionForm));
             request.setAttribute(pd.getPropertyName(), value);
         }
-
+        beanDesc = actionMapping.getActionBeanDesc();
+        for (int i = 0; i < beanDesc.getPropertyDescSize(); i++) {
+            PropertyDesc pd = beanDesc.getPropertyDesc(i);
+            Object value = WrapperUtil.convert(pd.getValue(action));
+            request.setAttribute(pd.getPropertyName(), value);
+        }
     }
 
     /**
