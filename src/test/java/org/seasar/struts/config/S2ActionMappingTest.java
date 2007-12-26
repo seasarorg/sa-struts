@@ -17,9 +17,11 @@ package org.seasar.struts.config;
 
 import java.lang.reflect.Method;
 
+import org.apache.struts.action.ActionForward;
 import org.seasar.extension.unit.S2TestCase;
 import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.impl.ComponentDefImpl;
+import org.seasar.struts.exception.ForwardNotFoundRuntimeException;
 
 /**
  * @author higa
@@ -38,6 +40,36 @@ public class S2ActionMappingTest extends S2TestCase {
     public void testScope() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
         assertEquals("request", actionMapping.getScope());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testFindForward() throws Exception {
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        ActionForward forward = new ActionForward("input", "/aaa/input.jsp",
+                false);
+        actionMapping.addForwardConfig(forward);
+        assertNotNull(actionMapping.findForward("input"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testFindForward_notFound() throws Exception {
+        ComponentDefImpl cd = new ComponentDefImpl(MyAction.class);
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        actionMapping.setComponentDef(cd);
+        S2ModuleConfig moduleConfig = new S2ModuleConfig("");
+        actionMapping.setModuleConfig(moduleConfig);
+        try {
+            actionMapping.findForward("xxx");
+            fail();
+        } catch (ForwardNotFoundRuntimeException e) {
+            System.out.println(e);
+            assertEquals(MyAction.class, e.getActionClass());
+            assertEquals("xxx", e.getForwardName());
+        }
     }
 
     /**

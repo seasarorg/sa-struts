@@ -30,6 +30,7 @@ import org.seasar.struts.annotation.ActionForm;
 import org.seasar.struts.annotation.Execute;
 import org.seasar.struts.annotation.Input;
 import org.seasar.struts.annotation.Required;
+import org.seasar.struts.annotation.Result;
 import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.config.S2ModuleConfig;
@@ -411,6 +412,7 @@ public class ActionWrapperTest extends S2TestCase {
     /**
      * 
      */
+    @Result(name = "input", path = "/aaa/input2.jsp")
     public static class GggAction {
 
         /**
@@ -422,7 +424,7 @@ public class ActionWrapperTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute(validator = true, input = "/aaa/input2.jsp")
+        @Execute(validator = true, input = "input")
         public String execute() {
             return "success";
         }

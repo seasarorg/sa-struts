@@ -19,11 +19,14 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.apache.struts.config.ForwardConfig;
 import org.seasar.framework.beans.BeanDesc;
 import org.seasar.framework.beans.PropertyDesc;
 import org.seasar.framework.beans.factory.BeanDescFactory;
 import org.seasar.framework.container.ComponentDef;
+import org.seasar.struts.exception.ForwardNotFoundRuntimeException;
 
 /**
  * Seasar2用のアクションマッピングです。
@@ -73,6 +76,21 @@ public class S2ActionMapping extends ActionMapping {
      */
     public S2ActionMapping() {
         scope = "request";
+    }
+
+    @Override
+    public ActionForward findForward(String name)
+            throws ForwardNotFoundRuntimeException {
+        ForwardConfig config = findForwardConfig(name);
+        if (config == null) {
+            config = getModuleConfig().findForwardConfig(name);
+        }
+        if (config == null) {
+            throw new ForwardNotFoundRuntimeException(componentDef
+                    .getComponentClass(), name);
+        }
+        return ((ActionForward) config);
+
     }
 
     /**

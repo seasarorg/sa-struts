@@ -25,7 +25,6 @@ import org.apache.commons.beanutils.DynaClass;
 import org.apache.commons.validator.Form;
 import org.apache.commons.validator.Var;
 import org.apache.struts.Globals;
-import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.config.ForwardConfig;
 import org.apache.struts.util.MessageResourcesFactory;
@@ -197,10 +196,7 @@ public class ActionCustomizerTest extends S2TestCase {
         assertFalse(executeConfig.isValidator());
         assertNotNull(executeConfig.getValidateMethod());
         assertEquals(SaveType.REQUEST, executeConfig.getSaveErrors());
-        ActionForward inputForward = executeConfig.getInputForward();
-        assertNotNull(inputForward);
-        assertEquals("/aaa/input2.jsp", inputForward.getPath());
-        assertFalse(inputForward.getRedirect());
+        assertEquals("input2", executeConfig.getInput());
         assertEquals(1, actionMapping.getExecuteConfigSize());
     }
 
@@ -477,7 +473,8 @@ public class ActionCustomizerTest extends S2TestCase {
      * 
      */
     @Input(path = "/aaa/input.jsp")
-    @Result(path = "/aaa/bbb.jsp")
+    @Results( { @Result(path = "/aaa/bbb.jsp"),
+            @Result(name = "input2", path = "/aaa/input2.jsp") })
     public static class BbbAction {
 
         /**
@@ -500,7 +497,7 @@ public class ActionCustomizerTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute(validator = false, validate = "validate", input = "/aaa/input2.jsp")
+        @Execute(validator = false, validate = "validate", input = "input2")
         public String execute() {
             return "success";
         }

@@ -18,7 +18,6 @@ package org.seasar.struts.config;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
-import org.apache.struts.action.ActionForward;
 import org.seasar.struts.enums.SaveType;
 
 /**
@@ -50,14 +49,14 @@ public class S2ExecuteConfig implements Serializable {
     protected Method validateMethod;
 
     /**
-     * 検証エラー時の遷移先です。
-     */
-    protected ActionForward inputForward;
-
-    /**
      * エラーメッセージの保存場所です。
      */
     protected SaveType saveErrors;
+
+    /**
+     * 検証エラー時の遷移先です。
+     */
+    protected String input;
 
     /**
      * インスタンスを構築します。
@@ -70,17 +69,16 @@ public class S2ExecuteConfig implements Serializable {
      *            検証メソッド
      * @param saveErrors
      *            エラーメッセージの保存場所
-     * @param inputForward
-     *            検証エラー時の遷移先です。
+     * @param input
+     *            検証エラー時の遷移先
      */
     public S2ExecuteConfig(Method method, boolean validator,
-            Method validateMethod, SaveType saveErrors,
-            ActionForward inputForward) {
+            Method validateMethod, SaveType saveErrors, String input) {
         this.method = method;
         this.validator = validator;
         this.validateMethod = validateMethod;
         this.saveErrors = saveErrors;
-        this.inputForward = inputForward;
+        this.input = input;
     }
 
     /**
@@ -124,7 +122,7 @@ public class S2ExecuteConfig implements Serializable {
      * 
      * @return 検証エラー時の遷移先
      */
-    public ActionForward getInputForward() {
-        return inputForward;
+    public String getInput() {
+        return input;
     }
 }

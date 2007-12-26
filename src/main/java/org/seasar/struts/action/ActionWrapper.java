@@ -193,8 +193,8 @@ public class ActionWrapper extends Action {
             request.getSession().setAttribute(Globals.ERROR_KEY, errors);
         }
         exportPropertiesToRequest(request);
-        if (executeConfig.getInputForward() != null) {
-            return executeConfig.getInputForward();
+        if (executeConfig.getInput() != null) {
+            return actionMapping.findForward(executeConfig.getInput());
         }
         return actionMapping.findForward(actionMapping.getInput());
     }
