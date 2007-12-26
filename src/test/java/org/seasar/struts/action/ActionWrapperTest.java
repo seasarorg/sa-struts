@@ -68,7 +68,8 @@ public class ActionWrapperTest extends S2TestCase {
         S2ActionMapping actionMapping = new S2ActionMapping();
         actionMapping.setComponentDef(getComponentDef("bbbAction"));
         Method m = BbbAction.class.getDeclaredMethod("execute");
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null, null);
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null,
+                null, null);
         actionMapping.addExecuteConfig(executeConfig);
         ActionForward fowardConfig = new ActionForward();
         fowardConfig.setName("success");
@@ -88,10 +89,11 @@ public class ActionWrapperTest extends S2TestCase {
         S2ActionMapping actionMapping = new S2ActionMapping();
         actionMapping.setComponentDef(getComponentDef("bbbAction"));
         Method m = BbbAction.class.getDeclaredMethod("execute");
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null, null);
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null,
+                null, null);
         actionMapping.addExecuteConfig(executeConfig);
         m = BbbAction.class.getDeclaredMethod("execute2");
-        executeConfig = new S2ExecuteConfig(m, true, null, null);
+        executeConfig = new S2ExecuteConfig(m, true, null, null, null);
         actionMapping.addExecuteConfig(executeConfig);
         ActionForward fowardConfig = new ActionForward();
         fowardConfig.setName("success");
@@ -116,10 +118,11 @@ public class ActionWrapperTest extends S2TestCase {
         S2ActionMapping actionMapping = new S2ActionMapping();
         actionMapping.setComponentDef(getComponentDef("bbbAction"));
         Method m = BbbAction.class.getDeclaredMethod("execute");
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null, null);
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null,
+                null, null);
         actionMapping.addExecuteConfig(executeConfig);
         m = BbbAction.class.getDeclaredMethod("execute2");
-        executeConfig = new S2ExecuteConfig(m, true, null, null);
+        executeConfig = new S2ExecuteConfig(m, true, null, null, null);
         actionMapping.addExecuteConfig(executeConfig);
         ActionForward fowardConfig = new ActionForward();
         fowardConfig.setName("success");
@@ -146,7 +149,7 @@ public class ActionWrapperTest extends S2TestCase {
         Method m = CccAction.class.getDeclaredMethod("execute");
         Method m2 = CccAction.class.getDeclaredMethod("validate");
         S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, m2,
-                SaveType.REQUEST);
+                SaveType.REQUEST, null);
         actionMapping.addExecuteConfig(executeConfig);
         ActionForward fowardConfig = new ActionForward();
         fowardConfig.setName("success");
@@ -192,7 +195,7 @@ public class ActionWrapperTest extends S2TestCase {
         Method m = DddAction.class.getDeclaredMethod("execute");
         Method m2 = DddAction.class.getDeclaredMethod("validate");
         S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, m2,
-                SaveType.SESSION);
+                SaveType.SESSION, null);
         actionMapping.addExecuteConfig(executeConfig);
         ActionForward fowardConfig = new ActionForward();
         fowardConfig.setName("success");
@@ -218,7 +221,8 @@ public class ActionWrapperTest extends S2TestCase {
         S2ActionMapping actionMapping = new S2ActionMapping();
         actionMapping.setComponentDef(getComponentDef("bbbAction"));
         Method m = BbbAction.class.getDeclaredMethod("execute");
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null, null);
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null,
+                null, null);
         actionMapping.addExecuteConfig(executeConfig);
         ActionForward fowardConfig = new ActionForward();
         fowardConfig.setName("success");
@@ -238,7 +242,8 @@ public class ActionWrapperTest extends S2TestCase {
         S2ActionMapping actionMapping = new S2ActionMapping();
         actionMapping.setComponentDef(getComponentDef("fffAction"));
         Method m = FffAction.class.getDeclaredMethod("execute");
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null, null);
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null,
+                null, null);
         actionMapping.addExecuteConfig(executeConfig);
         ActionForward fowardConfig = new ActionForward();
         fowardConfig.setName("success");
@@ -258,7 +263,7 @@ public class ActionWrapperTest extends S2TestCase {
     /**
      * @throws Exception
      */
-    public void testValidate() throws Exception {
+    public void testValidate_validator() throws Exception {
         register(EeeAction.class, "aaa_eeeAction");
         ActionCustomizer customizer = new ActionCustomizer();
         customizer.customize(getComponentDef("aaa_eeeAction"));
@@ -268,6 +273,20 @@ public class ActionWrapperTest extends S2TestCase {
         ActionMessages errors = wrapper.validate("execute", getRequest());
         System.out.println(errors);
         assertFalse(errors.isEmpty());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testInputForward() throws Exception {
+        register(GggAction.class, "aaa_gggAction");
+        ActionCustomizer customizer = new ActionCustomizer();
+        customizer.customize(getComponentDef("aaa_gggAction"));
+        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
+                .findActionConfig("/aaa/ggg");
+        ActionWrapper wrapper = new ActionWrapper(actionMapping);
+        ActionForward forward = wrapper.execute("execute", getRequest());
+        assertEquals("/aaa/input2.jsp", forward.getPath());
     }
 
     /**
@@ -384,6 +403,26 @@ public class ActionWrapperTest extends S2TestCase {
          * @return
          */
         @Execute
+        public String execute() {
+            return "success";
+        }
+    }
+
+    /**
+     * 
+     */
+    public static class GggAction {
+
+        /**
+         * 
+         */
+        @Required
+        public String hoge;
+
+        /**
+         * @return
+         */
+        @Execute(validator = true, input = "/aaa/input2.jsp")
         public String execute() {
             return "success";
         }

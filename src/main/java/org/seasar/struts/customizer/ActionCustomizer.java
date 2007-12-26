@@ -191,14 +191,23 @@ public class ActionCustomizer implements ComponentCustomizer {
                                 actionClass, validateMethod.getName());
 
                     }
-                    if (actionMapping.getInput() == null) {
-                        throw new InputNotDefinedRuntimeException(actionClass,
-                                validateMethod.getName());
-                    }
-                }
 
+                }
+                ActionForward inputForward = null;
+                String input = execute.input();
+                if (!StringUtil.isEmpty(input)) {
+                    inputForward = new ActionForward(m.getName() + "_input",
+                            input, false);
+                }
+                if ((execute.validator() || !StringUtil.isEmpty(validate))
+                        && StringUtil.isEmpty(input)
+                        && actionMapping.getInput() == null) {
+                    throw new InputNotDefinedRuntimeException(actionClass, m
+                            .getName());
+                }
                 S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, execute
-                        .validator(), validateMethod, execute.saveErrors());
+                        .validator(), validateMethod, execute.saveErrors(),
+                        inputForward);
                 actionMapping.addExecuteConfig(executeConfig);
             }
         }

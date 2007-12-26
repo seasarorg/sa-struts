@@ -19,7 +19,7 @@ import org.seasar.framework.exception.SRuntimeException;
 
 /**
  * <p>
- * プロパティに対するフィールドが見つからない場合の例外です。
+ * List<T>でない場合の例外です。
  * </p>
  * 
  * @author higa

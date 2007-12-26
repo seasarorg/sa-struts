@@ -18,7 +18,7 @@ package org.seasar.struts.exception;
 import org.seasar.framework.exception.SRuntimeException;
 
 /**
- * Inputアノテーションが定義されていない場合の例外です。
+ * inputが定義されていない場合の例外です。
  * 
  * 
  * @author higa
@@ -30,22 +30,22 @@ public class InputNotDefinedRuntimeException extends SRuntimeException {
 
     private Class<?> actionClass;
 
-    private String validateMethodName;
+    private String executeMethodName;
 
     /**
      * インスタンスを構築します。
      * 
      * @param actionClass
      *            アクションクラス
-     * @param validateMethodName
-     *            検証メソッド名
+     * @param executeMethodName
+     *            実行メソッド名
      */
     public InputNotDefinedRuntimeException(Class<?> actionClass,
-            String validateMethodName) {
+            String executeMethodName) {
         super("ESAS0005", new Object[] { actionClass.getName(),
-                validateMethodName });
+                executeMethodName });
         this.actionClass = actionClass;
-        this.validateMethodName = validateMethodName;
+        this.executeMethodName = executeMethodName;
     }
 
     /**
@@ -58,11 +58,11 @@ public class InputNotDefinedRuntimeException extends SRuntimeException {
     }
 
     /**
-     * 検証メソッド名を返します。
+     * 実行メソッド名を返します。
      * 
-     * @return 検証メソッド名
+     * @return 実行メソッド名
      */
-    public String getValidateMethodName() {
-        return validateMethodName;
+    public String getExecuteMethodName() {
+        return executeMethodName;
     }
 }

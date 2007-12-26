@@ -45,6 +45,12 @@ public @interface Execute {
     String validate() default "";
 
     /**
+     * 検証エラー時の遷移先です。
+     * 
+     */
+    String input() default "";
+
+    /**
      * エラーメッセージの保存場所です。
      * 
      */

@@ -31,6 +31,6 @@ public class InputNotDefinedRuntimeExceptionTest extends TestCase {
                 getClass(), "testAll");
         System.out.println(e);
         assertEquals(getClass(), e.getActionClass());
-        assertEquals("testAll", e.getValidateMethodName());
+        assertEquals("testAll", e.getExecuteMethodName());
     }
 }

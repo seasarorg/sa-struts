@@ -46,7 +46,8 @@ public class S2ActionMappingTest extends S2TestCase {
     public void testExecuteConfig() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
         Method m = getClass().getDeclaredMethod("testExecuteConfig");
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null, null);
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null,
+                null, null);
         actionMapping.addExecuteConfig(executeConfig);
         assertSame(executeConfig, actionMapping
                 .getExecuteConfig("testExecuteConfig"));
