@@ -38,6 +38,7 @@ import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.enums.SaveType;
 import org.seasar.struts.util.ActionFormUtil;
+import org.seasar.struts.util.S2ExecuteConfigUtil;
 import org.seasar.struts.util.ServletContextUtil;
 
 /**
@@ -108,6 +109,7 @@ public class ActionWrapper extends Action {
             HttpServletRequest request) {
         S2ExecuteConfig executeConfig = actionMapping
                 .getExecuteConfig(methodName);
+        S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
         if (executeConfig.isValidator()) {
             ActionMessages errors = validate(methodName, request);
             if (errors != null && !errors.isEmpty()) {

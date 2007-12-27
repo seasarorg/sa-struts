@@ -21,9 +21,12 @@ import javax.servlet.http.HttpSession;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.struts.Globals;
 import org.seasar.framework.aop.interceptors.ThrowsInterceptor;
-import org.seasar.framework.container.SingletonS2Container;
+import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.enums.SaveType;
 import org.seasar.struts.exception.ActionMessagesException;
+import org.seasar.struts.util.RequestUtil;
+import org.seasar.struts.util.S2ActionMappingUtil;
+import org.seasar.struts.util.S2ExecuteConfigUtil;
 
 /**
  * {@link ActionMessagesException}を処理するThrowsInterceptorです。
@@ -48,14 +51,17 @@ public class ActionMessagesThrowsInterceptor extends ThrowsInterceptor {
      */
     public String handleThrowable(ActionMessagesException e,
             MethodInvocation invocation) throws Throwable {
-        HttpServletRequest request = SingletonS2Container
-                .getComponent(HttpServletRequest.class);
+        HttpServletRequest request = RequestUtil.getRequest();
         if (e.getSaveErrors() == SaveType.REQUEST) {
             request.setAttribute(Globals.ERROR_KEY, e.getMessages());
         } else {
             HttpSession session = request.getSession();
             session.setAttribute(Globals.ERROR_KEY, e.getMessages());
         }
-        return "input";
+        S2ExecuteConfig executeConfig = S2ExecuteConfigUtil.getExecuteConfig();
+        if (executeConfig.getInput() != null) {
+            return executeConfig.getInput();
+        }
+        return S2ActionMappingUtil.getActionMapping().getInput();
     }
 }

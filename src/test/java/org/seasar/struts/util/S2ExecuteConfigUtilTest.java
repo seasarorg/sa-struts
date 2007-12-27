@@ -13,30 +13,23 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.seasar.struts.interceptor;
+package org.seasar.struts.util;
 
-import org.apache.struts.Globals;
 import org.seasar.extension.unit.S2TestCase;
 import org.seasar.struts.config.S2ExecuteConfig;
-import org.seasar.struts.exception.ActionMessagesException;
-import org.seasar.struts.util.S2ExecuteConfigUtil;
 
 /**
  * @author higa
  * 
  */
-public class ActionMessagesThrowsInterceptorTest extends S2TestCase {
+public class S2ExecuteConfigUtilTest extends S2TestCase {
 
     /**
-     * @throws Throwable
+     * @throws Exception
      */
-    public void testHandleThrowable() throws Throwable {
+    public void testAll() throws Exception {
         S2ExecuteConfigUtil.setExecuteConfig(new S2ExecuteConfig(null, false,
-                null, null, "input"));
-        ActionMessagesException e = new ActionMessagesException(
-                "errors.required", "hoge");
-        ActionMessagesThrowsInterceptor interceptor = new ActionMessagesThrowsInterceptor();
-        assertEquals("input", interceptor.handleThrowable(e, null));
-        assertNotNull(getRequest().getAttribute(Globals.ERROR_KEY));
+                null, null, null));
+        assertNotNull(S2ExecuteConfigUtil.getExecuteConfig());
     }
 }
