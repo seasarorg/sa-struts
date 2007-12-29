@@ -13,38 +13,12 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.seasar.struts.annotation;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package org.seasar.struts.config.web.aaa;
 
 /**
- * 遷移先を指定するためのアノテーションです。
- * 
  * @author higa
  * 
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface Result {
+public class AaaAction {
 
-    /**
-     * 遷移先名です。
-     * 
-     */
-    String name() default "success";
-
-    /**
-     * パスです。
-     * 
-     */
-    String path();
-
-    /**
-     * リダイレクトするかどうかです。
-     * 
-     */
-    boolean redirect() default false;
 }

@@ -24,7 +24,6 @@ import java.util.Map;
 
 import org.apache.commons.validator.Form;
 import org.apache.commons.validator.Var;
-import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMessages;
 import org.seasar.framework.beans.BeanDesc;
 import org.seasar.framework.beans.PropertyDesc;
@@ -39,10 +38,7 @@ import org.seasar.struts.action.S2DynaProperty;
 import org.seasar.struts.annotation.ActionForm;
 import org.seasar.struts.annotation.Arg;
 import org.seasar.struts.annotation.Execute;
-import org.seasar.struts.annotation.Input;
 import org.seasar.struts.annotation.Msg;
-import org.seasar.struts.annotation.Result;
-import org.seasar.struts.annotation.Results;
 import org.seasar.struts.annotation.Validator;
 import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
@@ -91,73 +87,10 @@ public class ActionCustomizer implements ComponentCustomizer {
         actionMapping.setComponentDef(componentDef);
         actionMapping.setName(componentDef.getComponentName() + "Form");
         Class<?> actionClass = componentDef.getComponentClass();
-        setupInput(actionMapping, actionClass);
-        setupResult(actionMapping, actionClass);
         setupMethod(actionMapping, actionClass);
         setupActionForm(actionMapping, actionClass);
         setupReset(actionMapping, actionClass);
         return actionMapping;
-    }
-
-    /**
-     * 入力元の情報をセットアップします。
-     * 
-     * @param actionMapping
-     *            アクションマッピング
-     * @param actionClass
-     *            アクションクラス
-     */
-    protected void setupInput(S2ActionMapping actionMapping,
-            Class<?> actionClass) {
-        Input input = actionClass.getAnnotation(Input.class);
-        if (input == null) {
-            return;
-        }
-        actionMapping.setInput(input.name());
-        ActionForward forward = new ActionForward();
-        forward.setName(input.name());
-        forward.setPath(input.path());
-        forward.setRedirect(input.redirect());
-        actionMapping.addForwardConfig(forward);
-    }
-
-    /**
-     * 遷移先の情報をセットアップします。
-     * 
-     * @param actionMapping
-     *            アクションマッピング
-     * @param actionClass
-     *            アクションクラス
-     */
-    protected void setupResult(S2ActionMapping actionMapping,
-            Class<?> actionClass) {
-        Result result = actionClass.getAnnotation(Result.class);
-        if (result != null) {
-            setupResult(actionMapping, result);
-            return;
-        }
-        Results results = actionClass.getAnnotation(Results.class);
-        if (results != null) {
-            for (Result r : results.value()) {
-                setupResult(actionMapping, r);
-            }
-        }
-    }
-
-    /**
-     * 遷移先の情報をセットアップします。
-     * 
-     * @param actionMapping
-     *            アクションマッピング
-     * @param result
-     *            遷移先
-     */
-    protected void setupResult(S2ActionMapping actionMapping, Result result) {
-        ActionForward forward = new ActionForward();
-        forward.setName(result.name());
-        forward.setPath(result.path());
-        forward.setRedirect(result.redirect());
-        actionMapping.addForwardConfig(forward);
     }
 
     /**
@@ -196,7 +129,7 @@ public class ActionCustomizer implements ComponentCustomizer {
                 String input = !StringUtil.isEmpty(execute.input()) ? execute
                         .input() : null;
                 if ((execute.validator() || validateMethod != null)
-                        && input == null && actionMapping.getInput() == null) {
+                        && input == null) {
                     throw new InputNotDefinedRuntimeException(actionClass, m
                             .getName());
                 }

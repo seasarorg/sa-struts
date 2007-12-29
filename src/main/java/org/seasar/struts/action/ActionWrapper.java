@@ -127,7 +127,7 @@ public class ActionWrapper extends Action {
         String next = (String) MethodUtil.invoke(executeConfig.getMethod(),
                 action, null);
         exportPropertiesToRequest(request);
-        return actionMapping.findForward(next);
+        return actionMapping.createForward(next);
     }
 
     /**
@@ -195,9 +195,6 @@ public class ActionWrapper extends Action {
             request.getSession().setAttribute(Globals.ERROR_KEY, errors);
         }
         exportPropertiesToRequest(request);
-        if (executeConfig.getInput() != null) {
-            return actionMapping.findForward(executeConfig.getInput());
-        }
-        return actionMapping.findForward(actionMapping.getInput());
+        return actionMapping.createForward(executeConfig.getInput());
     }
 }

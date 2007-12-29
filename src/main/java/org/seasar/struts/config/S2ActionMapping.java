@@ -21,12 +21,10 @@ import java.util.Map;
 
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.apache.struts.config.ForwardConfig;
 import org.seasar.framework.beans.BeanDesc;
 import org.seasar.framework.beans.PropertyDesc;
 import org.seasar.framework.beans.factory.BeanDescFactory;
 import org.seasar.framework.container.ComponentDef;
-import org.seasar.struts.exception.ForwardNotFoundRuntimeException;
 
 /**
  * Seasar2用のアクションマッピングです。
@@ -36,10 +34,9 @@ import org.seasar.struts.exception.ForwardNotFoundRuntimeException;
  */
 public class S2ActionMapping extends ActionMapping {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
+
+    private static final String REDIRECT = "redirect=true";
 
     /**
      * コンポーネント定義です。
@@ -76,21 +73,70 @@ public class S2ActionMapping extends ActionMapping {
      */
     public S2ActionMapping() {
         scope = "request";
+        validate = false;
     }
 
-    @Override
-    public ActionForward findForward(String name)
-            throws ForwardNotFoundRuntimeException {
-        ForwardConfig config = findForwardConfig(name);
-        if (config == null) {
-            config = getModuleConfig().findForwardConfig(name);
+    /**
+     * @param path
+     * @return
+     */
+    /**
+     * アクションフォワードを作成します。
+     * 
+     * @param path
+     *            パス
+     * @return アクションフォワード
+     */
+    public ActionForward createForward(String path) {
+        boolean redirect = false;
+        if (path.endsWith(REDIRECT)) {
+            redirect = true;
+            path = path.substring(0, path.length() - REDIRECT.length() - 1);
         }
-        if (config == null) {
-            throw new ForwardNotFoundRuntimeException(componentDef
-                    .getComponentClass(), name);
+        if (path.indexOf('/') < 0) {
+            path = getSubApplicationPath(componentDef.getComponentClass()
+                    .getName())
+                    + path;
         }
-        return ((ActionForward) config);
+        return new ActionForward(path, redirect);
 
+    }
+
+    /**
+     * サブアプリケーションパスを返します。
+     * 
+     * @param className
+     *            アクションのクラス名
+     * @return サブアプリケーションパス
+     */
+    protected String getSubApplicationPath(String className) {
+        String name = null;
+        int index = className.indexOf(".web.");
+        if (index >= 0) {
+            name = className.substring(index + 5);
+        } else {
+            index = className.indexOf(".action.");
+            if (index >= 0) {
+                name = className.substring(index + 8);
+            } else {
+                index = className.indexOf("web.");
+                if (index >= 0) {
+                    name = className.substring(index + 4);
+                } else {
+                    index = className.indexOf("action.");
+                    if (index >= 0) {
+                        name = className.substring(index + 7);
+                    } else {
+                        throw new IllegalArgumentException(className);
+                    }
+                }
+            }
+        }
+        index = name.lastIndexOf('.');
+        if (index < 0) {
+            throw new IllegalArgumentException(className);
+        }
+        return "/" + name.substring(0, index).replace('.', '/') + '/';
     }
 
     /**

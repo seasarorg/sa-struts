@@ -28,9 +28,7 @@ import org.apache.struts.config.ForwardConfig;
 import org.seasar.extension.unit.S2TestCase;
 import org.seasar.struts.annotation.ActionForm;
 import org.seasar.struts.annotation.Execute;
-import org.seasar.struts.annotation.Input;
 import org.seasar.struts.annotation.Required;
-import org.seasar.struts.annotation.Result;
 import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.config.S2ModuleConfig;
@@ -72,10 +70,6 @@ public class ActionWrapperTest extends S2TestCase {
         S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null,
                 null, null);
         actionMapping.addExecuteConfig(executeConfig);
-        ActionForward fowardConfig = new ActionForward();
-        fowardConfig.setName("success");
-        fowardConfig.setPath("/aaa/bbb.jsp");
-        actionMapping.addForwardConfig(fowardConfig);
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
         ForwardConfig forward = wrapper.execute(actionMapping, null,
                 getRequest(), getResponse());
@@ -150,17 +144,8 @@ public class ActionWrapperTest extends S2TestCase {
         Method m = CccAction.class.getDeclaredMethod("execute");
         Method m2 = CccAction.class.getDeclaredMethod("validate");
         S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, m2,
-                SaveType.REQUEST, null);
+                SaveType.REQUEST, "/aaa/input.jsp");
         actionMapping.addExecuteConfig(executeConfig);
-        ActionForward fowardConfig = new ActionForward();
-        fowardConfig.setName("success");
-        fowardConfig.setPath("/aaa/bbb.jsp");
-        actionMapping.addForwardConfig(fowardConfig);
-        fowardConfig = new ActionForward();
-        fowardConfig.setName("input");
-        fowardConfig.setPath("/aaa/input.jsp");
-        actionMapping.addForwardConfig(fowardConfig);
-        actionMapping.setInput("input");
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
         ForwardConfig forward = wrapper.execute(actionMapping, null,
                 getRequest(), getResponse());
@@ -196,17 +181,8 @@ public class ActionWrapperTest extends S2TestCase {
         Method m = DddAction.class.getDeclaredMethod("execute");
         Method m2 = DddAction.class.getDeclaredMethod("validate");
         S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, m2,
-                SaveType.SESSION, null);
+                SaveType.SESSION, "/aaa/input.jsp");
         actionMapping.addExecuteConfig(executeConfig);
-        ActionForward fowardConfig = new ActionForward();
-        fowardConfig.setName("success");
-        fowardConfig.setPath("/aaa/bbb.jsp");
-        actionMapping.addForwardConfig(fowardConfig);
-        fowardConfig = new ActionForward();
-        fowardConfig.setName("input");
-        fowardConfig.setPath("/aaa/input.jsp");
-        actionMapping.addForwardConfig(fowardConfig);
-        actionMapping.setInput("input");
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
         ForwardConfig forward = wrapper.execute(actionMapping, null,
                 getRequest(), getResponse());
@@ -246,10 +222,6 @@ public class ActionWrapperTest extends S2TestCase {
         S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null,
                 null, null);
         actionMapping.addExecuteConfig(executeConfig);
-        ActionForward fowardConfig = new ActionForward();
-        fowardConfig.setName("success");
-        fowardConfig.setPath("/aaa/bbb.jsp");
-        actionMapping.addForwardConfig(fowardConfig);
         actionMapping.setActionFormPropertyDesc(actionMapping
                 .getActionBeanDesc().getPropertyDesc("myForm"));
         FffAction action = (FffAction) getComponent("fffAction");
@@ -305,14 +277,14 @@ public class ActionWrapperTest extends S2TestCase {
          */
         public String execute() {
             hoge = "111";
-            return "success";
+            return "/aaa/bbb.jsp";
         }
 
         /**
          * @return
          */
         public String execute2() {
-            return "success2";
+            return "/aaa/bbb2.jsp";
         }
     }
 
@@ -347,7 +319,7 @@ public class ActionWrapperTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute(validate = "validate", saveErrors = SaveType.SESSION)
+        @Execute(validate = "validate", saveErrors = SaveType.SESSION, input = "/aaa/input.jsp")
         public String execute() {
             return "success";
         }
@@ -365,7 +337,6 @@ public class ActionWrapperTest extends S2TestCase {
     /**
      * 
      */
-    @Input(path = "/aaa/input.jsp")
     public static class EeeAction {
 
         /**
@@ -377,7 +348,7 @@ public class ActionWrapperTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute(validator = true)
+        @Execute(input = "/aaa/input.jsp")
         public String execute() {
             return "success";
         }
@@ -386,7 +357,6 @@ public class ActionWrapperTest extends S2TestCase {
     /**
      * 
      */
-    @Input(path = "/aaa/input.jsp")
     public static class FffAction {
 
         /**
@@ -405,14 +375,13 @@ public class ActionWrapperTest extends S2TestCase {
          */
         @Execute
         public String execute() {
-            return "success";
+            return "/aaa/bbb.jsp";
         }
     }
 
     /**
      * 
      */
-    @Result(name = "input", path = "/aaa/input2.jsp")
     public static class GggAction {
 
         /**
@@ -424,7 +393,7 @@ public class ActionWrapperTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute(validator = true, input = "input")
+        @Execute(input = "/aaa/input2.jsp")
         public String execute() {
             return "success";
         }

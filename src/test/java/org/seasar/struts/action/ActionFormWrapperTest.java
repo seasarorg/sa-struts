@@ -19,7 +19,6 @@ import org.seasar.extension.unit.S2TestCase;
 import org.seasar.framework.beans.PropertyNotFoundRuntimeException;
 import org.seasar.struts.annotation.Execute;
 import org.seasar.struts.annotation.Required;
-import org.seasar.struts.annotation.Result;
 import org.seasar.struts.config.S2ActionMapping;
 
 /**
@@ -101,7 +100,6 @@ public class ActionFormWrapperTest extends S2TestCase {
     /**
      * 
      */
-    @Result(path = "/aaa/bbb.jsp")
     public static class BbbAction {
 
         /**
@@ -116,7 +114,7 @@ public class ActionFormWrapperTest extends S2TestCase {
         @Execute
         public String execute() {
             hoge = "111";
-            return "success";
+            return "/aaa/bbb.jsp";
         }
 
         /**

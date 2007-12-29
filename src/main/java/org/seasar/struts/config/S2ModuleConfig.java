@@ -46,7 +46,6 @@ public class S2ModuleConfig extends ModuleConfigImpl implements Disposable {
      */
     public S2ModuleConfig(String prefix) {
         super(prefix);
-        getControllerConfig().setInputForward(true);
         initialize();
     }
 

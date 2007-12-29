@@ -21,7 +21,7 @@ import org.apache.struts.action.ActionForward;
 import org.seasar.extension.unit.S2TestCase;
 import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.impl.ComponentDefImpl;
-import org.seasar.struts.exception.ForwardNotFoundRuntimeException;
+import org.seasar.struts.config.web.aaa.AaaAction;
 
 /**
  * @author higa
@@ -45,31 +45,71 @@ public class S2ActionMappingTest extends S2TestCase {
     /**
      * @throws Exception
      */
-    public void testFindForward() throws Exception {
+    public void testGetSubAppicationPath() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
-        ActionForward forward = new ActionForward("input", "/aaa/input.jsp",
-                false);
-        actionMapping.addForwardConfig(forward);
-        assertNotNull(actionMapping.findForward("input"));
+        assertEquals("/login/", actionMapping
+                .getSubApplicationPath("tutorial.web.login.LoginAction"));
+        assertEquals("/login/", actionMapping
+                .getSubApplicationPath("web.login.LoginAction"));
+        assertEquals("/login/", actionMapping
+                .getSubApplicationPath("tutorial.action.login.LoginAction"));
+        assertEquals("/login/", actionMapping
+                .getSubApplicationPath("action.login.LoginAction"));
+        assertEquals("/login/aaa/", actionMapping
+                .getSubApplicationPath("tutorial.web.login.aaa.LoginAction"));
+        assertEquals("/login/aaa/", actionMapping
+                .getSubApplicationPath("web.login.aaa.LoginAction"));
+        assertEquals("/login/aaa/", actionMapping
+                .getSubApplicationPath("tutorial.action.login.aaa.LoginAction"));
+        assertEquals("/login/aaa/", actionMapping
+                .getSubApplicationPath("action.login.aaa.LoginAction"));
+        try {
+            actionMapping.getSubApplicationPath("LoginAction");
+            fail();
+        } catch (IllegalArgumentException e) {
+            System.out.println(e);
+        }
     }
 
     /**
      * @throws Exception
      */
-    public void testFindForward_notFound() throws Exception {
-        ComponentDefImpl cd = new ComponentDefImpl(MyAction.class);
+    public void testCreateActionForward() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
+        ComponentDef cd = new ComponentDefImpl(AaaAction.class);
         actionMapping.setComponentDef(cd);
-        S2ModuleConfig moduleConfig = new S2ModuleConfig("");
-        actionMapping.setModuleConfig(moduleConfig);
-        try {
-            actionMapping.findForward("xxx");
-            fail();
-        } catch (ForwardNotFoundRuntimeException e) {
-            System.out.println(e);
-            assertEquals(MyAction.class, e.getActionClass());
-            assertEquals("xxx", e.getForwardName());
-        }
+        ActionForward forward = actionMapping.createForward("hoge.jsp");
+        assertNotNull(forward);
+        assertEquals("/aaa/hoge.jsp", forward.getPath());
+        assertFalse(forward.getRedirect());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testCreateActionForward_redirect() throws Exception {
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        ComponentDef cd = new ComponentDefImpl(AaaAction.class);
+        actionMapping.setComponentDef(cd);
+        ActionForward forward = actionMapping
+                .createForward("hoge.jsp?redirect=true");
+        assertNotNull(forward);
+        assertEquals("/aaa/hoge.jsp", forward.getPath());
+        assertTrue(forward.getRedirect());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testCreateActionForward_redirect2() throws Exception {
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        ComponentDef cd = new ComponentDefImpl(AaaAction.class);
+        actionMapping.setComponentDef(cd);
+        ActionForward forward = actionMapping
+                .createForward("hoge.jsp?aaa=1&redirect=true");
+        assertNotNull(forward);
+        assertEquals("/aaa/hoge.jsp?aaa=1", forward.getPath());
+        assertTrue(forward.getRedirect());
     }
 
     /**

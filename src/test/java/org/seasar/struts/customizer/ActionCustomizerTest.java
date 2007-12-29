@@ -26,7 +26,6 @@ import org.apache.commons.validator.Form;
 import org.apache.commons.validator.Var;
 import org.apache.struts.Globals;
 import org.apache.struts.action.ActionMessages;
-import org.apache.struts.config.ForwardConfig;
 import org.apache.struts.util.MessageResourcesFactory;
 import org.apache.struts.validator.ValidatorPlugIn;
 import org.seasar.extension.unit.S2TestCase;
@@ -34,11 +33,8 @@ import org.seasar.framework.beans.MethodNotFoundRuntimeException;
 import org.seasar.framework.util.tiger.AnnotationUtil;
 import org.seasar.struts.annotation.ActionForm;
 import org.seasar.struts.annotation.Execute;
-import org.seasar.struts.annotation.Input;
 import org.seasar.struts.annotation.Msg;
 import org.seasar.struts.annotation.Required;
-import org.seasar.struts.annotation.Result;
-import org.seasar.struts.annotation.Results;
 import org.seasar.struts.annotation.Validator;
 import org.seasar.struts.annotation.Validwhen;
 import org.seasar.struts.config.S2ActionMapping;
@@ -138,49 +134,6 @@ public class ActionCustomizerTest extends S2TestCase {
         S2ActionMapping actionMapping = customizer
                 .createActionMapping(getComponentDef("aaa_bbbAction"));
         assertEquals(BbbAction.class.getName(), actionMapping.getType());
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testSetupInput() throws Exception {
-        S2ActionMapping actionMapping = customizer
-                .createActionMapping(getComponentDef("aaa_bbbAction"));
-        assertEquals("input", actionMapping.getInput());
-        ForwardConfig forwardConfig = actionMapping.findForwardConfig("input");
-        assertEquals("/aaa/input.jsp", forwardConfig.getPath());
-        assertFalse(forwardConfig.getRedirect());
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testSetupResult() throws Exception {
-        S2ActionMapping actionMapping = customizer
-                .createActionMapping(getComponentDef("aaa_bbbAction"));
-        ForwardConfig forwardConfig = actionMapping
-                .findForwardConfig("success");
-        assertNotNull(forwardConfig);
-        assertEquals("/aaa/bbb.jsp", forwardConfig.getPath());
-        assertFalse(forwardConfig.getRedirect());
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testSetupResult_results() throws Exception {
-        register(CccAction.class, "aaa_cccAction");
-        S2ActionMapping actionMapping = customizer
-                .createActionMapping(getComponentDef("aaa_cccAction"));
-        ForwardConfig forwardConfig = actionMapping
-                .findForwardConfig("success");
-        assertNotNull(forwardConfig);
-        assertEquals("/aaa/bbb.jsp", forwardConfig.getPath());
-        assertFalse(forwardConfig.getRedirect());
-        forwardConfig = actionMapping.findForwardConfig("success2");
-        assertNotNull(forwardConfig);
-        assertEquals("/aaa/bbb2.jsp", forwardConfig.getPath());
-        assertFalse(forwardConfig.getRedirect());
     }
 
     /**
@@ -472,9 +425,6 @@ public class ActionCustomizerTest extends S2TestCase {
     /**
      * 
      */
-    @Input(path = "/aaa/input.jsp")
-    @Results( { @Result(path = "/aaa/bbb.jsp"),
-            @Result(name = "input2", path = "/aaa/input2.jsp") })
     public static class BbbAction {
 
         /**
@@ -519,9 +469,6 @@ public class ActionCustomizerTest extends S2TestCase {
     /**
      * 
      */
-    @Input(path = "/aaa/input.jsp")
-    @Results( { @Result(name = "success", path = "/aaa/bbb.jsp"),
-            @Result(name = "success2", path = "/aaa/bbb2.jsp") })
     public static class CccAction {
         /**
          * 
@@ -532,7 +479,7 @@ public class ActionCustomizerTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute
+        @Execute(validator = false)
         public String execute() {
             return "success";
         }
@@ -604,13 +551,11 @@ public class ActionCustomizerTest extends S2TestCase {
     /**
      * 
      */
-    @Input(path = "/aaa/input.jsp")
-    @Result(path = "/aaa/bbb.jsp")
     public static class HhhAction {
         /**
          * @return
          */
-        @Execute(validate = "validate")
+        @Execute(validate = "validate", input = "/aaa/input.jsp")
         public String execute() {
             return "success";
         }
