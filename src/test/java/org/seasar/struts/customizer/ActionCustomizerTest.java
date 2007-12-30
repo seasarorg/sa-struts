@@ -345,6 +345,7 @@ public class ActionCustomizerTest extends S2TestCase {
      * @throws Exception
      */
     public void testRegisterValidator() throws Exception {
+        Form baseForm = new Form();
         Map<String, Form> forms = new HashMap<String, Form>();
         Form form = new Form();
         forms.put("execute", form);
@@ -354,7 +355,9 @@ public class ActionCustomizerTest extends S2TestCase {
         Required r = field.getAnnotation(Required.class);
         Map<String, Object> props = AnnotationUtil.getProperties(r);
         customizer.registerValidator("hoge", "required", props,
-                validatorResources, forms);
+                validatorResources, forms, baseForm);
+        assertNotNull(baseForm.getField("hoge"));
+        assertEquals(1, baseForm.getFields().size());
         assertNotNull(form.getField("hoge"));
         assertNotNull(form2.getField("hoge"));
     }
@@ -363,6 +366,7 @@ public class ActionCustomizerTest extends S2TestCase {
      * @throws Exception
      */
     public void testRegisterValidator_target() throws Exception {
+        Form baseForm = new Form();
         Map<String, Form> forms = new HashMap<String, Form>();
         Form form = new Form();
         forms.put("execute", form);
@@ -372,7 +376,8 @@ public class ActionCustomizerTest extends S2TestCase {
         Validwhen v = field.getAnnotation(Validwhen.class);
         Map<String, Object> props = AnnotationUtil.getProperties(v);
         customizer.registerValidator("hoge2", "validwhen", props,
-                validatorResources, forms);
+                validatorResources, forms, baseForm);
+        assertNotNull(baseForm.getField("hoge2"));
         assertNotNull(form.getField("hoge2"));
         assertNull(form2.getField("hoge2"));
     }
@@ -381,12 +386,15 @@ public class ActionCustomizerTest extends S2TestCase {
      * @throws Exception
      */
     public void testProcessAnnotation() throws Exception {
+        Form baseForm = new Form();
         Map<String, Form> forms = new HashMap<String, Form>();
         Form form = new Form();
         forms.put("execute", form);
         Field field = BbbAction.class.getDeclaredField("hoge");
         Required r = field.getAnnotation(Required.class);
-        customizer.processAnnotation("hoge", r, validatorResources, forms);
+        customizer.processAnnotation("hoge", r, validatorResources, forms,
+                baseForm);
+        assertNotNull(baseForm.getField("hoge"));
         assertNotNull(form.getField("hoge"));
     }
 

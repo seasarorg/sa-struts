@@ -221,6 +221,8 @@ public class ActionCustomizer implements ComponentCustomizer {
     protected void setupValidator(S2ActionMapping actionMapping,
             S2ValidatorResources validatorResources) {
         Map<String, Form> forms = new HashMap<String, Form>();
+        Form baseForm = new Form();
+        baseForm.setName(actionMapping.getName());
         for (String methodName : actionMapping.getExecuteMethodNames()) {
             Form form = new Form();
             form.setName(actionMapping.getName() + "_" + methodName);
@@ -235,9 +237,10 @@ public class ActionCustomizer implements ComponentCustomizer {
             }
             for (Annotation anno : field.getDeclaredAnnotations()) {
                 processAnnotation(pd.getPropertyName(), anno,
-                        validatorResources, forms);
+                        validatorResources, forms, baseForm);
             }
         }
+        validatorResources.addForm(baseForm);
         for (Iterator<Form> i = forms.values().iterator(); i.hasNext();) {
             validatorResources.addForm(i.next());
         }
@@ -256,10 +259,12 @@ public class ActionCustomizer implements ComponentCustomizer {
      *            検証リソース
      * @param forms
      *            メソッド名をキーにしたフォームのマップ
+     * @param baseForm
+     *            メソッドと無関係なベースのフォーム
      */
     protected void processAnnotation(String propertyName,
             Annotation annotation, S2ValidatorResources validatorResources,
-            Map<String, Form> forms) {
+            Map<String, Form> forms, Form baseForm) {
         Class<? extends Annotation> annotationType = annotation
                 .annotationType();
         Annotation metaAnnotation = annotationType
@@ -270,7 +275,7 @@ public class ActionCustomizer implements ComponentCustomizer {
         String validatorName = getValidatorName(metaAnnotation);
         Map<String, Object> props = AnnotationUtil.getProperties(annotation);
         registerValidator(propertyName, validatorName, props,
-                validatorResources, forms);
+                validatorResources, forms, baseForm);
     }
 
     /**
@@ -300,19 +305,26 @@ public class ActionCustomizer implements ComponentCustomizer {
      *            検証リソース
      * @param forms
      *            メソッド名をキーにしたフォームのマップ
+     * @param baseForm
+     *            メソッドと無関係なベースのフォーム
      */
     protected void registerValidator(String propertyName, String validatorName,
             Map<String, Object> props, S2ValidatorResources validatorResources,
-            Map<String, Form> forms) {
+            Map<String, Form> forms, Form baseForm) {
         org.apache.commons.validator.Field field = createField(propertyName,
                 validatorName, props, validatorResources);
+        boolean found = false;
         for (Iterator<String> i = forms.keySet().iterator(); i.hasNext();) {
             String methodName = i.next();
             if (!isTarget(methodName, (String) props.get("target"))) {
                 continue;
             }
+            found = true;
             Form form = forms.get(methodName);
             form.addField(field);
+        }
+        if (found) {
+            baseForm.addField(field);
         }
     }
 
