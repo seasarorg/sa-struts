@@ -69,12 +69,16 @@ public class S2ModuleConfig extends ModuleConfigImpl implements Disposable {
         if (!initialized) {
             initialize();
         }
-        if (HotdeployUtil.isHotdeploy()) {
-            String actionName = ActionUtil.fromPathToActionName(path);
-            SingletonS2ContainerFactory.getContainer().getComponentDef(
-                    actionName);
+        ActionConfig ac = (ActionConfig) actionConfigs.get(path);
+        if (ac == null) {
+            if (HotdeployUtil.isHotdeploy()) {
+                String actionName = ActionUtil.fromPathToActionName(path);
+                SingletonS2ContainerFactory.getContainer().getComponentDef(
+                        actionName);
+                ac = (ActionConfig) actionConfigs.get(path);
+            }
         }
-        return super.findActionConfig(path);
+        return ac;
     }
 
     @Override

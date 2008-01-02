@@ -26,6 +26,8 @@ import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.xmlrules.DigesterLoader;
 import org.apache.commons.validator.Form;
 import org.apache.commons.validator.ValidatorResources;
+import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
+import org.seasar.framework.container.hotdeploy.HotdeployUtil;
 import org.seasar.framework.util.Disposable;
 import org.seasar.framework.util.DisposableUtil;
 import org.xml.sax.SAXException;
@@ -124,7 +126,15 @@ public class S2ValidatorResources extends ValidatorResources implements
         if (!initialized) {
             initialize();
         }
-        return forms.get(formKey);
+        Form form = forms.get(formKey);
+        if (form == null) {
+            if (HotdeployUtil.isHotdeploy() && formKey.endsWith("Form")) {
+                SingletonS2ContainerFactory.getContainer().getComponentDef(
+                        formKey.substring(0, formKey.length() - 4));
+                form = forms.get(formKey);
+            }
+        }
+        return form;
     }
 
     /**
