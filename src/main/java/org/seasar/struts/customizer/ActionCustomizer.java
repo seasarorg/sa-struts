@@ -224,9 +224,11 @@ public class ActionCustomizer implements ComponentCustomizer {
         Form baseForm = new Form();
         baseForm.setName(actionMapping.getName());
         for (String methodName : actionMapping.getExecuteMethodNames()) {
-            Form form = new Form();
-            form.setName(actionMapping.getName() + "_" + methodName);
-            forms.put(methodName, form);
+            if (actionMapping.getExecuteConfig(methodName).isValidator()) {
+                Form form = new Form();
+                form.setName(actionMapping.getName() + "_" + methodName);
+                forms.put(methodName, form);
+            }
         }
         BeanDesc beanDesc = actionMapping.getActionFormBeanDesc();
         for (int i = 0; i < beanDesc.getPropertyDescSize(); i++) {

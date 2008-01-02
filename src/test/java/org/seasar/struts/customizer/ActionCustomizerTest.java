@@ -96,7 +96,7 @@ public class ActionCustomizerTest extends S2TestCase {
     public void testCustomize_formSet() throws Exception {
         customizer.customize(getComponentDef("aaa_bbbAction"));
         assertNotNull(ValidatorResourcesUtil.getValidatorResources().getForm(
-                Locale.getDefault(), "aaa_bbbActionForm_execute"));
+                Locale.getDefault(), "aaa_bbbActionForm_execute2"));
     }
 
     /**
@@ -149,8 +149,8 @@ public class ActionCustomizerTest extends S2TestCase {
         assertFalse(executeConfig.isValidator());
         assertNotNull(executeConfig.getValidateMethod());
         assertEquals(SaveType.REQUEST, executeConfig.getSaveErrors());
-        assertEquals("input2", executeConfig.getInput());
-        assertEquals(1, actionMapping.getExecuteConfigSize());
+        assertEquals("/aaa/input2.jsp", executeConfig.getInput());
+        assertEquals(2, actionMapping.getExecuteConfigSize());
     }
 
     /**
@@ -406,7 +406,7 @@ public class ActionCustomizerTest extends S2TestCase {
                 .createActionMapping(getComponentDef("aaa_bbbAction"));
         customizer.setupValidator(actionMapping, validatorResources);
         Form form = validatorResources.getForm(Locale.getDefault(),
-                "aaa_bbbActionForm_execute");
+                "aaa_bbbActionForm_execute2");
         assertNotNull(form);
         org.apache.commons.validator.Field f = form.getField("hoge");
         assertEquals("hoge", f.getProperty());
@@ -455,9 +455,17 @@ public class ActionCustomizerTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute(validator = false, validate = "validate", input = "input2")
+        @Execute(validator = false, validate = "validate", input = "/aaa/input2.jsp")
         public String execute() {
-            return "success";
+            return "input2.jsp";
+        }
+
+        /**
+         * @return
+         */
+        @Execute(input = "/aaa/input.jsp")
+        public String execute2() {
+            return "input.jsp";
         }
 
         /**
