@@ -365,10 +365,6 @@ public class ActionCustomizer implements ComponentCustomizer {
         if (args != null && args.length > 0) {
             for (Arg arg : args) {
                 org.apache.commons.validator.Arg a = new org.apache.commons.validator.Arg();
-                String name = arg.name();
-                if (!StringUtil.isEmpty(name)) {
-                    a.setName(name);
-                }
                 a.setKey(resolveKey(arg.key(), arg.resource(), props,
                         validatorResources));
                 String bundle = arg.bundle();
@@ -384,10 +380,6 @@ public class ActionCustomizer implements ComponentCustomizer {
             Arg arg = (Arg) props.remove("arg" + i);
             if (arg != null && !StringUtil.isEmpty(arg.key())) {
                 org.apache.commons.validator.Arg a = new org.apache.commons.validator.Arg();
-                String name = arg.name();
-                if (!StringUtil.isEmpty(name)) {
-                    a.setName(name);
-                }
                 a.setKey(resolveKey(arg.key(), arg.resource(), props,
                         validatorResources));
                 String bundle = arg.bundle();

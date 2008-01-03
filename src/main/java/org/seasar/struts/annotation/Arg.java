@@ -37,12 +37,6 @@ public @interface Arg {
     String key();
 
     /**
-     * バリデータ名です。
-     * 
-     */
-    String name() default "";
-
-    /**
      * リソースバンドル名です。
      * 
      */
