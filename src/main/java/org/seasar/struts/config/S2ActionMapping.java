@@ -17,7 +17,10 @@ package org.seasar.struts.config;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -94,49 +97,29 @@ public class S2ActionMapping extends ActionMapping {
             path = path.substring(0, path.length() - REDIRECT.length() - 1);
         }
         if (path.indexOf('/') < 0) {
-            path = getSubApplicationPath(componentDef.getComponentClass()
-                    .getName())
-                    + path;
+            path = getViewDirectory(componentDef.getComponentName()) + path;
         }
         return new ActionForward(path, redirect);
 
     }
 
     /**
-     * サブアプリケーションパスを返します。
+     * Viewのディレクトリを返します。
      * 
-     * @param className
-     *            アクションのクラス名
-     * @return サブアプリケーションパス
+     * @param componentName
+     *            アクションのコンポーネント名
+     * @return Viewのディレクトリ
      */
-    protected String getSubApplicationPath(String className) {
-        String name = null;
-        int index = className.indexOf(".web.");
-        if (index >= 0) {
-            name = className.substring(index + 5);
-        } else {
-            index = className.indexOf(".action.");
-            if (index >= 0) {
-                name = className.substring(index + 8);
-            } else {
-                index = className.indexOf("web.");
-                if (index >= 0) {
-                    name = className.substring(index + 4);
-                } else {
-                    index = className.indexOf("action.");
-                    if (index >= 0) {
-                        name = className.substring(index + 7);
-                    } else {
-                        throw new IllegalArgumentException(className);
-                    }
-                }
-            }
+    protected String getViewDirectory(String componentName) {
+        if (componentName.equals("indexAction")) {
+            return "/";
         }
-        index = name.lastIndexOf('.');
-        if (index < 0) {
-            throw new IllegalArgumentException(className);
+        if (componentName.endsWith("Action")) {
+            return "/"
+                    + componentName.substring(0, componentName.length() - 6)
+                            .replace('_', '/') + "/";
         }
-        return "/" + name.substring(0, index).replace('.', '/') + '/';
+        throw new IllegalArgumentException(componentName);
     }
 
     /**
@@ -213,6 +196,30 @@ public class S2ActionMapping extends ActionMapping {
     public String[] getExecuteMethodNames() {
         return executeConfigs.keySet().toArray(
                 new String[executeConfigs.size()]);
+    }
+
+    /**
+     * 実行メソッドを探します。
+     * 
+     * @param request
+     *            リクエスト
+     * @param paramPath
+     *            パラメータのパス
+     * @return 実行メソッド
+     */
+    public S2ExecuteConfig findExecuteConfig(HttpServletRequest request,
+            String paramPath) {
+        if (executeConfigs.size() == 1) {
+            return executeConfigs.values().iterator().next();
+        }
+        for (Iterator<S2ExecuteConfig> i = executeConfigs.values().iterator(); i
+                .hasNext();) {
+            S2ExecuteConfig executeConfig = i.next();
+            if (executeConfig.isTarget(request, paramPath)) {
+                return executeConfig;
+            }
+        }
+        return getExecuteConfig("index");
     }
 
     /**

@@ -34,6 +34,7 @@ import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.config.S2ModuleConfig;
 import org.seasar.struts.customizer.ActionCustomizer;
 import org.seasar.struts.enums.SaveType;
+import org.seasar.struts.util.S2ExecuteConfigUtil;
 import org.seasar.struts.util.S2PropertyMessageResources;
 import org.seasar.struts.util.S2PropertyMessageResourcesFactory;
 import org.seasar.struts.validator.S2ValidatorPlugIn;
@@ -66,72 +67,15 @@ public class ActionWrapperTest extends S2TestCase {
     public void testExecute() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
         actionMapping.setComponentDef(getComponentDef("bbbAction"));
-        Method m = BbbAction.class.getDeclaredMethod("execute");
+        Method m = BbbAction.class.getDeclaredMethod("index");
         S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null,
-                null, null);
-        actionMapping.addExecuteConfig(executeConfig);
+                null, null, null);
+        S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
         ForwardConfig forward = wrapper.execute(actionMapping, null,
                 getRequest(), getResponse());
         assertNotNull(forward);
-        assertEquals("/aaa/bbb.jsp", forward.getPath());
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testExecute_results() throws Exception {
-        S2ActionMapping actionMapping = new S2ActionMapping();
-        actionMapping.setComponentDef(getComponentDef("bbbAction"));
-        Method m = BbbAction.class.getDeclaredMethod("execute");
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null,
-                null, null);
-        actionMapping.addExecuteConfig(executeConfig);
-        m = BbbAction.class.getDeclaredMethod("execute2");
-        executeConfig = new S2ExecuteConfig(m, true, null, null, null);
-        actionMapping.addExecuteConfig(executeConfig);
-        ActionForward fowardConfig = new ActionForward();
-        fowardConfig.setName("success");
-        fowardConfig.setPath("/aaa/bbb.jsp");
-        actionMapping.addForwardConfig(fowardConfig);
-        fowardConfig = new ActionForward();
-        fowardConfig.setName("success2");
-        fowardConfig.setPath("/aaa/bbb2.jsp");
-        actionMapping.addForwardConfig(fowardConfig);
-        getRequest().setParameter("execute2", "hoge");
-        ActionWrapper wrapper = new ActionWrapper(actionMapping);
-        ForwardConfig forward = wrapper.execute(actionMapping, null,
-                getRequest(), getResponse());
-        assertNotNull(forward);
-        assertEquals("/aaa/bbb2.jsp", forward.getPath());
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testExecute_results_execute() throws Exception {
-        S2ActionMapping actionMapping = new S2ActionMapping();
-        actionMapping.setComponentDef(getComponentDef("bbbAction"));
-        Method m = BbbAction.class.getDeclaredMethod("execute");
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null,
-                null, null);
-        actionMapping.addExecuteConfig(executeConfig);
-        m = BbbAction.class.getDeclaredMethod("execute2");
-        executeConfig = new S2ExecuteConfig(m, true, null, null, null);
-        actionMapping.addExecuteConfig(executeConfig);
-        ActionForward fowardConfig = new ActionForward();
-        fowardConfig.setName("success");
-        fowardConfig.setPath("/aaa/bbb.jsp");
-        actionMapping.addForwardConfig(fowardConfig);
-        fowardConfig = new ActionForward();
-        fowardConfig.setName("success2");
-        fowardConfig.setPath("/aaa/bbb2.jsp");
-        actionMapping.addForwardConfig(fowardConfig);
-        ActionWrapper wrapper = new ActionWrapper(actionMapping);
-        ForwardConfig forward = wrapper.execute(actionMapping, null,
-                getRequest(), getResponse());
-        assertNotNull(forward);
-        assertEquals("/aaa/bbb.jsp", forward.getPath());
+        assertEquals("/bbb/index.jsp", forward.getPath());
     }
 
     /**
@@ -144,8 +88,8 @@ public class ActionWrapperTest extends S2TestCase {
         Method m = CccAction.class.getDeclaredMethod("execute");
         Method m2 = CccAction.class.getDeclaredMethod("validate");
         S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, m2,
-                SaveType.REQUEST, "/aaa/input.jsp");
-        actionMapping.addExecuteConfig(executeConfig);
+                SaveType.REQUEST, "/aaa/input.jsp", null);
+        S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
         ForwardConfig forward = wrapper.execute(actionMapping, null,
                 getRequest(), getResponse());
@@ -163,6 +107,8 @@ public class ActionWrapperTest extends S2TestCase {
         customizer.customize(getComponentDef("aaa_eeeAction"));
         S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
                 .findActionConfig("/aaa/eee");
+        S2ExecuteConfigUtil.setExecuteConfig(actionMapping.findExecuteConfig(
+                getRequest(), ""));
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
         ForwardConfig forward = wrapper.execute(actionMapping, null,
                 getRequest(), getResponse());
@@ -181,8 +127,8 @@ public class ActionWrapperTest extends S2TestCase {
         Method m = DddAction.class.getDeclaredMethod("execute");
         Method m2 = DddAction.class.getDeclaredMethod("validate");
         S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, m2,
-                SaveType.SESSION, "/aaa/input.jsp");
-        actionMapping.addExecuteConfig(executeConfig);
+                SaveType.SESSION, "/aaa/input.jsp", null);
+        S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
         ForwardConfig forward = wrapper.execute(actionMapping, null,
                 getRequest(), getResponse());
@@ -197,14 +143,10 @@ public class ActionWrapperTest extends S2TestCase {
     public void testExportPropertiesToRequest() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
         actionMapping.setComponentDef(getComponentDef("bbbAction"));
-        Method m = BbbAction.class.getDeclaredMethod("execute");
+        Method m = BbbAction.class.getDeclaredMethod("index");
         S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null,
-                null, null);
-        actionMapping.addExecuteConfig(executeConfig);
-        ActionForward fowardConfig = new ActionForward();
-        fowardConfig.setName("success");
-        fowardConfig.setPath("/aaa/bbb.jsp");
-        actionMapping.addForwardConfig(fowardConfig);
+                null, null, null);
+        S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
         wrapper.execute(actionMapping, null, getRequest(), getResponse());
         assertEquals("111", getRequest().getAttribute("hoge"));
@@ -220,8 +162,8 @@ public class ActionWrapperTest extends S2TestCase {
         actionMapping.setComponentDef(getComponentDef("fffAction"));
         Method m = FffAction.class.getDeclaredMethod("execute");
         S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null,
-                null, null);
-        actionMapping.addExecuteConfig(executeConfig);
+                null, null, null);
+        S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
         actionMapping.setActionFormPropertyDesc(actionMapping
                 .getActionBeanDesc().getPropertyDesc("myForm"));
         FffAction action = (FffAction) getComponent("fffAction");
@@ -243,7 +185,8 @@ public class ActionWrapperTest extends S2TestCase {
         S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
                 .findActionConfig("/aaa/eee");
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
-        ActionMessages errors = wrapper.validate("execute", getRequest());
+        ActionMessages errors = wrapper.validate(getRequest(), actionMapping
+                .getExecuteConfig("execute"));
         System.out.println(errors);
         assertFalse(errors.isEmpty());
     }
@@ -258,7 +201,8 @@ public class ActionWrapperTest extends S2TestCase {
         S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
                 .findActionConfig("/aaa/ggg");
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
-        ActionForward forward = wrapper.execute("execute", getRequest());
+        ActionForward forward = wrapper.execute(getRequest(), actionMapping
+                .getExecuteConfig("execute"));
         assertEquals("/aaa/input2.jsp", forward.getPath());
     }
 
@@ -275,16 +219,16 @@ public class ActionWrapperTest extends S2TestCase {
         /**
          * @return
          */
-        public String execute() {
+        public String index() {
             hoge = "111";
-            return "/aaa/bbb.jsp";
+            return "index.jsp";
         }
 
         /**
          * @return
          */
         public String execute2() {
-            return "/aaa/bbb2.jsp";
+            return "execute2.jsp";
         }
     }
 

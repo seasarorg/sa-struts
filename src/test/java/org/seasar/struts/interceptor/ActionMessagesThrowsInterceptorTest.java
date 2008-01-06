@@ -31,8 +31,9 @@ public class ActionMessagesThrowsInterceptorTest extends S2TestCase {
      * @throws Throwable
      */
     public void testHandleThrowable() throws Throwable {
-        S2ExecuteConfigUtil.setExecuteConfig(new S2ExecuteConfig(null, false,
-                null, null, "input"));
+        S2ExecuteConfigUtil.setExecuteConfig(new S2ExecuteConfig(getClass()
+                .getMethod("testHandleThrowable"), false, null, null, "input",
+                null));
         ActionMessagesException e = new ActionMessagesException(
                 "errors.required", "hoge");
         ActionMessagesThrowsInterceptor interceptor = new ActionMessagesThrowsInterceptor();

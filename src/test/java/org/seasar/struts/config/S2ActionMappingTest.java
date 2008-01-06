@@ -21,7 +21,6 @@ import org.apache.struts.action.ActionForward;
 import org.seasar.extension.unit.S2TestCase;
 import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.impl.ComponentDefImpl;
-import org.seasar.struts.config.web.aaa.AaaAction;
 
 /**
  * @author higa
@@ -35,6 +34,13 @@ public class S2ActionMappingTest extends S2TestCase {
     public String hoge;
 
     /**
+     * @return
+     */
+    public String index() {
+        return "index.jsp";
+    }
+
+    /**
      * @throws Exception
      */
     public void testScope() throws Exception {
@@ -45,26 +51,14 @@ public class S2ActionMappingTest extends S2TestCase {
     /**
      * @throws Exception
      */
-    public void testGetSubAppicationPath() throws Exception {
+    public void testGetViewDirectory() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
-        assertEquals("/login/", actionMapping
-                .getSubApplicationPath("tutorial.web.login.LoginAction"));
-        assertEquals("/login/", actionMapping
-                .getSubApplicationPath("web.login.LoginAction"));
-        assertEquals("/login/", actionMapping
-                .getSubApplicationPath("tutorial.action.login.LoginAction"));
-        assertEquals("/login/", actionMapping
-                .getSubApplicationPath("action.login.LoginAction"));
-        assertEquals("/login/aaa/", actionMapping
-                .getSubApplicationPath("tutorial.web.login.aaa.LoginAction"));
-        assertEquals("/login/aaa/", actionMapping
-                .getSubApplicationPath("web.login.aaa.LoginAction"));
-        assertEquals("/login/aaa/", actionMapping
-                .getSubApplicationPath("tutorial.action.login.aaa.LoginAction"));
-        assertEquals("/login/aaa/", actionMapping
-                .getSubApplicationPath("action.login.aaa.LoginAction"));
+        assertEquals("/login/", actionMapping.getViewDirectory("loginAction"));
+        assertEquals("/aaa/login/", actionMapping
+                .getViewDirectory("aaa_loginAction"));
+        assertEquals("/", actionMapping.getViewDirectory("indexAction"));
         try {
-            actionMapping.getSubApplicationPath("LoginAction");
+            actionMapping.getViewDirectory("hoge");
             fail();
         } catch (IllegalArgumentException e) {
             System.out.println(e);
@@ -76,7 +70,7 @@ public class S2ActionMappingTest extends S2TestCase {
      */
     public void testCreateActionForward() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
-        ComponentDef cd = new ComponentDefImpl(AaaAction.class);
+        ComponentDef cd = new ComponentDefImpl(MyAction.class, "aaaAction");
         actionMapping.setComponentDef(cd);
         ActionForward forward = actionMapping.createForward("hoge.jsp");
         assertNotNull(forward);
@@ -89,7 +83,7 @@ public class S2ActionMappingTest extends S2TestCase {
      */
     public void testCreateActionForward_redirect() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
-        ComponentDef cd = new ComponentDefImpl(AaaAction.class);
+        ComponentDef cd = new ComponentDefImpl(MyAction.class, "aaaAction");
         actionMapping.setComponentDef(cd);
         ActionForward forward = actionMapping
                 .createForward("hoge.jsp?redirect=true");
@@ -103,7 +97,7 @@ public class S2ActionMappingTest extends S2TestCase {
      */
     public void testCreateActionForward_redirect2() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
-        ComponentDef cd = new ComponentDefImpl(AaaAction.class);
+        ComponentDef cd = new ComponentDefImpl(MyAction.class, "aaaAction");
         actionMapping.setComponentDef(cd);
         ActionForward forward = actionMapping
                 .createForward("hoge.jsp?aaa=1&redirect=true");
@@ -115,17 +109,72 @@ public class S2ActionMappingTest extends S2TestCase {
     /**
      * @throws Exception
      */
-    public void testExecuteConfig() throws Exception {
+    public void testGetExecuteConfig() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
-        Method m = getClass().getDeclaredMethod("testExecuteConfig");
+        Method m = getClass().getDeclaredMethod("testGetExecuteConfig");
         S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null,
-                null, null);
+                null, null, null);
         actionMapping.addExecuteConfig(executeConfig);
         assertSame(executeConfig, actionMapping
-                .getExecuteConfig("testExecuteConfig"));
+                .getExecuteConfig("testGetExecuteConfig"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testGetExecuteMethodNames() throws Exception {
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        Method m = getClass().getDeclaredMethod("testGetExecuteMethodNames");
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null,
+                null, null, null);
+        actionMapping.addExecuteConfig(executeConfig);
         String[] names = actionMapping.getExecuteMethodNames();
         assertEquals(1, names.length);
-        assertEquals("testExecuteConfig", names[0]);
+        assertEquals("testGetExecuteMethodNames", names[0]);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testFindExecuteConfig() throws Exception {
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        Method m = getClass().getDeclaredMethod("testGetExecuteConfig");
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null,
+                null, null, null);
+        actionMapping.addExecuteConfig(executeConfig);
+        getRequest().setParameter("testGetExecuteConfig", "hoge");
+        assertSame(executeConfig, actionMapping.findExecuteConfig(getRequest(),
+                ""));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testFindExecuteConfig_index() throws Exception {
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        Method m = getClass().getDeclaredMethod("index");
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null,
+                null, null, null);
+        actionMapping.addExecuteConfig(executeConfig);
+        m = getClass().getDeclaredMethod("testFindExecuteConfig_index");
+        executeConfig = new S2ExecuteConfig(m, true, null, null, null, null);
+        actionMapping.addExecuteConfig(executeConfig);
+        assertEquals("index", actionMapping.findExecuteConfig(getRequest(), "")
+                .getMethod().getName());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testFindExecuteConfig_onlyone() throws Exception {
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        Method m = getClass()
+                .getDeclaredMethod("testFindExecuteConfig_onlyone");
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null,
+                null, null, null);
+        actionMapping.addExecuteConfig(executeConfig);
+        assertEquals("testFindExecuteConfig_onlyone", actionMapping
+                .findExecuteConfig(getRequest(), "").getMethod().getName());
     }
 
     /**

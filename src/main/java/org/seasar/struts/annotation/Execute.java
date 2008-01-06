@@ -55,4 +55,10 @@ public @interface Execute {
      * 
      */
     SaveType saveErrors() default SaveType.REQUEST;
+
+    /**
+     * URLパターンです。
+     * 
+     */
+    String urlPattern() default "";
 }

@@ -37,5 +37,7 @@ public class ActionUtilTest extends TestCase {
     public void testFromActionNameToPath() throws Exception {
         assertEquals("/aaa/bbb", ActionUtil
                 .fromActionNameToPath("aaa_bbbAction"));
+        assertEquals("/aaa", ActionUtil.fromActionNameToPath("aaaAction"));
+        assertEquals("/", ActionUtil.fromActionNameToPath("indexAction"));
     }
 }

@@ -27,9 +27,10 @@ public class S2ExecuteConfigUtilTest extends S2TestCase {
     /**
      * @throws Exception
      */
-    public void testAll() throws Exception {
-        S2ExecuteConfigUtil.setExecuteConfig(new S2ExecuteConfig(null, false,
-                null, null, null));
+    public void testExecuteConfig() throws Exception {
+        S2ExecuteConfigUtil
+                .setExecuteConfig(new S2ExecuteConfig(getClass().getMethod(
+                        "testExecuteConfig"), false, null, null, null, null));
         assertNotNull(S2ExecuteConfigUtil.getExecuteConfig());
     }
 }

@@ -50,7 +50,7 @@ import org.seasar.struts.exception.IllegalValidateMethodRuntimeException;
 import org.seasar.struts.exception.InputNotDefinedRuntimeException;
 import org.seasar.struts.util.ActionUtil;
 import org.seasar.struts.util.MessageResourcesUtil;
-import org.seasar.struts.util.ModuleConfigUtil;
+import org.seasar.struts.util.S2ModuleConfigUtil;
 import org.seasar.struts.util.ValidatorResourcesUtil;
 import org.seasar.struts.validator.S2ValidatorResources;
 
@@ -65,7 +65,7 @@ public class ActionCustomizer implements ComponentCustomizer {
     public void customize(ComponentDef componentDef) {
         S2ActionMapping actionMapping = createActionMapping(componentDef);
         S2FormBeanConfig formConfig = createFormBeanConfig(actionMapping);
-        S2ModuleConfig moduleConfig = ModuleConfigUtil.getModuleConfig();
+        S2ModuleConfig moduleConfig = S2ModuleConfigUtil.getModuleConfig();
         moduleConfig.addActionConfig(actionMapping);
         moduleConfig.addFormBeanConfig(formConfig);
         S2ValidatorResources validatorResources = ValidatorResourcesUtil
@@ -135,7 +135,7 @@ public class ActionCustomizer implements ComponentCustomizer {
                 }
                 S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, execute
                         .validator(), validateMethod, execute.saveErrors(),
-                        input);
+                        input, execute.urlPattern());
                 actionMapping.addExecuteConfig(executeConfig);
             }
         }

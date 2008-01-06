@@ -168,9 +168,9 @@ public class S2RequestProcessor extends RequestProcessor {
         if (!isMultipart) {
             names = new EnumerationIterator(request.getParameterNames());
         }
+        S2ActionMapping actionMapping = (S2ActionMapping) mapping;
         while (names.hasNext()) {
             String name = names.next();
-            S2ActionMapping actionMapping = (S2ActionMapping) mapping;
             try {
                 setProperty(actionMapping.getActionForm(), name, request
                         .getParameterValues(name));

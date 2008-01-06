@@ -499,6 +499,11 @@ public class S2RequestProcessorTest extends S2TestCase {
         /**
          * 
          */
+        public String id;
+
+        /**
+         * 
+         */
         public String hoge;
 
         /**

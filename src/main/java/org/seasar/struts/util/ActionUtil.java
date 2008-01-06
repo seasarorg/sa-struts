@@ -47,6 +47,9 @@ public final class ActionUtil {
      * @return パス
      */
     public static String fromActionNameToPath(String actionName) {
+        if (actionName.equals("indexAction")) {
+            return "/";
+        }
         return "/"
                 + actionName.replace('_', '/').substring(0,
                         actionName.length() - SUFFIX.length());

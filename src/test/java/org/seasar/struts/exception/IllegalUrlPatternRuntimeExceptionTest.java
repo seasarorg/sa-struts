@@ -13,12 +13,23 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.seasar.struts.config.web.aaa;
+package org.seasar.struts.exception;
+
+import junit.framework.TestCase;
 
 /**
  * @author higa
  * 
  */
-public class AaaAction {
+public class IllegalUrlPatternRuntimeExceptionTest extends TestCase {
 
+    /**
+     * @throws Exception
+     */
+    public void testAll() throws Exception {
+        IllegalUrlPatternRuntimeException e = new IllegalUrlPatternRuntimeException(
+                "edit/{id");
+        System.out.println(e);
+        assertEquals("edit/{id", e.getUrlPattern());
+    }
 }

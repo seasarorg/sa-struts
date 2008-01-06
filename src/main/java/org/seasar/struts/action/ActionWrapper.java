@@ -33,7 +33,6 @@ import org.apache.struts.validator.Resources;
 import org.seasar.framework.beans.BeanDesc;
 import org.seasar.framework.beans.PropertyDesc;
 import org.seasar.framework.util.MethodUtil;
-import org.seasar.framework.util.StringUtil;
 import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.enums.SaveType;
@@ -81,17 +80,13 @@ public class ActionWrapper extends Action {
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
 
-        String[] names = actionMapping.getExecuteMethodNames();
-        if (names.length == 1) {
-            return execute(names[0], request);
+        S2ExecuteConfig executeConfig = S2ExecuteConfigUtil.getExecuteConfig();
+        if (executeConfig == null) {
+            executeConfig = actionMapping.findExecuteConfig(request, "");
         }
-        for (String name : names) {
-            if (!StringUtil.isEmpty(request.getParameter(name))) {
-                return execute(name, request);
-            }
-        }
-        if (actionMapping.getExecuteConfig("execute") != null) {
-            return execute("execute", request);
+        if (executeConfig != null) {
+            S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
+            return execute(request, executeConfig);
         }
         return null;
     }
@@ -99,19 +94,16 @@ public class ActionWrapper extends Action {
     /**
      * Actionを実行します。
      * 
-     * @param methodName
-     *            メソッド名
      * @param request
      *            リクエスト
+     * @param executeConfig
+     *            実行設定
      * @return アクションフォワード
      */
-    protected ActionForward execute(String methodName,
-            HttpServletRequest request) {
-        S2ExecuteConfig executeConfig = actionMapping
-                .getExecuteConfig(methodName);
-        S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
+    protected ActionForward execute(HttpServletRequest request,
+            S2ExecuteConfig executeConfig) {
         if (executeConfig.isValidator()) {
-            ActionMessages errors = validate(methodName, request);
+            ActionMessages errors = validate(request, executeConfig);
             if (errors != null && !errors.isEmpty()) {
                 return processErrors(errors, request, executeConfig);
             }
@@ -133,17 +125,18 @@ public class ActionWrapper extends Action {
     /**
      * バリデータによる検証を行います。
      * 
-     * @param methodName
-     *            メソッド名
      * @param request
      *            リクエスト
+     * @param executeConfig
+     *            実行設定
      * @return エラーメッセージ
      */
-    protected ActionMessages validate(String methodName,
-            HttpServletRequest request) {
+    protected ActionMessages validate(HttpServletRequest request,
+            S2ExecuteConfig executeConfig) {
         ServletContext application = ServletContextUtil.getServletContext();
         ActionMessages errors = new ActionMessages();
-        String validationKey = actionMapping.getName() + "_" + methodName;
+        String validationKey = actionMapping.getName() + "_"
+                + executeConfig.getMethod().getName();
         Validator validator = Resources.initValidator(validationKey,
                 ActionFormUtil.getActionForm(request, actionMapping),
                 application, request, errors, 0);

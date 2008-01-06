@@ -16,21 +16,26 @@
 package org.seasar.struts.util;
 
 import org.apache.struts.Globals;
-import org.seasar.extension.unit.S2TestCase;
 import org.seasar.struts.config.S2ModuleConfig;
 
 /**
+ * モジュール設定に関するユーティリティです。
+ * 
  * @author higa
  * 
  */
-public class ModuleConfigUtilTest extends S2TestCase {
+public final class S2ModuleConfigUtil {
+
+    private S2ModuleConfigUtil() {
+    }
 
     /**
-     * @throws Exception
+     * モジュール設定を返します。
+     * 
+     * @return モジュール設定
      */
-    public void testGetModuleConfig() throws Exception {
-        getServletContext().setAttribute(Globals.MODULE_KEY,
-                new S2ModuleConfig(""));
-        assertNotNull(ModuleConfigUtil.getModuleConfig());
+    public static S2ModuleConfig getModuleConfig() {
+        return (S2ModuleConfig) ServletContextUtil.getServletContext()
+                .getAttribute(Globals.MODULE_KEY);
     }
 }
