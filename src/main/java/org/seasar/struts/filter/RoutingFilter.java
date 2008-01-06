@@ -138,7 +138,7 @@ public class RoutingFilter implements Filter {
         S2ExecuteConfig executeConfig = actionMapping.findExecuteConfig(
                 request, paramPath);
         if (executeConfig != null) {
-            forwardPath += executeConfig.getQueryString(paramPath);
+            forwardPath = forwardPath + executeConfig.getQueryString(paramPath);
             S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
         }
         request.getRequestDispatcher(forwardPath).forward(request, response);
