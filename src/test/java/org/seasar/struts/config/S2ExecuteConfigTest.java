@@ -60,7 +60,7 @@ public class S2ExecuteConfigTest extends S2TestCase {
         S2ExecuteConfig executeConfig = new S2ExecuteConfig(getClass()
                 .getDeclaredMethod("testUrlPattern_empty"), true, null, null,
                 null, "edit/{id}");
-        assertEquals("edit/([a-zA-Z0-9]+)", executeConfig.urlPatternRegexp
+        assertEquals("^edit/([a-zA-Z0-9]+)$", executeConfig.urlPatternRegexp
                 .pattern());
         Matcher matcher = executeConfig.urlPatternRegexp.matcher("edit/1");
         assertTrue(matcher.find());
