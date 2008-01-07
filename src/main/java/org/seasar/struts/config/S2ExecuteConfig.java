@@ -195,7 +195,7 @@ public class S2ExecuteConfig implements Serializable {
         if (index >= 0) {
             throw new IllegalUrlPatternRuntimeException(urlPattern);
         }
-        urlPatternRegexp = Pattern.compile(sb.toString());
+        urlPatternRegexp = Pattern.compile("^" + sb.toString() + "$");
     }
 
     /**
