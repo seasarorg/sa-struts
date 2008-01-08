@@ -1,26 +1,20 @@
-<project name="S2Struts" default="dist" basedir=".">
-	<property name="ver" value="1.2.10"/>
+<project name="SAStruts" default="dist" basedir=".">
+	<property name="ver" value="rc1"/>
 
 	<target name="dist">
 		<mkdir dir="target"/>
-		<zip zipfile="target/S2Struts-V${ver}.zip">
-			<zipfileset prefix="s2struts" dir=".">
+		<zip zipfile="target/sa-struts-${ver}.zip">
+			<zipfileset prefix="sa-struts" dir=".">
 				<exclude name="**/target/**"/>
 				<exclude name="**/.settings/**"/>
 			</zipfileset>
-			<zipfileset prefix="s2struts/lib" dir="target">
-				<include name="s2-struts-${ver}.jar"/>
-				<include name="s2-struts-${ver}-sources.jar"/>
+			<zipfileset prefix="sa-struts/lib" dir="target">
+				<include name="sa-struts-${ver}.jar"/>
 			</zipfileset>
-			<zipfileset prefix="s2struts/resources" dir="src/main/resources">
-				<include name="s2struts.dicon"/>
-				<include name="**/*.tld"/>
-			</zipfileset>
-			<zipfileset prefix="s2struts/resources" dir="src/test/resources">
-				<include name="app.dicon"/>
-				<include name="log4j.properties"/>
-			</zipfileset>
-			<zipfileset prefix="s2struts/doc" dir="../s2struts-www">
+			<zipfileset prefix="sa-struts/libsrc" dir="target">
+			    <include name="sa-struts-${ver}-sources.jar"/>
+		    </zipfileset>
+			<zipfileset prefix="sa-struts/doc" dir="../sa-struts-www">
 				<exclude name="**/download/**"/>
 				<exclude name=".project"/>
 			</zipfileset>
