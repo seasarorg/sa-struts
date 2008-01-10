@@ -17,7 +17,7 @@ import org.seasar.framework.util.StringUtil;
 import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.config.S2ModuleConfig;
-import org.seasar.struts.util.S2ExecuteConfigUtil;
+import org.seasar.struts.util.RoutingUtil;
 import org.seasar.struts.util.S2ModuleConfigUtil;
 
 /**
@@ -42,8 +42,8 @@ public class RoutingFilter implements Filter {
             StringBuilder sb = new StringBuilder(50);
             for (int i = 0; i < names.length; i++) {
                 if (container.hasComponentDef(sb + names[i] + "Action")) {
-                    String actionPath = getActionPath(names, i);
-                    String paramPath = getParamPath(names, i + 1);
+                    String actionPath = RoutingUtil.getActionPath(names, i);
+                    String paramPath = RoutingUtil.getParamPath(names, i + 1);
                     forward((HttpServletRequest) request,
                             (HttpServletResponse) response, actionPath,
                             paramPath);
@@ -76,43 +76,6 @@ public class RoutingFilter implements Filter {
     }
 
     /**
-     * アクションのパスを返します。
-     * 
-     * @param names
-     *            パスを/で区切った配列
-     * @param index
-     *            インデックス
-     * @return アクションのパス
-     */
-    protected String getActionPath(String[] names, int index) {
-        StringBuilder sb = new StringBuilder(30);
-        for (int i = 0; i <= index; i++) {
-            sb.append('/').append(names[i]);
-        }
-        return sb.toString();
-    }
-
-    /**
-     * パラメータのパスを返します。
-     * 
-     * @param names
-     *            パスを/で区切った配列
-     * @param index
-     *            インデックス
-     * @return パラメータのパス
-     */
-    protected String getParamPath(String[] names, int index) {
-        StringBuilder sb = new StringBuilder(30);
-        for (int i = index; i < names.length; i++) {
-            if (i != index) {
-                sb.append('/');
-            }
-            sb.append(names[i]);
-        }
-        return sb.toString();
-    }
-
-    /**
      * Strutsのサーブレットにフォワードします。
      * 
      * @param request
@@ -135,11 +98,10 @@ public class RoutingFilter implements Filter {
         S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
                 .findActionConfig(actionPath);
         String forwardPath = actionPath + ".do";
-        S2ExecuteConfig executeConfig = actionMapping.findExecuteConfig(
-                request, paramPath);
+        S2ExecuteConfig executeConfig = actionMapping
+                .findExecuteConfig(paramPath);
         if (executeConfig != null) {
             forwardPath = forwardPath + executeConfig.getQueryString(paramPath);
-            S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
         }
         request.getRequestDispatcher(forwardPath).forward(request, response);
     }

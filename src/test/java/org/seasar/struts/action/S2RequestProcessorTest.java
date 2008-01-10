@@ -18,8 +18,8 @@ package org.seasar.struts.action;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -129,7 +129,7 @@ public class S2RequestProcessorTest extends S2TestCase {
     /**
      * @throws Exception
      */
-    public void testGetAllParameterNamesForMultipartRequest() throws Exception {
+    public void testGetAllParameters() throws Exception {
         MultipartRequestHandler multipartHandler = new CommonsMultipartRequestHandler() {
 
             @SuppressWarnings("unchecked")
@@ -144,11 +144,10 @@ public class S2RequestProcessorTest extends S2TestCase {
         getRequest().addParameter("bbb", "222");
         HttpServletRequest request = new MultipartRequestWrapper(getRequest());
         S2RequestProcessor processor = new S2RequestProcessor();
-        Iterator<String> i = processor.getAllParameterNamesForMultipartRequest(
-                request, multipartHandler);
-        assertEquals("aaa", i.next());
-        assertEquals("bbb", i.next());
-        assertFalse(i.hasNext());
+        Map<String, Object> params = processor.getAllParameters(request,
+                multipartHandler);
+        assertEquals("111", params.get("aaa"));
+        assertEquals("222", ((String[]) params.get("bbb"))[0]);
     }
 
     /**

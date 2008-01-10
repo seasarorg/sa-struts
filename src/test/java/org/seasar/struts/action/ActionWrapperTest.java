@@ -34,7 +34,6 @@ import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.config.S2ModuleConfig;
 import org.seasar.struts.customizer.ActionCustomizer;
 import org.seasar.struts.enums.SaveType;
-import org.seasar.struts.util.S2ExecuteConfigUtil;
 import org.seasar.struts.util.S2PropertyMessageResources;
 import org.seasar.struts.util.S2PropertyMessageResourcesFactory;
 import org.seasar.struts.validator.S2ValidatorPlugIn;
@@ -52,7 +51,7 @@ public class ActionWrapperTest extends S2TestCase {
         getServletContext().setAttribute(Globals.SERVLET_KEY, "/*");
         getServletContext().setAttribute(Globals.MODULE_KEY, moduleConfig);
         S2ValidatorPlugIn plugIn = new S2ValidatorPlugIn();
-        plugIn.setPathnames("validator-rules.xml,validation.xml");
+        plugIn.setPathnames("validator-rules.xml");
         plugIn.init(new MyActionServlet(getServletContext()), moduleConfig);
         S2PropertyMessageResourcesFactory factory = new S2PropertyMessageResourcesFactory();
         S2PropertyMessageResources resources = new S2PropertyMessageResources(
@@ -70,7 +69,7 @@ public class ActionWrapperTest extends S2TestCase {
         Method m = BbbAction.class.getDeclaredMethod("index");
         S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null,
                 null, null, null);
-        S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
+        actionMapping.addExecuteConfig(executeConfig);
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
         ForwardConfig forward = wrapper.execute(actionMapping, null,
                 getRequest(), getResponse());
@@ -89,7 +88,7 @@ public class ActionWrapperTest extends S2TestCase {
         Method m2 = CccAction.class.getDeclaredMethod("validate");
         S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, m2,
                 SaveType.REQUEST, "/aaa/input.jsp", null);
-        S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
+        actionMapping.addExecuteConfig(executeConfig);
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
         ForwardConfig forward = wrapper.execute(actionMapping, null,
                 getRequest(), getResponse());
@@ -107,8 +106,6 @@ public class ActionWrapperTest extends S2TestCase {
         customizer.customize(getComponentDef("aaa_eeeAction"));
         S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
                 .findActionConfig("/aaa/eee");
-        S2ExecuteConfigUtil.setExecuteConfig(actionMapping.findExecuteConfig(
-                getRequest(), ""));
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
         ForwardConfig forward = wrapper.execute(actionMapping, null,
                 getRequest(), getResponse());
@@ -128,7 +125,7 @@ public class ActionWrapperTest extends S2TestCase {
         Method m2 = DddAction.class.getDeclaredMethod("validate");
         S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, m2,
                 SaveType.SESSION, "/aaa/input.jsp", null);
-        S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
+        actionMapping.addExecuteConfig(executeConfig);
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
         ForwardConfig forward = wrapper.execute(actionMapping, null,
                 getRequest(), getResponse());
@@ -146,7 +143,7 @@ public class ActionWrapperTest extends S2TestCase {
         Method m = BbbAction.class.getDeclaredMethod("index");
         S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null,
                 null, null, null);
-        S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
+        actionMapping.addExecuteConfig(executeConfig);
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
         wrapper.execute(actionMapping, null, getRequest(), getResponse());
         assertEquals("111", getRequest().getAttribute("hoge"));
@@ -163,7 +160,7 @@ public class ActionWrapperTest extends S2TestCase {
         Method m = FffAction.class.getDeclaredMethod("execute");
         S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null,
                 null, null, null);
-        S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
+        actionMapping.addExecuteConfig(executeConfig);
         actionMapping.setActionFormPropertyDesc(actionMapping
                 .getActionBeanDesc().getPropertyDesc("myForm"));
         FffAction action = (FffAction) getComponent("fffAction");

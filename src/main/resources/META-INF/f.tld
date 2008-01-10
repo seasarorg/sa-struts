@@ -13,13 +13,25 @@
   
   <function>
     <description>
-      Escapes characters that could be interpreted as XML markup.
+      Escapes characters that could be interpreted as HTML.
     </description>
     <name>h</name>
     <function-class>org.seasar.struts.taglib.S2Functions</function-class>
     <function-signature>java.lang.String h(java.lang.String)</function-signature>
     <example>
       ${f:h(param:info)}
+    </example>
+  </function>
+  
+  <function>
+    <description>
+      Escapes characters that could be interpreted as URL.
+    </description>
+    <name>u</name>
+    <function-class>org.seasar.struts.taglib.S2Functions</function-class>
+    <function-signature>java.lang.String u(java.lang.String)</function-signature>
+    <example>
+      ${f:u(param:info)}
     </example>
   </function>
 </taglib>

@@ -34,7 +34,7 @@ public class S2ValidatorPlugInTest extends S2TestCase {
      */
     public void testInitResources() throws Exception {
         S2ValidatorPlugIn plugIn = new S2ValidatorPlugIn();
-        plugIn.setPathnames("validator-rules.xml,validation.xml");
+        plugIn.setPathnames("validator-rules.xml");
         plugIn.init(new MyActionServlet(getServletContext()),
                 new ModuleConfigImpl(""));
         ValidatorResources vr = (ValidatorResources) getServletContext()

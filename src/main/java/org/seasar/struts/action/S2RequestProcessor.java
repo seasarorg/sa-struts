@@ -20,11 +20,11 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -47,7 +47,6 @@ import org.seasar.framework.beans.factory.BeanDescFactory;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.framework.util.ArrayUtil;
 import org.seasar.framework.util.ClassUtil;
-import org.seasar.framework.util.EnumerationIterator;
 import org.seasar.framework.util.ModifierUtil;
 import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.exception.IndexedPropertyNotListArrayRuntimeException;
@@ -139,10 +138,8 @@ public class S2RequestProcessor extends RequestProcessor {
         }
         form.setServlet(servlet);
         form.reset(mapping, request);
-        Iterator<String> names = null;
         String contentType = request.getContentType();
         String method = request.getMethod();
-        boolean isMultipart = false;
         form.setMultipartRequestHandler(null);
         MultipartRequestHandler multipartHandler = null;
         if (contentType != null
@@ -150,7 +147,6 @@ public class S2RequestProcessor extends RequestProcessor {
                 && method.equalsIgnoreCase("POST")) {
             multipartHandler = getMultipartHandler(mapping.getMultipartClass());
             if (multipartHandler != null) {
-                isMultipart = true;
                 multipartHandler.setServlet(servlet);
                 multipartHandler.setMapping(mapping);
                 multipartHandler.handleRequest(request);
@@ -161,19 +157,15 @@ public class S2RequestProcessor extends RequestProcessor {
                     form.setMultipartRequestHandler(multipartHandler);
                     return;
                 }
-                names = getAllParameterNamesForMultipartRequest(request,
-                        multipartHandler);
             }
         }
-        if (!isMultipart) {
-            names = new EnumerationIterator(request.getParameterNames());
-        }
+        Map<String, Object> params = getAllParameters(request, multipartHandler);
         S2ActionMapping actionMapping = (S2ActionMapping) mapping;
-        while (names.hasNext()) {
-            String name = names.next();
+        for (Iterator<String> i = params.keySet().iterator(); i.hasNext();) {
+            String name = i.next();
             try {
-                setProperty(actionMapping.getActionForm(), name, request
-                        .getParameterValues(name));
+                setProperty(actionMapping.getActionForm(), name, params
+                        .get(name));
             } catch (Throwable t) {
                 throw new IllegalPropertyRuntimeException(actionMapping
                         .getActionFormBeanDesc().getBeanClass(), name, t);
@@ -188,34 +180,34 @@ public class S2RequestProcessor extends RequestProcessor {
      *            JavaBeans
      * @param name
      *            パラメータ名
-     * @param values
-     *            値の配列
+     * @param value
+     *            パラメータの値
      * @throws ServletException
      *             何か例外が発生した場合。
      */
-    protected void setProperty(Object bean, String name, String[] values) {
+    protected void setProperty(Object bean, String name, Object value) {
         if (bean == null) {
             return;
         }
         int nestedIndex = name.indexOf(NESTED_DELIM);
         int indexedIndex = name.indexOf(INDEXED_DELIM);
         if (nestedIndex < 0 && indexedIndex < 0) {
-            setSimpleProperty(bean, name, values);
+            setSimpleProperty(bean, name, value);
         } else if (nestedIndex >= 0 && indexedIndex >= 0) {
             if (nestedIndex < indexedIndex) {
                 setProperty(getSimpleProperty(bean, name.substring(0,
-                        nestedIndex)), name.substring(nestedIndex + 1), values);
+                        nestedIndex)), name.substring(nestedIndex + 1), value);
             } else {
                 IndexParsedResult result = parseIndex(name
                         .substring(indexedIndex + 1));
                 bean = getIndexedProperty(bean,
                         name.substring(0, indexedIndex), result.indexes);
-                setProperty(bean, result.name, values);
+                setProperty(bean, result.name, value);
             }
         } else if (nestedIndex >= 0) {
             setProperty(
                     getSimpleProperty(bean, name.substring(0, nestedIndex)),
-                    name.substring(nestedIndex + 1), values);
+                    name.substring(nestedIndex + 1), value);
         } else {
             throw new IllegalArgumentException(name);
         }
@@ -228,13 +220,13 @@ public class S2RequestProcessor extends RequestProcessor {
      *            JavaBeans
      * @param name
      *            パラメータ名
-     * @param values
-     *            値の配列
+     * @param value
+     *            パラメータの値
      * @throws ServletException
      *             何か例外が発生した場合。
      */
     @SuppressWarnings("unchecked")
-    protected void setSimpleProperty(Object bean, String name, String[] values) {
+    protected void setSimpleProperty(Object bean, String name, Object value) {
         BeanDesc beanDesc = BeanDescFactory.getBeanDesc(bean.getClass());
         if (!beanDesc.hasPropertyDesc(name)) {
             return;
@@ -244,17 +236,20 @@ public class S2RequestProcessor extends RequestProcessor {
             return;
         }
         if (pd.getPropertyType().isArray()) {
-            pd.setValue(bean, values);
+            pd.setValue(bean, value);
         } else if (List.class.isAssignableFrom(pd.getPropertyType())) {
             List<String> list = ModifierUtil.isAbstract(pd.getPropertyType()) ? new ArrayList<String>()
                     : (List<String>) ClassUtil
                             .newInstance(pd.getPropertyType());
-            list.addAll(Arrays.asList(values));
+            list.addAll(Arrays.asList((String[]) value));
             pd.setValue(bean, list);
-        } else if (values == null || values.length == 0) {
+        } else if (value == null) {
             pd.setValue(bean, null);
+        } else if (value instanceof String[]) {
+            String[] values = (String[]) value;
+            pd.setValue(bean, values.length > 0 ? values[0] : null);
         } else {
-            pd.setValue(bean, values[0]);
+            pd.setValue(bean, value);
         }
     }
 
@@ -520,31 +515,31 @@ public class S2RequestProcessor extends RequestProcessor {
     }
 
     /**
-     * マルチパート用のパラメータを返します。
+     * すべてのパラメータを返します。
      * 
      * @param request
      *            リクエスト
      * @param multipartHandler
      *            マルチパートリクエストハンドラ
-     * @return マルチパート用のパラメータ
+     * @return すべてのパラメータ
      */
     @SuppressWarnings("unchecked")
-    protected Iterator<String> getAllParameterNamesForMultipartRequest(
-            HttpServletRequest request, MultipartRequestHandler multipartHandler) {
-        Set<String> names = new LinkedHashSet<String>();
-        Hashtable elements = multipartHandler.getAllElements();
-        Enumeration e = elements.keys();
-        while (e.hasMoreElements()) {
-            names.add((String) e.nextElement());
-        }
+    protected Map<String, Object> getAllParameters(HttpServletRequest request,
+            MultipartRequestHandler multipartHandler) {
+        Map<String, Object> params = new HashMap<String, Object>();
         if (request instanceof MultipartRequestWrapper) {
             request = ((MultipartRequestWrapper) request).getRequest();
-            e = request.getParameterNames();
-            while (e.hasMoreElements()) {
-                names.add((String) e.nextElement());
-            }
         }
-        return names.iterator();
+        Enumeration e = request.getParameterNames();
+        while (e.hasMoreElements()) {
+            String name = (String) e.nextElement();
+            params.put(name, request.getParameterValues(name));
+        }
+        if (multipartHandler != null) {
+            Hashtable elements = multipartHandler.getAllElements();
+            params.putAll(elements);
+        }
+        return params;
     }
 
     /**

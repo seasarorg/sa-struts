@@ -199,18 +199,27 @@ public class S2ExecuteConfig implements Serializable {
     }
 
     /**
-     * リクエストが実行メソッドの対象かどうかを返します。
+     * 実行メソッドの対象かどうかを返します。
      * 
-     * @param request
-     *            リクエスト
      * @param paramPath
      *            パラメータ用のパス
-     * @return リクエストが実行メソッドの対象かどうか
+     * @return 実行メソッドの対象かどうか
      */
-    public boolean isTarget(HttpServletRequest request, String paramPath) {
+    public boolean isTarget(String paramPath) {
         if (!StringUtil.isEmpty(paramPath)) {
             return urlPatternRegexp.matcher(paramPath).find();
         }
+        return false;
+    }
+
+    /**
+     * 実行メソッドの対象かどうかを返します。
+     * 
+     * @param request
+     *            リクエスト
+     * @return リクエストが実行メソッドの対象かどうか
+     */
+    public boolean isTarget(HttpServletRequest request) {
         return !StringUtil.isEmpty(request.getParameter(method.getName()));
     }
 
@@ -223,14 +232,14 @@ public class S2ExecuteConfig implements Serializable {
      */
     public String getQueryString(String paramPath) {
         if (StringUtil.isEmpty(paramPath)) {
-            return "";
+            return "?" + method.getName() + "=" + method.getName();
         }
         Matcher matcher = urlPatternRegexp.matcher(paramPath);
         if (!matcher.find()) {
-            return "";
+            return "?" + method.getName() + "=" + method.getName();
         }
         if (urlParamNames.size() == 0) {
-            return "";
+            return "?" + method.getName() + "=" + method.getName();
         }
         StringBuilder sb = new StringBuilder(50);
         sb.append("?");
@@ -241,6 +250,8 @@ public class S2ExecuteConfig implements Serializable {
             }
             sb.append(name).append("=").append(matcher.group(index++));
         }
+        sb.append("&").append(method.getName()).append("=").append(
+                method.getName());
         return sb.toString();
     }
 }

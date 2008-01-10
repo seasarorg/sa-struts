@@ -28,6 +28,11 @@ import org.seasar.framework.beans.BeanDesc;
 import org.seasar.framework.beans.PropertyDesc;
 import org.seasar.framework.beans.factory.BeanDescFactory;
 import org.seasar.framework.container.ComponentDef;
+import org.seasar.framework.container.S2Container;
+import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
+import org.seasar.framework.util.StringUtil;
+import org.seasar.struts.util.RoutingUtil;
+import org.seasar.struts.util.S2ModuleConfigUtil;
 
 /**
  * Seasar2用のアクションマッピングです。
@@ -98,9 +103,45 @@ public class S2ActionMapping extends ActionMapping {
         }
         if (!path.startsWith("/")) {
             path = getViewDirectory(componentDef.getComponentName()) + path;
+            if (path.indexOf('.') < 0) {
+                path = createRoutingPath(path);
+            }
         }
         return new ActionForward(path, redirect);
+    }
 
+    /**
+     * ルーティング用のパスを作成します。
+     * 
+     * @param path
+     *            パス
+     * @return ルーティング用のパス
+     */
+    protected String createRoutingPath(String path) {
+        String originalPath = path;
+        String queryString = "";
+        int index = path.indexOf('?');
+        if (index >= 0) {
+            queryString = path.substring(index);
+            path = path.substring(0, index);
+        }
+        String[] names = StringUtil.split(path, "/");
+        S2Container container = SingletonS2ContainerFactory.getContainer();
+        StringBuilder sb = new StringBuilder(50);
+        for (int i = 0; i < names.length; i++) {
+            if (container.hasComponentDef(sb + names[i] + "Action")) {
+                String actionPath = RoutingUtil.getActionPath(names, i);
+                String paramPath = RoutingUtil.getParamPath(names, i + 1);
+                return actionPath + ".do"
+                        + getQueryString(queryString, actionPath, paramPath);
+            }
+            sb.append(names[i] + "_");
+        }
+        if (container.hasComponentDef("indexAction")) {
+            return "/index.do"
+                    + getQueryString(queryString, "/", path.substring(1));
+        }
+        return originalPath;
     }
 
     /**
@@ -120,6 +161,41 @@ public class S2ActionMapping extends ActionMapping {
                             .replace('_', '/') + "/";
         }
         throw new IllegalArgumentException(componentName);
+    }
+
+    /**
+     * クエリストリングを返します。
+     * 
+     * @param queryString
+     *            元のクエリストリング
+     * @param actionPath
+     *            アクションパス
+     * @param paramPath
+     *            パラメータ用のパス
+     * @return クエリストリング
+     */
+    protected String getQueryString(String queryString, String actionPath,
+            String paramPath) {
+        if (StringUtil.isEmpty(paramPath)) {
+            return queryString;
+        }
+        S2ModuleConfig moduleConfig = S2ModuleConfigUtil.getModuleConfig();
+        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
+                .findActionConfig(actionPath);
+        S2ExecuteConfig executeConfig = actionMapping
+                .findExecuteConfig(paramPath);
+
+        if (executeConfig != null) {
+            String queryString2 = executeConfig.getQueryString(paramPath);
+            if (StringUtil.isEmpty(queryString)) {
+                return queryString2;
+            }
+            if (StringUtil.isEmpty(queryString2)) {
+                return queryString;
+            }
+            return queryString + "&" + queryString2.substring(1);
+        }
+        return queryString;
     }
 
     /**
@@ -201,21 +277,36 @@ public class S2ActionMapping extends ActionMapping {
     /**
      * 実行メソッドを探します。
      * 
-     * @param request
-     *            リクエスト
      * @param paramPath
      *            パラメータのパス
      * @return 実行メソッド
      */
-    public S2ExecuteConfig findExecuteConfig(HttpServletRequest request,
-            String paramPath) {
+    public S2ExecuteConfig findExecuteConfig(String paramPath) {
+        for (Iterator<S2ExecuteConfig> i = executeConfigs.values().iterator(); i
+                .hasNext();) {
+            S2ExecuteConfig executeConfig = i.next();
+            if (executeConfig.isTarget(paramPath)) {
+                return executeConfig;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 実行メソッドを探します。
+     * 
+     * @param request
+     *            リクエスト
+     * @return 実行メソッド
+     */
+    public S2ExecuteConfig findExecuteConfig(HttpServletRequest request) {
         if (executeConfigs.size() == 1) {
             return executeConfigs.values().iterator().next();
         }
         for (Iterator<S2ExecuteConfig> i = executeConfigs.values().iterator(); i
                 .hasNext();) {
             S2ExecuteConfig executeConfig = i.next();
-            if (executeConfig.isTarget(request, paramPath)) {
+            if (executeConfig.isTarget(request)) {
                 return executeConfig;
             }
         }

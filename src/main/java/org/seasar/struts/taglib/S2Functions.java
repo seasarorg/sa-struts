@@ -15,6 +15,8 @@
  */
 package org.seasar.struts.taglib;
 
+import org.seasar.struts.util.URLEncoderUtil;
+
 /**
  * Seasar2用のファンクションです。
  * 
@@ -77,5 +79,16 @@ public class S2Functions {
             escapedBuffer.append(arrayBuffer, start, length - start);
         }
         return escapedBuffer.toString();
+    }
+
+    /**
+     * URLをエスケープします。
+     * 
+     * @param input
+     *            入力値
+     * @return エスケープした結果
+     */
+    public static String u(String input) {
+        return URLEncoderUtil.encode(input);
     }
 }

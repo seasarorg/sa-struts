@@ -20,7 +20,6 @@ import org.apache.struts.util.MessageResourcesFactory;
 import org.apache.struts.validator.ValidatorPlugIn;
 import org.seasar.extension.unit.S2TestCase;
 import org.seasar.framework.mock.servlet.MockHttpServletRequestImpl;
-import org.seasar.framework.util.StringUtil;
 import org.seasar.struts.annotation.Execute;
 import org.seasar.struts.config.S2ModuleConfig;
 import org.seasar.struts.customizer.ActionCustomizer;
@@ -50,42 +49,6 @@ public class RoutingFilterTest extends S2TestCase {
                 validatorResources);
         register(AaaAction.class, "aaaAction");
         customizer.customize(getComponentDef("aaaAction"));
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testGetActionPath() throws Exception {
-        RoutingFilter filter = new RoutingFilter();
-        String[] names = StringUtil.split("/aaa", "/");
-        assertEquals("/aaa", filter.getActionPath(names, 0));
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testGetActionPath_method() throws Exception {
-        RoutingFilter filter = new RoutingFilter();
-        String[] names = StringUtil.split("/aaa/hoge", "/");
-        assertEquals("/aaa", filter.getActionPath(names, 0));
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testGetParamPath() throws Exception {
-        RoutingFilter filter = new RoutingFilter();
-        String[] names = StringUtil.split("/aaa", "/");
-        assertEquals("", filter.getParamPath(names, 1));
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testGetParamPath_method() throws Exception {
-        RoutingFilter filter = new RoutingFilter();
-        String[] names = StringUtil.split("/aaa/hoge", "/");
-        assertEquals("hoge", filter.getParamPath(names, 1));
     }
 
     /**
