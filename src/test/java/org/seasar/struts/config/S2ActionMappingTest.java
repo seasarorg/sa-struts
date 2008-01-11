@@ -188,6 +188,15 @@ public class S2ActionMappingTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testCreateForward_null() throws Exception {
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        actionMapping.setComponentDef(getComponentDef(MyAction.class));
+        assertNull(actionMapping.createForward(null));
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testGetViewDirectory() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
         assertEquals("/login/", actionMapping.getViewDirectory("loginAction"));

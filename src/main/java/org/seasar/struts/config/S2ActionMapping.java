@@ -96,6 +96,9 @@ public class S2ActionMapping extends ActionMapping {
      * @return アクションフォワード
      */
     public ActionForward createForward(String path) {
+        if (path == null) {
+            return null;
+        }
         boolean redirect = false;
         if (path.endsWith(REDIRECT)) {
             redirect = true;
