@@ -27,9 +27,10 @@ import javax.servlet.ServletException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.config.ModuleConfig;
 import org.apache.struts.validator.ValidatorPlugIn;
 import org.seasar.framework.util.InputStreamUtil;
-import org.seasar.struts.util.ServletContextUtil;
 import org.xml.sax.SAXException;
 
 /**
@@ -50,6 +51,24 @@ public class S2ValidatorPlugIn extends ValidatorPlugIn {
      */
     protected final static String RESOURCE_DELIM = ",";
 
+    /**
+     * アクションサーブレットです。
+     */
+    protected ActionServlet actionServlet = null;
+
+    /**
+     * モジュール設定です。
+     */
+    protected ModuleConfig moduleConfig;
+
+    @Override
+    public void init(ActionServlet actionServlet, ModuleConfig moduleConfig)
+            throws ServletException {
+        this.actionServlet = actionServlet;
+        this.moduleConfig = moduleConfig;
+        super.init(actionServlet, moduleConfig);
+    }
+
     @Override
     protected void initResources() throws IOException, ServletException {
         String pathnames = getPathnames();
@@ -65,7 +84,7 @@ public class S2ValidatorPlugIn extends ValidatorPlugIn {
                     log.info("Loading validation rules file from '"
                             + validatorRules + "'");
                 }
-                InputStream input = ServletContextUtil.getServletContext()
+                InputStream input = actionServlet.getServletContext()
                         .getResourceAsStream(validatorRules);
                 if (input == null) {
                     input = getClass().getResourceAsStream(validatorRules);
