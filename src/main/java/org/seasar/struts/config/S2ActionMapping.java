@@ -104,7 +104,7 @@ public class S2ActionMapping extends ActionMapping {
             redirect = true;
             path = path.substring(0, path.length() - REDIRECT.length() - 1);
         }
-        if (!path.startsWith("/")) {
+        if (!path.startsWith("/") && path.indexOf(":") < 0) {
             path = getViewDirectory(componentDef.getComponentName()) + path;
             if (path.indexOf('.') < 0) {
                 path = createRoutingPath(path);

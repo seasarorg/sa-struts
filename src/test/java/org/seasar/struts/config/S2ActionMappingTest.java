@@ -197,6 +197,20 @@ public class S2ActionMappingTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testCreateForward_http() throws Exception {
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        ComponentDef cd = new ComponentDefImpl(MyAction.class, "aaaAction");
+        actionMapping.setComponentDef(cd);
+        ActionForward forward = actionMapping
+                .createForward("http://www.seasar.org?redirect=true");
+        assertNotNull(forward);
+        assertEquals("http://www.seasar.org", forward.getPath());
+        assertTrue(forward.getRedirect());
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testGetViewDirectory() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
         assertEquals("/login/", actionMapping.getViewDirectory("loginAction"));
