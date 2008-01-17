@@ -55,4 +55,12 @@ public class RoutingUtilTest extends S2TestCase {
         String[] names = StringUtil.split("/aaa/hoge", "/");
         assertEquals("hoge", RoutingUtil.getParamPath(names, 1));
     }
+
+    /**
+     * @throws Exception
+     */
+    public void testGetParamPath_index() throws Exception {
+        String[] names = StringUtil.split("/higayasuo/edit/", "/");
+        assertEquals("higayasuo/edit", RoutingUtil.getParamPath(names, 0));
+    }
 }

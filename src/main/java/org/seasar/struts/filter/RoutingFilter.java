@@ -44,17 +44,42 @@ public class RoutingFilter implements Filter {
                 if (container.hasComponentDef(sb + names[i] + "Action")) {
                     String actionPath = RoutingUtil.getActionPath(names, i);
                     String paramPath = RoutingUtil.getParamPath(names, i + 1);
-                    forward((HttpServletRequest) request,
-                            (HttpServletResponse) response, actionPath,
-                            paramPath);
-                    return;
+                    if (StringUtil.isEmpty(paramPath)) {
+                        forward((HttpServletRequest) request,
+                                (HttpServletResponse) response, actionPath,
+                                null, null);
+                        return;
+                    }
+                    S2ExecuteConfig executeConfig = findExecuteConfig(
+                            actionPath, paramPath);
+                    if (executeConfig != null) {
+                        forward((HttpServletRequest) request,
+                                (HttpServletResponse) response, actionPath,
+                                paramPath, executeConfig);
+                        return;
+                    }
+
                 }
                 sb.append(names[i] + "_");
             }
             if (container.hasComponentDef("indexAction")) {
-                forward((HttpServletRequest) request,
-                        (HttpServletResponse) response, "/", path.substring(1));
-                return;
+                String actionPath = "/";
+                String paramPath = RoutingUtil.getParamPath(names, 0);
+                if (StringUtil.isEmpty(paramPath)) {
+                    forward((HttpServletRequest) request,
+                            (HttpServletResponse) response, actionPath, null,
+                            null);
+                    return;
+                }
+                S2ExecuteConfig executeConfig = findExecuteConfig(actionPath,
+                        paramPath);
+                if (executeConfig != null) {
+                    forward((HttpServletRequest) request,
+                            (HttpServletResponse) response, actionPath,
+                            paramPath, executeConfig);
+                    return;
+                }
+
             }
         }
         chain.doFilter(request, response);
@@ -76,6 +101,23 @@ public class RoutingFilter implements Filter {
     }
 
     /**
+     * 実行設定を返します。
+     * 
+     * @param actionPath
+     *            アクションパス
+     * @param paramPath
+     *            パラメータパス
+     * @return 実行設定
+     */
+    protected S2ExecuteConfig findExecuteConfig(String actionPath,
+            String paramPath) {
+        S2ModuleConfig moduleConfig = S2ModuleConfigUtil.getModuleConfig();
+        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
+                .findActionConfig(actionPath);
+        return actionMapping.findExecuteConfig(paramPath);
+    }
+
+    /**
      * Strutsのサーブレットにフォワードします。
      * 
      * @param request
@@ -86,20 +128,17 @@ public class RoutingFilter implements Filter {
      *            アクションパス
      * @param paramPath
      *            パラメータのパス
+     * @param executeConfig
+     *            実行設定
      * @throws IOException
      *             IO例外が発生した場合
      * @throws ServletException
      *             サーブレット例外が発生した場合
      */
     protected void forward(HttpServletRequest request,
-            HttpServletResponse response, String actionPath, String paramPath)
-            throws IOException, ServletException {
-        S2ModuleConfig moduleConfig = S2ModuleConfigUtil.getModuleConfig();
-        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
-                .findActionConfig(actionPath);
+            HttpServletResponse response, String actionPath, String paramPath,
+            S2ExecuteConfig executeConfig) throws IOException, ServletException {
         String forwardPath = actionPath + ".do";
-        S2ExecuteConfig executeConfig = actionMapping
-                .findExecuteConfig(paramPath);
         if (executeConfig != null) {
             forwardPath = forwardPath + executeConfig.getQueryString(paramPath);
         }
