@@ -36,10 +36,9 @@ import org.seasar.struts.exception.IllegalUrlPatternRuntimeException;
  */
 public class S2ExecuteConfig implements Serializable {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
+
+    private static final String METHOD_NAME = "SAStruts.method";
 
     /**
      * メソッドです。
@@ -220,6 +219,10 @@ public class S2ExecuteConfig implements Serializable {
      * @return リクエストが実行メソッドの対象かどうか
      */
     public boolean isTarget(HttpServletRequest request) {
+        String methodName = request.getParameter(METHOD_NAME);
+        if (!StringUtil.isEmpty(methodName)) {
+            return methodName.equals(method.getName());
+        }
         return !StringUtil.isEmpty(request.getParameter(method.getName()));
     }
 
@@ -232,14 +235,14 @@ public class S2ExecuteConfig implements Serializable {
      */
     public String getQueryString(String paramPath) {
         if (StringUtil.isEmpty(paramPath)) {
-            return "?" + method.getName() + "=" + method.getName();
+            return "?" + METHOD_NAME + "=" + method.getName();
         }
         Matcher matcher = urlPatternRegexp.matcher(paramPath);
         if (!matcher.find()) {
-            return "?" + method.getName() + "=" + method.getName();
+            return "?" + METHOD_NAME + "=" + method.getName();
         }
         if (urlParamNames.size() == 0) {
-            return "?" + method.getName() + "=" + method.getName();
+            return "?" + METHOD_NAME + "=" + method.getName();
         }
         StringBuilder sb = new StringBuilder(50);
         sb.append("?");
@@ -250,8 +253,7 @@ public class S2ExecuteConfig implements Serializable {
             }
             sb.append(name).append("=").append(matcher.group(index++));
         }
-        sb.append("&").append(method.getName()).append("=").append(
-                method.getName());
+        sb.append("&").append(METHOD_NAME).append("=").append(method.getName());
         return sb.toString();
     }
 }

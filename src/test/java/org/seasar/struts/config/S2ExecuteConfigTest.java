@@ -93,10 +93,21 @@ public class S2ExecuteConfigTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testIsTarget_request_methodName() throws Exception {
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig(getClass()
+                .getDeclaredMethod("testUrlPattern_empty"), true, null, null,
+                null, "");
+        getRequest().setParameter("SAStruts.method", "testUrlPattern_empty");
+        assertTrue(executeConfig.isTarget(getRequest()));
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testGetQueryString() throws Exception {
         S2ExecuteConfig executeConfig = new S2ExecuteConfig(getClass()
                 .getMethod("getClass"), true, null, null, null, "edit/{id}");
-        assertEquals("?id=1&getClass=getClass", executeConfig
+        assertEquals("?id=1&SAStruts.method=getClass", executeConfig
                 .getQueryString("edit/1"));
     }
 
@@ -107,7 +118,7 @@ public class S2ExecuteConfigTest extends S2TestCase {
         S2ExecuteConfig executeConfig = new S2ExecuteConfig(getClass()
                 .getMethod("getClass"), true, null, null, null,
                 "edit/{id}/{id2}");
-        assertEquals("?id=1&id2=2&getClass=getClass", executeConfig
+        assertEquals("?id=1&id2=2&SAStruts.method=getClass", executeConfig
                 .getQueryString("edit/1/2"));
     }
 
@@ -117,6 +128,6 @@ public class S2ExecuteConfigTest extends S2TestCase {
     public void testGetParams_empty() throws Exception {
         S2ExecuteConfig executeConfig = new S2ExecuteConfig(getClass()
                 .getDeclaredMethod("index"), true, null, null, null, "index");
-        assertEquals("?index=index", executeConfig.getQueryString(""));
+        assertEquals("?SAStruts.method=index", executeConfig.getQueryString(""));
     }
 }

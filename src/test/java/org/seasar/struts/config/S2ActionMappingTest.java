@@ -88,8 +88,8 @@ public class S2ActionMappingTest extends S2TestCase {
      */
     public void testGetQueryString_paramPath() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
-        assertEquals("?aaa=1&id=2&submit=submit", actionMapping.getQueryString(
-                "?aaa=1", "/aaa", "submit/2"));
+        assertEquals("?aaa=1&id=2&SAStruts.method=submit", actionMapping
+                .getQueryString("?aaa=1", "/aaa", "submit/2"));
     }
 
     /**
@@ -98,8 +98,8 @@ public class S2ActionMappingTest extends S2TestCase {
     public void testGetQueryString_paramPath_queryStringEmpty()
             throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
-        assertEquals("?id=2&submit=submit", actionMapping.getQueryString("",
-                "/aaa", "submit/2"));
+        assertEquals("?id=2&SAStruts.method=submit", actionMapping
+                .getQueryString("", "/aaa", "submit/2"));
     }
 
     /**
@@ -116,8 +116,8 @@ public class S2ActionMappingTest extends S2TestCase {
      */
     public void testCreateRoutingPath() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
-        assertEquals("/aaa.do?hoge=1&id=2&submit=submit", actionMapping
-                .createRoutingPath("/aaa/submit/2?hoge=1"));
+        assertEquals("/aaa.do?hoge=1&id=2&SAStruts.method=submit",
+                actionMapping.createRoutingPath("/aaa/submit/2?hoge=1"));
     }
 
     /**
@@ -169,7 +169,8 @@ public class S2ActionMappingTest extends S2TestCase {
         actionMapping.setComponentDef(getComponentDef(MyAction.class));
         ActionForward forward = actionMapping.createForward("submit/2?hoge=1");
         assertNotNull(forward);
-        assertEquals("/aaa.do?hoge=1&id=2&submit=submit", forward.getPath());
+        assertEquals("/aaa.do?hoge=1&id=2&SAStruts.method=submit", forward
+                .getPath());
         assertFalse(forward.getRedirect());
     }
 
@@ -181,7 +182,7 @@ public class S2ActionMappingTest extends S2TestCase {
         actionMapping.setComponentDef(getComponentDef(MyAction.class));
         ActionForward forward = actionMapping.createForward("submit/2");
         assertNotNull(forward);
-        assertEquals("/aaa.do?id=2&submit=submit", forward.getPath());
+        assertEquals("/aaa.do?id=2&SAStruts.method=submit", forward.getPath());
         assertFalse(forward.getRedirect());
     }
 
