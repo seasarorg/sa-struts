@@ -27,7 +27,16 @@ import org.seasar.struts.util.S2ModuleConfigUtil;
  */
 public class RoutingFilter implements Filter {
 
+    /**
+     * JSPのダイレクトアクセスを許すかどうかです。
+     */
+    protected boolean jspDirectAccess = false;
+
     public void init(FilterConfig config) throws ServletException {
+        String access = config.getInitParameter("jspDirectAccess");
+        if (!StringUtil.isBlank(access)) {
+            jspDirectAccess = Boolean.valueOf(access);
+        }
     }
 
     public void destroy() {
@@ -35,7 +44,13 @@ public class RoutingFilter implements Filter {
 
     public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain) throws IOException, ServletException {
-        String path = getPath((HttpServletRequest) request);
+        HttpServletRequest req = (HttpServletRequest) request;
+        String path = getPath(req);
+        if (!jspDirectAccess && req.getMethod().equalsIgnoreCase("get")
+                && path.endsWith(".jsp")) {
+            throw new ServletException(
+                    "Direct access for JSP is not permitted.");
+        }
         if (path.indexOf('.') < 0) {
             String[] names = StringUtil.split(path, "/");
             S2Container container = SingletonS2ContainerFactory.getContainer();
