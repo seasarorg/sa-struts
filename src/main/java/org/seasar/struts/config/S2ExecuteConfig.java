@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.seasar.framework.util.StringUtil;
 import org.seasar.struts.enums.SaveType;
 import org.seasar.struts.exception.IllegalUrlPatternRuntimeException;
+import org.seasar.struts.util.URLEncoderUtil;
 
 /**
  * Actionの実行メソッド用の設定です。
@@ -44,6 +45,11 @@ public class S2ExecuteConfig implements Serializable {
      * メソッドです。
      */
     protected Method method;
+
+    /**
+     * URLエンコードされたメソッド名です。
+     */
+    protected String urlEncodedMethodName;
 
     /**
      * バリデータを呼び出すかどうかです。
@@ -100,6 +106,7 @@ public class S2ExecuteConfig implements Serializable {
             Method validateMethod, SaveType saveErrors, String input,
             String urlPattern) {
         this.method = method;
+        urlEncodedMethodName = URLEncoderUtil.encode(method.getName());
         this.validator = validator;
         this.validateMethod = validateMethod;
         this.saveErrors = saveErrors;
@@ -181,8 +188,9 @@ public class S2ExecuteConfig implements Serializable {
                 index = i;
             } else if (chars[i] == '}') {
                 if (index >= 0) {
-                    sb.append("([a-zA-Z0-9]+)");
-                    urlParamNames.add(urlPattern.substring(index + 1, i));
+                    sb.append("([^/]+)");
+                    urlParamNames.add(URLEncoderUtil.encode(urlPattern
+                            .substring(index + 1, i)));
                     index = -1;
                 } else {
                     throw new IllegalUrlPatternRuntimeException(urlPattern);
@@ -235,14 +243,14 @@ public class S2ExecuteConfig implements Serializable {
      */
     public String getQueryString(String paramPath) {
         if (StringUtil.isEmpty(paramPath)) {
-            return "?" + METHOD_NAME + "=" + method.getName();
+            return "?" + METHOD_NAME + "=" + urlEncodedMethodName;
         }
         Matcher matcher = urlPatternRegexp.matcher(paramPath);
         if (!matcher.find()) {
-            return "?" + METHOD_NAME + "=" + method.getName();
+            return "?" + METHOD_NAME + "=" + urlEncodedMethodName;
         }
         if (urlParamNames.size() == 0) {
-            return "?" + METHOD_NAME + "=" + method.getName();
+            return "?" + METHOD_NAME + "=" + urlEncodedMethodName;
         }
         StringBuilder sb = new StringBuilder(50);
         sb.append("?");
@@ -251,9 +259,11 @@ public class S2ExecuteConfig implements Serializable {
             if (index != 1) {
                 sb.append("&");
             }
-            sb.append(name).append("=").append(matcher.group(index++));
+            sb.append(name).append("=").append(
+                    URLEncoderUtil.encode(matcher.group(index++)));
         }
-        sb.append("&").append(METHOD_NAME).append("=").append(method.getName());
+        sb.append("&").append(METHOD_NAME).append("=").append(
+                urlEncodedMethodName);
         return sb.toString();
     }
 }

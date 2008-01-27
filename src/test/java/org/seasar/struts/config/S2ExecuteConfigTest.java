@@ -60,11 +60,10 @@ public class S2ExecuteConfigTest extends S2TestCase {
         S2ExecuteConfig executeConfig = new S2ExecuteConfig(getClass()
                 .getDeclaredMethod("testUrlPattern_empty"), true, null, null,
                 null, "edit/{id}");
-        assertEquals("^edit/([a-zA-Z0-9]+)$", executeConfig.urlPatternRegexp
-                .pattern());
-        Matcher matcher = executeConfig.urlPatternRegexp.matcher("edit/1");
+        assertEquals("^edit/([^/]+)$", executeConfig.urlPatternRegexp.pattern());
+        Matcher matcher = executeConfig.urlPatternRegexp.matcher("edit/11");
         assertTrue(matcher.find());
-        assertEquals("1", matcher.group(1));
+        assertEquals("11", matcher.group(1));
     }
 
     /**
@@ -74,8 +73,8 @@ public class S2ExecuteConfigTest extends S2TestCase {
         S2ExecuteConfig executeConfig = new S2ExecuteConfig(getClass()
                 .getDeclaredMethod("testUrlPattern_empty"), true, null, null,
                 null, "edit/{id}");
-        assertTrue(executeConfig.isTarget("edit/1"));
-        assertFalse(executeConfig.isTarget("edit2/1"));
+        assertTrue(executeConfig.isTarget("edit/11"));
+        assertFalse(executeConfig.isTarget("edit2/11"));
         assertFalse(executeConfig.isTarget(""));
     }
 
@@ -107,8 +106,8 @@ public class S2ExecuteConfigTest extends S2TestCase {
     public void testGetQueryString() throws Exception {
         S2ExecuteConfig executeConfig = new S2ExecuteConfig(getClass()
                 .getMethod("getClass"), true, null, null, null, "edit/{id}");
-        assertEquals("?id=1&SAStruts.method=getClass", executeConfig
-                .getQueryString("edit/1"));
+        assertEquals("?id=11&SAStruts.method=getClass", executeConfig
+                .getQueryString("edit/11"));
     }
 
     /**
@@ -118,8 +117,8 @@ public class S2ExecuteConfigTest extends S2TestCase {
         S2ExecuteConfig executeConfig = new S2ExecuteConfig(getClass()
                 .getMethod("getClass"), true, null, null, null,
                 "edit/{id}/{id2}");
-        assertEquals("?id=1&id2=2&SAStruts.method=getClass", executeConfig
-                .getQueryString("edit/1/2"));
+        assertEquals("?id=11&id2=22&SAStruts.method=getClass", executeConfig
+                .getQueryString("edit/11/22"));
     }
 
     /**
