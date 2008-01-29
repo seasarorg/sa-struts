@@ -47,11 +47,6 @@ public class S2ExecuteConfig implements Serializable {
     protected Method method;
 
     /**
-     * URLエンコードされたメソッド名です。
-     */
-    protected String urlEncodedMethodName;
-
-    /**
      * バリデータを呼び出すかどうかです。
      */
     protected boolean validator = true;
@@ -106,7 +101,6 @@ public class S2ExecuteConfig implements Serializable {
             Method validateMethod, SaveType saveErrors, String input,
             String urlPattern) {
         this.method = method;
-        urlEncodedMethodName = URLEncoderUtil.encode(method.getName());
         this.validator = validator;
         this.validateMethod = validateMethod;
         this.saveErrors = saveErrors;
@@ -189,8 +183,7 @@ public class S2ExecuteConfig implements Serializable {
             } else if (chars[i] == '}') {
                 if (index >= 0) {
                     sb.append("([^/]+)");
-                    urlParamNames.add(URLEncoderUtil.encode(urlPattern
-                            .substring(index + 1, i)));
+                    urlParamNames.add(urlPattern.substring(index + 1, i));
                     index = -1;
                 } else {
                     throw new IllegalUrlPatternRuntimeException(urlPattern);
@@ -242,6 +235,7 @@ public class S2ExecuteConfig implements Serializable {
      * @return クエリストリング
      */
     public String getQueryString(String paramPath) {
+        String urlEncodedMethodName = URLEncoderUtil.encode(method.getName());
         if (StringUtil.isEmpty(paramPath)) {
             return "?" + METHOD_NAME + "=" + urlEncodedMethodName;
         }
@@ -259,7 +253,7 @@ public class S2ExecuteConfig implements Serializable {
             if (index != 1) {
                 sb.append("&");
             }
-            sb.append(name).append("=").append(
+            sb.append(URLEncoderUtil.encode(name)).append("=").append(
                     URLEncoderUtil.encode(matcher.group(index++)));
         }
         sb.append("&").append(METHOD_NAME).append("=").append(
