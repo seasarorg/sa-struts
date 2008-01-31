@@ -17,73 +17,115 @@ package org.seasar.struts.action;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 /**
- * 集合のラッパークラスです。
+ * リストのラッパーです。
  * 
  * @author higa
  * 
  */
 @SuppressWarnings("unchecked")
-public class CollectionWrapper implements Collection {
+public class ListWrapper implements List {
 
     /**
-     * 集合です。
+     * 
      */
-    protected Collection collection;
+    protected List list;
 
     /**
      * インスタンスを構築します。
      * 
-     * @param collection
-     *            集合
+     * @param list
+     *            リスト
      */
-    public CollectionWrapper(Collection collection) {
-        this.collection = collection;
+    public ListWrapper(List list) {
+        this.list = list;
     }
 
     public boolean add(Object o) {
-        return collection.add(o);
+        return list.add(o);
+    }
+
+    public void add(int index, Object element) {
+        list.add(index, element);
     }
 
     public boolean addAll(Collection c) {
-        return collection.addAll(c);
+        return list.addAll(c);
+    }
+
+    public boolean addAll(int index, Collection c) {
+        return list.addAll(index, c);
     }
 
     public void clear() {
-        collection.clear();
+        list.clear();
     }
 
     public boolean contains(Object o) {
-        return collection.contains(o);
+        return list.contains(o);
     }
 
     public boolean containsAll(Collection c) {
-        return collection.containsAll(c);
+        return list.containsAll(c);
+    }
+
+    public Object get(int index) {
+        return WrapperUtil.convert(list.get(index));
+    }
+
+    public int indexOf(Object o) {
+        return list.indexOf(o);
     }
 
     public boolean isEmpty() {
-        return collection.isEmpty();
+        return list.isEmpty();
     }
 
     public Iterator iterator() {
-        return new IteratorWrapper(collection.iterator());
+        return new IteratorWrapper(list.iterator());
+    }
+
+    public int lastIndexOf(Object o) {
+        return list.lastIndexOf(o);
+    }
+
+    public ListIterator listIterator() {
+        return new ListIteratorWrapper(list.listIterator());
+    }
+
+    public ListIterator listIterator(int index) {
+        return new ListIteratorWrapper(list.listIterator(index));
     }
 
     public boolean remove(Object o) {
-        return collection.remove(o);
+        return list.remove(o);
+    }
+
+    public Object remove(int index) {
+        return list.remove(index);
     }
 
     public boolean removeAll(Collection c) {
-        return collection.removeAll(c);
+        return list.removeAll(c);
     }
 
     public boolean retainAll(Collection c) {
-        return collection.retainAll(c);
+        return list.retainAll(c);
+    }
+
+    public Object set(int index, Object element) {
+        return list.set(index, element);
     }
 
     public int size() {
-        return collection.size();
+        return list.size();
+    }
+
+    public List subList(int fromIndex, int toIndex) {
+        return list.subList(fromIndex, toIndex);
     }
 
     public Object[] toArray() {
@@ -96,6 +138,6 @@ public class CollectionWrapper implements Collection {
     }
 
     public Object[] toArray(Object[] a) {
-        throw new UnsupportedOperationException("toArray");
+        return toArray();
     }
 }

@@ -15,7 +15,7 @@
  */
 package org.seasar.struts.action;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.seasar.extension.jdbc.types.ValueTypes;
@@ -52,8 +52,8 @@ public final class WrapperUtil {
         if (clazz.isArray()) {
             return (T) new ArrayWrapper(value);
         }
-        if (Collection.class.isAssignableFrom(clazz)) {
-            return (T) new CollectionWrapper((Collection) value);
+        if (List.class.isAssignableFrom(clazz)) {
+            return (T) new ListWrapper((List) value);
         }
         if (Map.class.isAssignableFrom(clazz)) {
             return (T) new MapWrapper((Map) value);

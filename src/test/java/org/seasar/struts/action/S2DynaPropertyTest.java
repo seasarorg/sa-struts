@@ -52,7 +52,7 @@ public class S2DynaPropertyTest extends TestCase {
         PropertyDesc pd = beanDesc.getPropertyDesc("hogeList");
         S2DynaProperty property = new S2DynaProperty(pd);
         Object value = property.getValue(action);
-        assertEquals(CollectionWrapper.class, value.getClass());
+        assertEquals(ListWrapper.class, value.getClass());
     }
 
     /**

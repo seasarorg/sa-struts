@@ -17,7 +17,7 @@ package org.seasar.struts.action;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import junit.framework.TestCase;
@@ -87,7 +87,7 @@ public class IteratorWrapperTest extends TestCase {
     public void testNext_nest() throws Exception {
         IteratorWrapper wrapper = new IteratorWrapper(Arrays.asList(
                 Arrays.asList(1)).iterator());
-        Collection c = (Collection) wrapper.next();
-        assertEquals(CollectionWrapper.class, c.getClass());
+        List l = (List) wrapper.next();
+        assertEquals(ListWrapper.class, l.getClass());
     }
 }
