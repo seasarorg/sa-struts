@@ -224,7 +224,11 @@ public class S2ExecuteConfig implements Serializable {
         if (!StringUtil.isEmpty(methodName)) {
             return methodName.equals(method.getName());
         }
-        return !StringUtil.isEmpty(request.getParameter(method.getName()));
+        return !StringUtil.isEmpty(request.getParameter(method.getName()))
+                || !StringUtil.isEmpty(request.getParameter(method.getName()
+                        + ".x"))
+                || !StringUtil.isEmpty(request.getParameter(method.getName()
+                        + ".y"));
     }
 
     /**

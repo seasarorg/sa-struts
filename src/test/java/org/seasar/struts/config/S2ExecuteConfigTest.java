@@ -92,6 +92,17 @@ public class S2ExecuteConfigTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testIsTarget_request_ismap() throws Exception {
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig(getClass()
+                .getDeclaredMethod("testUrlPattern_empty"), true, null, null,
+                null, "");
+        getRequest().setParameter("testUrlPattern_empty.x", "123");
+        assertTrue(executeConfig.isTarget(getRequest()));
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testIsTarget_request_methodName() throws Exception {
         S2ExecuteConfig executeConfig = new S2ExecuteConfig(getClass()
                 .getDeclaredMethod("testUrlPattern_empty"), true, null, null,
