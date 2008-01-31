@@ -15,6 +15,13 @@
  */
 package org.seasar.struts.taglib;
 
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.seasar.framework.exception.ParseRuntimeException;
+import org.seasar.framework.util.StringUtil;
 import org.seasar.struts.util.URLEncoderUtil;
 
 /**
@@ -90,5 +97,69 @@ public class S2Functions {
      */
     public static String u(String input) {
         return URLEncoderUtil.encode(input);
+    }
+
+    /**
+     * 日付をフォーマットします。
+     * 
+     * @param input
+     *            入力値
+     * @param inputPattern
+     *            入力パターン
+     * @param outputPattern
+     *            出力パターン
+     * @return フォーマットした結果
+     */
+    public static String date(String input, String inputPattern,
+            String outputPattern) {
+        if (StringUtil.isEmpty(input)) {
+            return "";
+        }
+        if (StringUtil.isEmpty(inputPattern)) {
+            throw new NullPointerException(inputPattern);
+        }
+        if (StringUtil.isEmpty(outputPattern)) {
+            throw new NullPointerException(outputPattern);
+        }
+        try {
+            SimpleDateFormat inputFormat = new SimpleDateFormat(inputPattern);
+            Date date = inputFormat.parse(input);
+            SimpleDateFormat outputFormat = new SimpleDateFormat(outputPattern);
+            return outputFormat.format(date);
+        } catch (ParseException e) {
+            throw new ParseRuntimeException(e);
+        }
+    }
+
+    /**
+     * 数値をフォーマットします。
+     * 
+     * @param input
+     *            入力値
+     * @param inputPattern
+     *            入力パターン
+     * @param outputPattern
+     *            出力パターン
+     * @return フォーマットした結果
+     */
+    public static String number(String input, String inputPattern,
+            String outputPattern) {
+        if (StringUtil.isEmpty(input)) {
+            return "";
+        }
+        if (StringUtil.isEmpty(inputPattern)) {
+            throw new NullPointerException(inputPattern);
+        }
+        if (StringUtil.isEmpty(outputPattern)) {
+            throw new NullPointerException(outputPattern);
+        }
+        try {
+            DecimalFormat inputFormat = new DecimalFormat(inputPattern);
+            Number number = inputFormat.parse(input);
+            DecimalFormat outputFormat = new DecimalFormat(outputPattern);
+            return outputFormat.format(number);
+        } catch (ParseException e) {
+            throw new ParseRuntimeException(e);
+        }
     }
 }

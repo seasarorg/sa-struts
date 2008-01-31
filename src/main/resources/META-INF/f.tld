@@ -34,4 +34,28 @@
       ${f:u(param:info)}
     </example>
   </function>
+  
+  <function>
+    <description>
+      Formats characters that could be interpreted as Date.
+    </description>
+    <name>date</name>
+    <function-class>org.seasar.struts.taglib.S2Functions</function-class>
+    <function-signature>java.lang.String date(java.lang.String, java.lang.String, java.lang.String)</function-signature>
+    <example>
+      ${f:date(date, "yyyyMMdd", "yyyy/MM/dd")}
+    </example>
+  </function>
+  
+  <function>
+    <description>
+      Formats characters that could be interpreted as Number.
+    </description>
+    <name>number</name>
+    <function-class>org.seasar.struts.taglib.S2Functions</function-class>
+    <function-signature>java.lang.String number(java.lang.String, java.lang.String, java.lang.String)</function-signature>
+    <example>
+      ${f:number(num, "####", "#,###")}
+    </example>
+  </function>
 </taglib>
