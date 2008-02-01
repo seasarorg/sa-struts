@@ -41,9 +41,9 @@
     </description>
     <name>date</name>
     <function-class>org.seasar.struts.taglib.S2Functions</function-class>
-    <function-signature>java.lang.String date(java.lang.String, java.lang.String, java.lang.String)</function-signature>
+    <function-signature>java.util.Date date(java.lang.String, java.lang.String)</function-signature>
     <example>
-      ${f:date(date, "yyyyMMdd", "yyyy/MM/dd")}
+      &lt;fmt:formatDate value="${f:date(date, 'yyyyMMdd')}" pattern="yyyy/MM/dd"/&gt;
     </example>
   </function>
   
@@ -53,9 +53,9 @@
     </description>
     <name>number</name>
     <function-class>org.seasar.struts.taglib.S2Functions</function-class>
-    <function-signature>java.lang.String number(java.lang.String, java.lang.String, java.lang.String)</function-signature>
+    <function-signature>java.lang.Number number(java.lang.String, java.lang.String)</function-signature>
     <example>
-      ${f:number(num, "####", "#,###")}
+      &lt;fmt:formatNumber value="${f:number(number, '####'}" pattern="#,###"/&gt;
     </example>
   </function>
 </taglib>

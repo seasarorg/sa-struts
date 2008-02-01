@@ -100,64 +100,48 @@ public class S2Functions {
     }
 
     /**
-     * 日付をフォーマットします。
+     * 日付に変換します。
      * 
      * @param input
      *            入力値
-     * @param inputPattern
-     *            入力パターン
-     * @param outputPattern
-     *            出力パターン
-     * @return フォーマットした結果
+     * @param pattern
+     *            パターン
+     * @return 変換した結果
      */
-    public static String date(String input, String inputPattern,
-            String outputPattern) {
+    public static Date date(String input, String pattern) {
         if (StringUtil.isEmpty(input)) {
-            return "";
+            return null;
         }
-        if (StringUtil.isEmpty(inputPattern)) {
-            throw new NullPointerException(inputPattern);
-        }
-        if (StringUtil.isEmpty(outputPattern)) {
-            throw new NullPointerException(outputPattern);
+        if (StringUtil.isEmpty(pattern)) {
+            throw new NullPointerException("pattern");
         }
         try {
-            SimpleDateFormat inputFormat = new SimpleDateFormat(inputPattern);
-            Date date = inputFormat.parse(input);
-            SimpleDateFormat outputFormat = new SimpleDateFormat(outputPattern);
-            return outputFormat.format(date);
+            SimpleDateFormat format = new SimpleDateFormat(pattern);
+            return format.parse(input);
         } catch (ParseException e) {
             throw new ParseRuntimeException(e);
         }
     }
 
     /**
-     * 数値をフォーマットします。
+     * 数値に変換します。
      * 
      * @param input
      *            入力値
-     * @param inputPattern
-     *            入力パターン
-     * @param outputPattern
-     *            出力パターン
-     * @return フォーマットした結果
+     * @param pattern
+     *            パターン
+     * @return 変換した結果
      */
-    public static String number(String input, String inputPattern,
-            String outputPattern) {
+    public static Number number(String input, String pattern) {
         if (StringUtil.isEmpty(input)) {
-            return "";
+            return null;
         }
-        if (StringUtil.isEmpty(inputPattern)) {
-            throw new NullPointerException(inputPattern);
-        }
-        if (StringUtil.isEmpty(outputPattern)) {
-            throw new NullPointerException(outputPattern);
+        if (StringUtil.isEmpty(pattern)) {
+            throw new NullPointerException("pattern");
         }
         try {
-            DecimalFormat inputFormat = new DecimalFormat(inputPattern);
-            Number number = inputFormat.parse(input);
-            DecimalFormat outputFormat = new DecimalFormat(outputPattern);
-            return outputFormat.format(number);
+            DecimalFormat format = new DecimalFormat(pattern);
+            return format.parse(input);
         } catch (ParseException e) {
             throw new ParseRuntimeException(e);
         }
