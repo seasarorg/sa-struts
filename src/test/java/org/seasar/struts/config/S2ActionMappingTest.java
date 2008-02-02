@@ -232,8 +232,8 @@ public class S2ActionMappingTest extends S2TestCase {
     public void testGetExecuteConfig() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
         Method m = getClass().getDeclaredMethod("testGetExecuteConfig");
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null,
-                null, null, null);
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setMethod(m);
         actionMapping.addExecuteConfig(executeConfig);
         assertSame(executeConfig, actionMapping
                 .getExecuteConfig("testGetExecuteConfig"));
@@ -245,8 +245,8 @@ public class S2ActionMappingTest extends S2TestCase {
     public void testGetExecuteMethodNames() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
         Method m = getClass().getDeclaredMethod("testGetExecuteMethodNames");
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null,
-                null, null, null);
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setMethod(m);
         actionMapping.addExecuteConfig(executeConfig);
         String[] names = actionMapping.getExecuteMethodNames();
         assertEquals(1, names.length);
@@ -259,8 +259,8 @@ public class S2ActionMappingTest extends S2TestCase {
     public void testFindExecuteConfig_request() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
         Method m = getClass().getDeclaredMethod("testGetExecuteConfig");
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null,
-                null, null, null);
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setMethod(m);
         actionMapping.addExecuteConfig(executeConfig);
         getRequest().setParameter("testGetExecuteConfig", "hoge");
         assertSame(executeConfig, actionMapping.findExecuteConfig(getRequest()));
@@ -272,11 +272,12 @@ public class S2ActionMappingTest extends S2TestCase {
     public void testFindExecuteConfig_request_index() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
         Method m = getClass().getMethod("index");
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null,
-                null, null, null);
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setMethod(m);
         actionMapping.addExecuteConfig(executeConfig);
         m = getClass().getMethod("getClass");
-        executeConfig = new S2ExecuteConfig(m, true, null, null, null, null);
+        executeConfig = new S2ExecuteConfig();
+        executeConfig.setMethod(m);
         actionMapping.addExecuteConfig(executeConfig);
         assertEquals("index", actionMapping.findExecuteConfig(getRequest())
                 .getMethod().getName());
@@ -288,8 +289,8 @@ public class S2ActionMappingTest extends S2TestCase {
     public void testFindExecuteConfig_request_onlyone() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
         Method m = getClass().getMethod("getClass");
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null,
-                null, null, null);
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setMethod(m);
         actionMapping.addExecuteConfig(executeConfig);
         assertEquals("getClass", actionMapping.findExecuteConfig(getRequest())
                 .getMethod().getName());
@@ -301,8 +302,9 @@ public class S2ActionMappingTest extends S2TestCase {
     public void testFindExecuteConfig_paramPath() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
         Method m = getClass().getMethod("getClass");
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, true, null,
-                null, null, "hoge");
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setMethod(m);
+        executeConfig.setUrlPattern("hoge");
         actionMapping.addExecuteConfig(executeConfig);
         assertSame(executeConfig, actionMapping.findExecuteConfig("hoge"));
     }

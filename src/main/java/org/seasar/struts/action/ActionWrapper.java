@@ -80,10 +80,8 @@ public class ActionWrapper extends Action {
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
 
-        S2ExecuteConfig executeConfig = actionMapping
-                .findExecuteConfig(request);
+        S2ExecuteConfig executeConfig = S2ExecuteConfigUtil.getExecuteConfig();
         if (executeConfig != null) {
-            S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
             return execute(request, executeConfig);
         }
         return null;

@@ -13,22 +13,22 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.seasar.struts.util;
+package org.seasar.struts.exception;
 
-import org.seasar.extension.unit.S2TestCase;
-import org.seasar.struts.config.S2ExecuteConfig;
+import junit.framework.TestCase;
 
 /**
  * @author higa
  * 
  */
-public class S2ExecuteConfigUtilTest extends S2TestCase {
+public class NoRoleRuntimeExceptionTest extends TestCase {
 
     /**
      * @throws Exception
      */
-    public void testExecuteConfig() throws Exception {
-        S2ExecuteConfigUtil.setExecuteConfig(new S2ExecuteConfig());
-        assertNotNull(S2ExecuteConfigUtil.getExecuteConfig());
+    public void testAll() throws Exception {
+        NoRoleRuntimeException e = new NoRoleRuntimeException("hoge");
+        System.out.println(e);
+        assertEquals("hoge", e.getUser());
     }
 }

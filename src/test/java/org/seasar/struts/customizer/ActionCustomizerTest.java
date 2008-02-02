@@ -150,6 +150,11 @@ public class ActionCustomizerTest extends S2TestCase {
         assertNotNull(executeConfig.getValidateMethod());
         assertEquals(SaveType.REQUEST, executeConfig.getSaveErrors());
         assertEquals("/aaa/input2.jsp", executeConfig.getInput());
+        String[] roles = executeConfig.getRoles();
+        assertNotNull(roles);
+        assertEquals(2, roles.length);
+        assertEquals("admin", roles[0]);
+        assertEquals("user", roles[1]);
         assertEquals(2, actionMapping.getExecuteConfigSize());
     }
 
@@ -455,7 +460,7 @@ public class ActionCustomizerTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute(validator = false, validate = "validate", input = "/aaa/input2.jsp")
+        @Execute(validator = false, validate = "validate", input = "/aaa/input2.jsp", roles = "admin,user")
         public String execute() {
             return "input2.jsp";
         }

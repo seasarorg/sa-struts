@@ -23,8 +23,10 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.struts.Globals;
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionServlet;
 import org.apache.struts.upload.CommonsMultipartRequestHandler;
 import org.apache.struts.upload.MultipartRequestHandler;
@@ -39,10 +41,12 @@ import org.seasar.framework.aop.proxy.AopProxy;
 import org.seasar.framework.mock.servlet.MockHttpServletRequest;
 import org.seasar.struts.action.S2RequestProcessor.IndexParsedResult;
 import org.seasar.struts.config.S2ActionMapping;
+import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.config.S2FormBeanConfig;
 import org.seasar.struts.config.S2ModuleConfig;
 import org.seasar.struts.exception.IndexedPropertyNotListArrayRuntimeException;
 import org.seasar.struts.exception.NoParameterizedListRuntimeException;
+import org.seasar.struts.util.S2ExecuteConfigUtil;
 
 /**
  * @author higa
@@ -65,6 +69,45 @@ public class S2RequestProcessorTest extends S2TestCase {
         S2RequestProcessor processor = new S2RequestProcessor();
         HttpServletRequest req = processor.processMultipart(request);
         assertSame(req, getContainer().getExternalContext().getRequest());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testProcessMapping() throws Exception {
+        S2ActionMapping mapping = new S2ActionMapping();
+        mapping.setPath("/aaa/bbb");
+        mapping.setComponentDef(getComponentDef("aaa_bbbAction"));
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setMethod(getClass().getMethod("getClass"));
+        mapping.addExecuteConfig(executeConfig);
+        S2RequestProcessor processor = new S2RequestProcessor();
+        S2ModuleConfig moduleConfig = new S2ModuleConfig("");
+        moduleConfig.addActionConfig(mapping);
+        processor.init(new ActionServlet(), moduleConfig);
+        ActionMapping am = processor.processMapping(getRequest(),
+                getResponse(), "/aaa/bbb");
+        assertNotNull(am);
+        assertSame(am, mapping);
+        assertNotNull(getRequest().getAttribute(Globals.MAPPING_KEY));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testProcessExecuteConfig() throws Exception {
+        S2ActionMapping mapping = new S2ActionMapping();
+        mapping.setPath("/aaa/bbb");
+        mapping.setComponentDef(getComponentDef("aaa_bbbAction"));
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setMethod(getClass().getMethod("getClass"));
+        mapping.addExecuteConfig(executeConfig);
+        S2RequestProcessor processor = new S2RequestProcessor();
+        S2ModuleConfig moduleConfig = new S2ModuleConfig("");
+        moduleConfig.addActionConfig(mapping);
+        processor.init(new ActionServlet(), moduleConfig);
+        processor.processExecuteConfig(getRequest(), getResponse(), mapping);
+        assertNotNull(S2ExecuteConfigUtil.getExecuteConfig());
     }
 
     /**

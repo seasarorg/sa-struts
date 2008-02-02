@@ -133,9 +133,17 @@ public class ActionCustomizer implements ComponentCustomizer {
                     throw new InputNotDefinedRuntimeException(actionClass, m
                             .getName());
                 }
-                S2ExecuteConfig executeConfig = new S2ExecuteConfig(m, execute
-                        .validator(), validateMethod, execute.saveErrors(),
-                        input, execute.urlPattern());
+                S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+                executeConfig.setMethod(m);
+                executeConfig.setValidator(execute.validator());
+                executeConfig.setValidateMethod(validateMethod);
+                executeConfig.setSaveErrors(execute.saveErrors());
+                executeConfig.setInput(input);
+                executeConfig.setUrlPattern(execute.urlPattern());
+                String roles = execute.roles().trim();
+                if (!StringUtil.isEmpty(roles)) {
+                    executeConfig.setRoles(StringUtil.split(roles, ", "));
+                }
                 actionMapping.addExecuteConfig(executeConfig);
             }
         }

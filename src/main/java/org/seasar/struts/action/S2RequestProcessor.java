@@ -31,9 +31,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.struts.Globals;
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.InvalidCancelException;
 import org.apache.struts.action.RequestProcessor;
 import org.apache.struts.config.FormBeanConfig;
 import org.apache.struts.upload.MultipartRequestHandler;
@@ -49,9 +52,12 @@ import org.seasar.framework.util.ArrayUtil;
 import org.seasar.framework.util.ClassUtil;
 import org.seasar.framework.util.ModifierUtil;
 import org.seasar.struts.config.S2ActionMapping;
+import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.exception.IndexedPropertyNotListArrayRuntimeException;
 import org.seasar.struts.exception.NoParameterizedListRuntimeException;
+import org.seasar.struts.exception.NoRoleRuntimeException;
 import org.seasar.struts.util.ActionFormUtil;
+import org.seasar.struts.util.S2ExecuteConfigUtil;
 
 /**
  * Seasar2用のリクエストプロセッサです。
@@ -67,11 +73,122 @@ public class S2RequestProcessor extends RequestProcessor {
     private static final char INDEXED_DELIM2 = ']';
 
     @Override
-    public HttpServletRequest processMultipart(HttpServletRequest request) {
+    public void process(HttpServletRequest request, HttpServletResponse response)
+            throws IOException, ServletException {
+        request = processMultipart(request);
+        String path = processPath(request, response);
+        if (path == null) {
+            return;
+        }
+        processLocale(request, response);
+        processContent(request, response);
+        processNoCache(request, response);
+        if (!processPreprocess(request, response)) {
+            return;
+        }
+        processCachedMessages(request, response);
+        ActionMapping mapping = processMapping(request, response, path);
+        if (mapping == null) {
+            return;
+        }
+        ActionForm form = processActionForm(request, response, mapping);
+        processPopulate(request, response, form, mapping);
+        processExecuteConfig(request, response, mapping);
+        if (!processRoles(request, response, mapping)) {
+            return;
+        }
+        try {
+            if (!processValidate(request, response, form, mapping)) {
+                return;
+            }
+        } catch (InvalidCancelException e) {
+            ActionForward forward = processException(request, response, e,
+                    form, mapping);
+            processForwardConfig(request, response, forward);
+            return;
+        } catch (IOException e) {
+            throw e;
+        } catch (ServletException e) {
+            throw e;
+        }
+        if (!processForward(request, response, mapping)) {
+            return;
+        }
+        if (!processInclude(request, response, mapping)) {
+            return;
+        }
+        Action action = processActionCreate(request, response, mapping);
+        if (action == null) {
+            return;
+        }
+        ActionForward forward = processActionPerform(request, response, action,
+                form, mapping);
+        processForwardConfig(request, response, forward);
+    }
+
+    @Override
+    protected HttpServletRequest processMultipart(HttpServletRequest request) {
         HttpServletRequest result = super.processMultipart(request);
         SingletonS2ContainerFactory.getContainer().getExternalContext()
                 .setRequest(result);
         return result;
+    }
+
+    @Override
+    protected ActionMapping processMapping(HttpServletRequest request,
+            HttpServletResponse response, String path) throws IOException {
+        S2ActionMapping mapping = (S2ActionMapping) moduleConfig
+                .findActionConfig(path);
+        if (mapping != null) {
+            request.setAttribute(Globals.MAPPING_KEY, mapping);
+            return mapping;
+        }
+        response.sendError(HttpServletResponse.SC_NOT_FOUND, path
+                + " not found.");
+        return null;
+    }
+
+    /**
+     * 実行設定を処理します。
+     * 
+     * @param request
+     *            リクエスト
+     * @param response
+     *            レスポンス
+     * @param mapping
+     *            アクションマッピング
+     */
+    protected void processExecuteConfig(HttpServletRequest request,
+            HttpServletResponse response, ActionMapping mapping) {
+        S2ExecuteConfig executeConfig = ((S2ActionMapping) mapping)
+                .findExecuteConfig(request);
+        S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
+    }
+
+    @Override
+    protected boolean processRoles(HttpServletRequest request,
+            HttpServletResponse response, ActionMapping mapping)
+            throws IOException, ServletException {
+        S2ExecuteConfig executeConfig = S2ExecuteConfigUtil.getExecuteConfig();
+        if (executeConfig == null) {
+            return true;
+        }
+        String roles[] = executeConfig.getRoles();
+        if (roles == null || roles.length == 0) {
+            return true;
+        }
+        for (int i = 0; i < roles.length; i++) {
+            if (request.isUserInRole(roles[i])) {
+                return true;
+            }
+        }
+        ActionForward forward = processException(request, response,
+                new NoRoleRuntimeException(request.getRemoteUser()), null,
+                mapping);
+        if (forward != null) {
+            processForwardConfig(request, response, forward);
+        }
+        return false;
     }
 
     @Override

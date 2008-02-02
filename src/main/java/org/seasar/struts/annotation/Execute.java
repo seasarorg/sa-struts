@@ -61,4 +61,10 @@ public @interface Execute {
      * 
      */
     String urlPattern() default "";
+
+    /**
+     * ロールです。複数指定する場合はカンマ(,)で区切ります。
+     * 
+     */
+    String roles() default "";
 }

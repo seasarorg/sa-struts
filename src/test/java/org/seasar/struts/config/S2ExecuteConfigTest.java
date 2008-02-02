@@ -26,40 +26,23 @@ import org.seasar.extension.unit.S2TestCase;
 public class S2ExecuteConfigTest extends S2TestCase {
 
     /**
-     * @return
-     */
-    public String index() {
-        return "index.jsp";
-    }
-
-    /**
      * @throws Exception
      */
     public void testUrlPattern_empty() throws Exception {
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig(getClass()
-                .getDeclaredMethod("testUrlPattern_empty"), true, null, null,
-                null, null);
-        assertEquals("testUrlPattern_empty", executeConfig.urlPattern);
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setMethod(getClass().getMethod("getClass"));
+        assertEquals("getClass", executeConfig.urlPattern);
     }
 
     /**
      * @throws Exception
      */
-    public void testUrlPattern_urlParamNames() throws Exception {
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig(getClass()
-                .getDeclaredMethod("testUrlPattern_empty"), true, null, null,
-                null, "edit/{id}");
+    public void testUrlPattern() throws Exception {
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setMethod(getClass().getMethod("getClass"));
+        executeConfig.setUrlPattern("edit/{id}");
         assertEquals(1, executeConfig.urlParamNames.size());
         assertEquals("id", executeConfig.urlParamNames.get(0));
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testUrlPattern_regexp() throws Exception {
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig(getClass()
-                .getDeclaredMethod("testUrlPattern_empty"), true, null, null,
-                null, "edit/{id}");
         assertEquals("^edit/([^/]+)$", executeConfig.urlPatternRegexp.pattern());
         Matcher matcher = executeConfig.urlPatternRegexp.matcher("edit/11");
         assertTrue(matcher.find());
@@ -70,9 +53,9 @@ public class S2ExecuteConfigTest extends S2TestCase {
      * @throws Exception
      */
     public void testIsTarget_paramPath() throws Exception {
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig(getClass()
-                .getDeclaredMethod("testUrlPattern_empty"), true, null, null,
-                null, "edit/{id}");
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setMethod(getClass().getMethod("getClass"));
+        executeConfig.setUrlPattern("edit/{id}");
         assertTrue(executeConfig.isTarget("edit/11"));
         assertFalse(executeConfig.isTarget("edit2/11"));
         assertFalse(executeConfig.isTarget(""));
@@ -82,10 +65,10 @@ public class S2ExecuteConfigTest extends S2TestCase {
      * @throws Exception
      */
     public void testIsTarget_request() throws Exception {
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig(getClass()
-                .getDeclaredMethod("testUrlPattern_empty"), true, null, null,
-                null, "");
-        getRequest().setParameter("testUrlPattern_empty", "hoge");
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setMethod(getClass().getMethod("getClass"));
+        executeConfig.setUrlPattern("");
+        getRequest().setParameter("getClass", "hoge");
         assertTrue(executeConfig.isTarget(getRequest()));
     }
 
@@ -93,10 +76,9 @@ public class S2ExecuteConfigTest extends S2TestCase {
      * @throws Exception
      */
     public void testIsTarget_request_ismap() throws Exception {
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig(getClass()
-                .getDeclaredMethod("testUrlPattern_empty"), true, null, null,
-                null, "");
-        getRequest().setParameter("testUrlPattern_empty.x", "123");
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setMethod(getClass().getMethod("getClass"));
+        getRequest().setParameter("getClass.x", "123");
         assertTrue(executeConfig.isTarget(getRequest()));
     }
 
@@ -104,10 +86,9 @@ public class S2ExecuteConfigTest extends S2TestCase {
      * @throws Exception
      */
     public void testIsTarget_request_methodName() throws Exception {
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig(getClass()
-                .getDeclaredMethod("testUrlPattern_empty"), true, null, null,
-                null, "");
-        getRequest().setParameter("SAStruts.method", "testUrlPattern_empty");
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setMethod(getClass().getMethod("getClass"));
+        getRequest().setParameter("SAStruts.method", "getClass");
         assertTrue(executeConfig.isTarget(getRequest()));
     }
 
@@ -115,8 +96,9 @@ public class S2ExecuteConfigTest extends S2TestCase {
      * @throws Exception
      */
     public void testGetQueryString() throws Exception {
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig(getClass()
-                .getMethod("getClass"), true, null, null, null, "edit/{id}");
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setMethod(getClass().getMethod("getClass"));
+        executeConfig.setUrlPattern("edit/{id}");
         assertEquals("?id=11&SAStruts.method=getClass", executeConfig
                 .getQueryString("edit/11"));
     }
@@ -125,9 +107,9 @@ public class S2ExecuteConfigTest extends S2TestCase {
      * @throws Exception
      */
     public void testGetParams_multi() throws Exception {
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig(getClass()
-                .getMethod("getClass"), true, null, null, null,
-                "edit/{id}/{id2}");
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setMethod(getClass().getMethod("getClass"));
+        executeConfig.setUrlPattern("edit/{id}/{id2}");
         assertEquals("?id=11&id2=22&SAStruts.method=getClass", executeConfig
                 .getQueryString("edit/11/22"));
     }
@@ -136,8 +118,9 @@ public class S2ExecuteConfigTest extends S2TestCase {
      * @throws Exception
      */
     public void testGetParams_empty() throws Exception {
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig(getClass()
-                .getDeclaredMethod("index"), true, null, null, null, "index");
-        assertEquals("?SAStruts.method=index", executeConfig.getQueryString(""));
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setMethod(getClass().getMethod("getClass"));
+        assertEquals("?SAStruts.method=getClass", executeConfig
+                .getQueryString(""));
     }
 }

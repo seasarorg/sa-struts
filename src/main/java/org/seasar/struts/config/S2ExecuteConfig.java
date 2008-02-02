@@ -59,7 +59,7 @@ public class S2ExecuteConfig implements Serializable {
     /**
      * エラーメッセージの保存場所です。
      */
-    protected SaveType saveErrors;
+    protected SaveType saveErrors = SaveType.REQUEST;
 
     /**
      * 検証エラー時の遷移先です。
@@ -82,6 +82,11 @@ public class S2ExecuteConfig implements Serializable {
     protected List<String> urlParamNames = new ArrayList<String>();
 
     /**
+     * ロールの配列です。
+     */
+    protected String[] roles;
+
+    /**
      * インスタンスを構築します。
      * 
      * @param method
@@ -97,15 +102,7 @@ public class S2ExecuteConfig implements Serializable {
      * @param urlPattern
      *            URLのパターン
      */
-    public S2ExecuteConfig(Method method, boolean validator,
-            Method validateMethod, SaveType saveErrors, String input,
-            String urlPattern) {
-        this.method = method;
-        this.validator = validator;
-        this.validateMethod = validateMethod;
-        this.saveErrors = saveErrors;
-        this.input = input;
-        setUrlPattern(urlPattern);
+    public S2ExecuteConfig() {
     }
 
     /**
@@ -118,12 +115,33 @@ public class S2ExecuteConfig implements Serializable {
     }
 
     /**
+     * メソッドを設定します。
+     * 
+     * @param method
+     *            メソッド
+     */
+    public void setMethod(Method method) {
+        this.method = method;
+        setUrlPattern(method.getName());
+    }
+
+    /**
      * バリデータを呼び出すかどうかを返します。
      * 
      * @return バリデータを呼び出すかどうか
      */
     public boolean isValidator() {
         return validator;
+    }
+
+    /**
+     * バリデータを呼び出すかどうかを設定します。
+     * 
+     * @param validator
+     *            バリデータを呼び出すかどうか
+     */
+    public void setValidator(boolean validator) {
+        this.validator = validator;
     }
 
     /**
@@ -136,6 +154,16 @@ public class S2ExecuteConfig implements Serializable {
     }
 
     /**
+     * 検証メソッドを設定します。
+     * 
+     * @param validateMethod
+     *            検証メソッド
+     */
+    public void setValidateMethod(Method validateMethod) {
+        this.validateMethod = validateMethod;
+    }
+
+    /**
      * エラーメッセージの保存場所を返します。
      * 
      * @return エラーメッセージの保存場所
@@ -145,12 +173,32 @@ public class S2ExecuteConfig implements Serializable {
     }
 
     /**
+     * エラーメッセージの保存場所を設定します。
+     * 
+     * @param saveErrors
+     *            エラーメッセージの保存場所
+     */
+    public void setSaveErrors(SaveType saveErrors) {
+        this.saveErrors = saveErrors;
+    }
+
+    /**
      * 検証エラー時の遷移先を返します。
      * 
      * @return 検証エラー時の遷移先
      */
     public String getInput() {
         return input;
+    }
+
+    /**
+     * 検証エラー時の遷移先を設定します。
+     * 
+     * @param input
+     *            検証エラー時の遷移先
+     */
+    public void setInput(String input) {
+        this.input = input;
     }
 
     /**
@@ -168,9 +216,9 @@ public class S2ExecuteConfig implements Serializable {
      * @param urlPattern
      *            URLのパターン
      */
-    protected void setUrlPattern(String urlPattern) {
+    public void setUrlPattern(String urlPattern) {
         if (StringUtil.isEmpty(urlPattern)) {
-            urlPattern = method.getName();
+            return;
         }
         this.urlPattern = urlPattern;
         StringBuilder sb = new StringBuilder(50);
@@ -196,6 +244,25 @@ public class S2ExecuteConfig implements Serializable {
             throw new IllegalUrlPatternRuntimeException(urlPattern);
         }
         urlPatternRegexp = Pattern.compile("^" + sb.toString() + "$");
+    }
+
+    /**
+     * ロールの配列を返します。
+     * 
+     * @return ロールの配列
+     */
+    public String[] getRoles() {
+        return roles;
+    }
+
+    /**
+     * ロールの配列を設定します。
+     * 
+     * @param roles
+     *            ロールの配列
+     */
+    public void setRoles(String[] roles) {
+        this.roles = roles;
     }
 
     /**
