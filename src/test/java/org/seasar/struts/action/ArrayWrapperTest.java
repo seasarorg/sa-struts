@@ -58,4 +58,20 @@ public class ArrayWrapperTest extends TestCase {
         assertEquals(ArrayWrapper.class, c.getClass());
         assertEquals(1, c.iterator().next());
     }
+
+    /**
+     * @throws Exception
+     */
+    public void testToString() throws Exception {
+        ArrayWrapper wrapper = new ArrayWrapper(new int[] { 1, 2 });
+        assertEquals("[1, 2]", wrapper.toString());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testToStringForEmpty() throws Exception {
+        ArrayWrapper wrapper = new ArrayWrapper(new int[] {});
+        assertEquals("[]", wrapper.toString());
+    }
 }

@@ -15,6 +15,7 @@
  */
 package org.seasar.struts.action;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -80,4 +81,21 @@ public class ListWrapperTest extends TestCase {
         assertEquals(1, array[0]);
     }
 
+    /**
+     * @throws Exception
+     */
+    @SuppressWarnings("unchecked")
+    public void testToString() throws Exception {
+        ListWrapper wrapper = new ListWrapper(Arrays.asList(Arrays.asList(1)));
+        assertEquals("[[1]]", wrapper.toString());
+    }
+
+    /**
+     * @throws Exception
+     */
+    @SuppressWarnings("unchecked")
+    public void testToStringForEmpty() throws Exception {
+        ListWrapper wrapper = new ListWrapper(new ArrayList());
+        assertEquals("[]", wrapper.toString());
+    }
 }

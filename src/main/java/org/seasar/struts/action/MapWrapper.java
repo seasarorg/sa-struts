@@ -90,4 +90,9 @@ public class MapWrapper implements Map {
     public Collection values() {
         return map.values();
     }
+
+    @Override
+    public String toString() {
+        return map.toString();
+    }
 }

@@ -140,4 +140,9 @@ public class ListWrapper implements List {
     public Object[] toArray(Object[] a) {
         return toArray();
     }
+
+    @Override
+    public String toString() {
+        return list.toString();
+    }
 }

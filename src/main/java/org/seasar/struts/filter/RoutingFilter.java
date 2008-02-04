@@ -78,7 +78,7 @@ public class RoutingFilter implements Filter {
                 sb.append(names[i] + "_");
             }
             if (container.hasComponentDef("indexAction")) {
-                String actionPath = "/";
+                String actionPath = "/index";
                 String paramPath = RoutingUtil.getParamPath(names, 0);
                 if (StringUtil.isEmpty(paramPath)) {
                     forward((HttpServletRequest) request,

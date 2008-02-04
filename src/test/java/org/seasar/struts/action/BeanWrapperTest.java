@@ -51,9 +51,23 @@ public class BeanWrapperTest extends TestCase {
     }
 
     /**
+     * @throws Exception
+     */
+    @SuppressWarnings("unchecked")
+    public void testToString() throws Exception {
+        MyBean bean = new MyBean();
+        MyBean bean2 = new MyBean();
+        bean2.aaa = "hoge";
+        bean.bbb = bean2;
+        bean2.bbb = bean;
+        BeanWrapper wrapper = new BeanWrapper(bean);
+        assertEquals("MyBean", wrapper.toString());
+    }
+
+    /**
      * 
      */
-    private static class MyBean {
+    public static class MyBean {
 
         /**
          * 
@@ -64,6 +78,10 @@ public class BeanWrapperTest extends TestCase {
          * 
          */
         public MyBean bbb;
-    }
 
+        @Override
+        public String toString() {
+            return "MyBean";
+        }
+    }
 }

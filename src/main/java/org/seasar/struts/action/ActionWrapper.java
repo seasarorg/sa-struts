@@ -154,15 +154,34 @@ public class ActionWrapper extends Action {
         BeanDesc beanDesc = actionMapping.getActionFormBeanDesc();
         for (int i = 0; i < beanDesc.getPropertyDescSize(); i++) {
             PropertyDesc pd = beanDesc.getPropertyDesc(i);
-            Object value = WrapperUtil.convert(pd.getValue(actionForm));
-            request.setAttribute(pd.getPropertyName(), value);
+            if (isExportable(pd.getPropertyType())) {
+                Object value = WrapperUtil.convert(pd.getValue(actionForm));
+                if (value != null) {
+                    request.setAttribute(pd.getPropertyName(), value);
+                }
+            }
         }
         beanDesc = actionMapping.getActionBeanDesc();
         for (int i = 0; i < beanDesc.getPropertyDescSize(); i++) {
             PropertyDesc pd = beanDesc.getPropertyDesc(i);
-            Object value = WrapperUtil.convert(pd.getValue(action));
-            request.setAttribute(pd.getPropertyName(), value);
+            if (isExportable(pd.getPropertyType())) {
+                Object value = WrapperUtil.convert(pd.getValue(action));
+                if (value != null) {
+                    request.setAttribute(pd.getPropertyName(), value);
+                }
+            }
         }
+    }
+
+    /**
+     * リクエストに設定可能かどうかを返します。
+     * 
+     * @param clazz
+     *            クラス
+     * @return リクエストに設定可能かどうか
+     */
+    protected boolean isExportable(Class<?> clazz) {
+        return !clazz.getName().startsWith("javax.servlet");
     }
 
     /**

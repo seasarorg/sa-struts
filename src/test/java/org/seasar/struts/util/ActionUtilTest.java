@@ -38,6 +38,6 @@ public class ActionUtilTest extends TestCase {
         assertEquals("/aaa/bbb", ActionUtil
                 .fromActionNameToPath("aaa_bbbAction"));
         assertEquals("/aaa", ActionUtil.fromActionNameToPath("aaaAction"));
-        assertEquals("/", ActionUtil.fromActionNameToPath("indexAction"));
+        assertEquals("/index", ActionUtil.fromActionNameToPath("indexAction"));
     }
 }

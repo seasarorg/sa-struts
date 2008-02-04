@@ -18,6 +18,7 @@ package org.seasar.struts.taglib;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 import org.seasar.framework.exception.ParseRuntimeException;
@@ -33,6 +34,8 @@ import org.seasar.struts.util.URLEncoderUtil;
 public class S2Functions {
 
     private static final int HIGHEST_SPECIAL = '>';
+
+    private static String BR = "<br />";
 
     private static char[][] specialCharactersRepresentation = new char[HIGHEST_SPECIAL + 1][];
 
@@ -51,10 +54,38 @@ public class S2Functions {
      *            入力値
      * @return エスケープした結果
      */
-    public static String h(String input) {
-        if (input == null)
+    public static String h(Object input) {
+        if (input == null) {
             return "";
-        return escape(input);
+        }
+        String str = "";
+        if (input.getClass().isArray()) {
+            Class<?> clazz = input.getClass().getComponentType();
+            if (clazz == String.class) {
+                str = Arrays.toString((Object[]) input);
+            } else if (clazz == boolean.class) {
+                str = Arrays.toString((boolean[]) input);
+            } else if (clazz == int.class) {
+                str = Arrays.toString((int[]) input);
+            } else if (clazz == long.class) {
+                str = Arrays.toString((long[]) input);
+            } else if (clazz == byte.class) {
+                str = Arrays.toString((byte[]) input);
+            } else if (clazz == short.class) {
+                str = Arrays.toString((short[]) input);
+            } else if (clazz == float.class) {
+                str = Arrays.toString((float[]) input);
+            } else if (clazz == double.class) {
+                str = Arrays.toString((double[]) input);
+            } else if (clazz == char.class) {
+                str = Arrays.toString((char[]) input);
+            } else {
+                str = Arrays.toString((Object[]) input);
+            }
+        } else {
+            str = input.toString();
+        }
+        return escape(str);
     }
 
     private static String escape(String buffer) {
@@ -145,5 +176,20 @@ public class S2Functions {
         } catch (ParseException e) {
             throw new ParseRuntimeException(e);
         }
+    }
+
+    /**
+     * 改行をbrタグに変換します。
+     * 
+     * @param input
+     *            入力値
+     * @return 変換した結果
+     */
+    public static String br(String input) {
+        if (StringUtil.isEmpty(input)) {
+            return "";
+        }
+        return input.replaceAll("\r\n", BR).replaceAll("\r", BR).replaceAll(
+                "\n", BR);
     }
 }

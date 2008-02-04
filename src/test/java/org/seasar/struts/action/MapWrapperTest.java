@@ -15,6 +15,7 @@
  */
 package org.seasar.struts.action;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.TestCase;
@@ -44,5 +45,24 @@ public class MapWrapperTest extends TestCase {
                 Maps.map("bbb", "111").$()).$());
         Map map = (Map) wrapper.get("aaa");
         assertEquals("111", map.get("bbb"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    @SuppressWarnings("unchecked")
+    public void testToString() throws Exception {
+        MapWrapper wrapper = new MapWrapper(Maps.map("aaa",
+                Maps.map("bbb", "111").$()).$());
+        assertEquals("{aaa={bbb=111}}", wrapper.toString());
+    }
+
+    /**
+     * @throws Exception
+     */
+    @SuppressWarnings("unchecked")
+    public void testToStringForEmpty() throws Exception {
+        MapWrapper wrapper = new MapWrapper(new HashMap());
+        assertEquals("{}", wrapper.toString());
     }
 }

@@ -26,6 +26,69 @@ public class S2FunctionsTest extends TestCase {
     /**
      * @throws Exception
      */
+    public void testHForCharArray() throws Exception {
+        assertEquals("[1]", S2Functions.h(new char[] { '1' }));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testHForByteArray() throws Exception {
+        assertEquals("[1]", S2Functions.h(new byte[] { 1 }));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testHForShortArray() throws Exception {
+        assertEquals("[1]", S2Functions.h(new short[] { 1 }));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testHForIntArray() throws Exception {
+        assertEquals("[1]", S2Functions.h(new int[] { 1 }));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testHForFloatArray() throws Exception {
+        assertEquals("[1.0]", S2Functions.h(new float[] { 1 }));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testHForDoubleArray() throws Exception {
+        assertEquals("[1.0]", S2Functions.h(new double[] { 1 }));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testHForBooleanArray() throws Exception {
+        assertEquals("[true]", S2Functions.h(new boolean[] { true }));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testHForStringArray() throws Exception {
+        assertEquals("[1]", S2Functions.h(new String[] { "1" }));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testHForObjectArray() throws Exception {
+        assertEquals("[1]", S2Functions.h(new Integer[] { Integer.valueOf(1) }));
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testDate() throws Exception {
         assertNotNull(S2Functions.date("20080131", "yyyyMMdd"));
     }
@@ -73,5 +136,33 @@ public class S2FunctionsTest extends TestCase {
         } catch (NullPointerException e) {
             System.out.println(e);
         }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testBrForCRLF() throws Exception {
+        assertEquals("<br />", S2Functions.br("\r\n"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testBrForCR() throws Exception {
+        assertEquals("<br />", S2Functions.br("\r"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testBrForLF() throws Exception {
+        assertEquals("<br />", S2Functions.br("\n"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testBrForNull() throws Exception {
+        assertEquals("", S2Functions.br(null));
     }
 }

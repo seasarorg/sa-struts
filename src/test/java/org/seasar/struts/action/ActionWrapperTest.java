@@ -16,8 +16,10 @@
 package org.seasar.struts.action;
 
 import java.lang.reflect.Method;
+import java.util.Enumeration;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.struts.Globals;
 import org.apache.struts.action.ActionForward;
@@ -155,6 +157,28 @@ public class ActionWrapperTest extends S2TestCase {
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
         wrapper.execute(actionMapping, null, getRequest(), getResponse());
         assertEquals("111", getRequest().getAttribute("hoge"));
+        assertNull(getRequest().getAttribute("request"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    @SuppressWarnings("unchecked")
+    public void testExportPropertiesToRequestForValueIsNull() throws Exception {
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        actionMapping.setComponentDef(getComponentDef("bbbAction"));
+        Method m = BbbAction.class.getDeclaredMethod("index");
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setMethod(m);
+        S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
+        BbbAction action = (BbbAction) getComponent("bbbAction");
+        action.hoge = null;
+        ActionWrapper wrapper = new ActionWrapper(actionMapping);
+        wrapper.exportPropertiesToRequest(getRequest());
+        Enumeration e = getRequest().getAttributeNames();
+        while (e.hasMoreElements()) {
+            assertFalse("hoge".equals(e.nextElement()));
+        }
     }
 
     /**
@@ -220,6 +244,11 @@ public class ActionWrapperTest extends S2TestCase {
          * 
          */
         public String hoge;
+
+        /**
+         * 
+         */
+        public HttpServletRequest request;
 
         /**
          * @return

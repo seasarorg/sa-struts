@@ -105,4 +105,20 @@ public class ArrayWrapper implements Collection {
     public Object[] toArray(Object[] a) {
         throw new UnsupportedOperationException("toArray");
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(30);
+        sb.append('[');
+        int size = size();
+        for (int i = 0; i < size; i++) {
+            sb.append(Array.get(array, i));
+            sb.append(", ");
+        }
+        if (size > 0) {
+            sb.setLength(sb.length() - 2);
+        }
+        sb.append(']');
+        return sb.toString();
+    }
 }

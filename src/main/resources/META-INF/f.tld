@@ -17,7 +17,7 @@
     </description>
     <name>h</name>
     <function-class>org.seasar.struts.taglib.S2Functions</function-class>
-    <function-signature>java.lang.String h(java.lang.String)</function-signature>
+    <function-signature>java.lang.String h(java.lang.Object)</function-signature>
     <example>
       ${f:h(param:info)}
     </example>
@@ -56,6 +56,18 @@
     <function-signature>java.lang.Number number(java.lang.String, java.lang.String)</function-signature>
     <example>
       &lt;fmt:formatNumber value="${f:number(number, '####'}" pattern="#,###"/&gt;
+    </example>
+  </function>
+  
+  <function>
+    <description>
+      Converts line break to br tag.
+    </description>
+    <name>br</name>
+    <function-class>org.seasar.struts.taglib.S2Functions</function-class>
+    <function-signature>java.lang.String br(java.lang.String)</function-signature>
+    <example>
+      ${f:br(f:h(textarea))}
     </example>
   </function>
 </taglib>

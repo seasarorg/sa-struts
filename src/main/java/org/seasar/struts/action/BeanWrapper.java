@@ -103,4 +103,9 @@ public class BeanWrapper implements Map {
     public Collection values() {
         throw new UnsupportedOperationException("values");
     }
+
+    @Override
+    public String toString() {
+        return bean.toString();
+    }
 }
