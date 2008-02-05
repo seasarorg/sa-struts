@@ -16,6 +16,7 @@
 package org.seasar.struts.action;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -55,6 +56,9 @@ public class BeanWrapper implements Map {
 
     public Object get(Object key) {
         PropertyDesc pd = beanDesc.getPropertyDesc(key.toString());
+        if (!pd.isReadable()) {
+            return null;
+        }
         return WrapperUtil.convert(pd.getValue(bean));
     }
 
@@ -69,7 +73,10 @@ public class BeanWrapper implements Map {
     }
 
     public boolean containsKey(Object key) {
-        throw new UnsupportedOperationException("containsKey");
+        if (key == null) {
+            return false;
+        }
+        return beanDesc.hasPropertyDesc(key.toString());
     }
 
     public boolean containsValue(Object value) {
@@ -85,7 +92,13 @@ public class BeanWrapper implements Map {
     }
 
     public Set keySet() {
-        throw new UnsupportedOperationException("keySet");
+        Set<String> set = new HashSet<String>();
+        int size = beanDesc.getPropertyDescSize();
+        for (int i = 0; i < size; i++) {
+            PropertyDesc pd = beanDesc.getPropertyDesc(i);
+            set.add(pd.getPropertyName());
+        }
+        return set;
     }
 
     public void putAll(Map t) {
@@ -97,7 +110,7 @@ public class BeanWrapper implements Map {
     }
 
     public int size() {
-        throw new UnsupportedOperationException("size");
+        return beanDesc.getPropertyDescSize();
     }
 
     public Collection values() {

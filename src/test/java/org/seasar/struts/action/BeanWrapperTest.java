@@ -15,7 +15,9 @@
  */
 package org.seasar.struts.action;
 
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -54,6 +56,51 @@ public class BeanWrapperTest extends TestCase {
      * @throws Exception
      */
     @SuppressWarnings("unchecked")
+    public void testGet_writeOnly() throws Exception {
+        MyBean2 bean2 = new MyBean2();
+        bean2.aaa = "1";
+        BeanWrapper wrapper = new BeanWrapper(bean2);
+        assertNull(wrapper.get("aaa"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testContainsKey() throws Exception {
+        MyBean bean = new MyBean();
+        BeanWrapper wrapper = new BeanWrapper(bean);
+        assertTrue(wrapper.containsKey("aaa"));
+        assertFalse(wrapper.containsKey("xxx"));
+        assertFalse(wrapper.containsKey(null));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testSize() throws Exception {
+        MyBean bean = new MyBean();
+        BeanWrapper wrapper = new BeanWrapper(bean);
+        assertEquals(2, wrapper.size());
+    }
+
+    /**
+     * @throws Exception
+     */
+    @SuppressWarnings("unchecked")
+    public void testKeySet() throws Exception {
+        MyBean bean = new MyBean();
+        BeanWrapper wrapper = new BeanWrapper(bean);
+        Set keySet = wrapper.keySet();
+        assertEquals(2, keySet.size());
+        Iterator i = keySet.iterator();
+        assertEquals("aaa", i.next());
+        assertEquals("bbb", i.next());
+    }
+
+    /**
+     * @throws Exception
+     */
+    @SuppressWarnings("unchecked")
     public void testToString() throws Exception {
         MyBean bean = new MyBean();
         MyBean bean2 = new MyBean();
@@ -82,6 +129,26 @@ public class BeanWrapperTest extends TestCase {
         @Override
         public String toString() {
             return "MyBean";
+        }
+    }
+
+    /**
+     * 
+     */
+    public static class MyBean2 {
+
+        /**
+         * 
+         */
+        @SuppressWarnings("unused")
+        private String aaa;
+
+        /**
+         * @param aaa
+         * @return
+         */
+        public void setAaa(String aaa) {
+            this.aaa = aaa;
         }
     }
 }
