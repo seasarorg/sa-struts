@@ -15,9 +15,12 @@
  */
 package org.seasar.struts.action;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -224,7 +227,7 @@ public class S2RequestProcessorTest extends S2TestCase {
     /**
      * @throws Exception
      */
-    public void testSetProperty_nested() throws Exception {
+    public void testSetProperty_nested_bean() throws Exception {
         BbbAction bean = new BbbAction();
         S2RequestProcessor processor = new S2RequestProcessor();
         processor.setProperty(bean, "myBean.aaa", new String[] { "111" });
@@ -234,12 +237,43 @@ public class S2RequestProcessorTest extends S2TestCase {
     /**
      * @throws Exception
      */
-    public void testSetProperty_indexed_nested() throws Exception {
+    public void testSetProperty_nested_map() throws Exception {
+        BbbAction bean = new BbbAction();
+        S2RequestProcessor processor = new S2RequestProcessor();
+        processor.setProperty(bean, "map.aaa", new String[] { "111" });
+        assertEquals("111", bean.map.get("aaa"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testSetProperty_indexed_nested_bean() throws Exception {
         BbbAction bean = new BbbAction();
         S2RequestProcessor processor = new S2RequestProcessor();
         processor.setProperty(bean, "myBeanArrayArray[1][1].aaa",
                 new String[] { "111" });
         assertEquals("111", bean.myBeanArrayArray[1][1].aaa);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testSetProperty_indexed_nested_map() throws Exception {
+        BbbAction bean = new BbbAction();
+        S2RequestProcessor processor = new S2RequestProcessor();
+        processor.setProperty(bean, "mapArrayArray[1][1].aaa",
+                new String[] { "111" });
+        assertEquals("111", bean.mapArrayArray[1][1].get("aaa"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testSetProperty_indexedlist_map() throws Exception {
+        BbbAction bean = new BbbAction();
+        S2RequestProcessor processor = new S2RequestProcessor();
+        processor.setProperty(bean, "mapList[1].aaa", new String[] { "111" });
+        assertEquals("111", bean.mapList.get(1).get("aaa"));
     }
 
     /**
@@ -397,13 +431,26 @@ public class S2RequestProcessorTest extends S2TestCase {
     /**
      * @throws Exception
      */
-    public void testGetIndexedProperty_list() throws Exception {
+    public void testGetIndexedProperty_list_bean() throws Exception {
         S2RequestProcessor processor = new S2RequestProcessor();
         BbbAction bean = new BbbAction();
         MyBean result = (MyBean) processor.getIndexedProperty(bean,
                 "myBeanList", new int[] { 0 });
         assertNotNull(result);
         assertEquals(1, bean.myBeanList.size());
+    }
+
+    /**
+     * @throws Exception
+     */
+    @SuppressWarnings("unchecked")
+    public void testGetIndexedProperty_list_map() throws Exception {
+        S2RequestProcessor processor = new S2RequestProcessor();
+        BbbAction bean = new BbbAction();
+        Map result = (Map) processor.getIndexedProperty(bean, "mapList",
+                new int[] { 0 });
+        assertNotNull(result);
+        assertEquals(1, bean.mapList.size());
     }
 
     /**
@@ -534,6 +581,16 @@ public class S2RequestProcessorTest extends S2TestCase {
     }
 
     /**
+     * @throws Exception
+     */
+    public void testConvertClass() throws Exception {
+        S2RequestProcessor processor = new S2RequestProcessor();
+        assertEquals(LinkedHashMap.class, processor
+                .convertClass(LinkedHashMap.class));
+        assertEquals(HashMap.class, processor.convertClass(AbstractMap.class));
+    }
+
+    /**
      * 
      */
     public static class BbbAction {
@@ -582,6 +639,21 @@ public class S2RequestProcessorTest extends S2TestCase {
          * 
          */
         public List<List<MyBean>> myBeanListList;
+
+        /**
+         * 
+         */
+        public Map<String, Object> map;
+
+        /**
+         * 
+         */
+        public Map<String, Object>[][] mapArrayArray;
+
+        /**
+         * 
+         */
+        public List<Map<String, Object>> mapList;
 
         /**
          * @return

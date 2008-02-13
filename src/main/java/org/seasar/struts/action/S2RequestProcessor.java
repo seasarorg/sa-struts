@@ -344,6 +344,16 @@ public class S2RequestProcessor extends RequestProcessor {
      */
     @SuppressWarnings("unchecked")
     protected void setSimpleProperty(Object bean, String name, Object value) {
+        if (bean instanceof Map) {
+            Map m = (Map) bean;
+            if (value instanceof String[]) {
+                String[] values = (String[]) value;
+                m.put(name, values.length > 0 ? values[0] : null);
+            } else {
+                m.put(name, value);
+            }
+            return;
+        }
         BeanDesc beanDesc = BeanDescFactory.getBeanDesc(bean.getClass());
         if (!beanDesc.hasPropertyDesc(name)) {
             return;
@@ -389,10 +399,17 @@ public class S2RequestProcessor extends RequestProcessor {
             return null;
         }
         Object value = pd.getValue(bean);
-        if (value == null && !ModifierUtil.isAbstract(pd.getPropertyType())) {
-            value = ClassUtil.newInstance(pd.getPropertyType());
-            if (pd.isWritable()) {
-                pd.setValue(bean, value);
+        if (value == null) {
+            if (!ModifierUtil.isAbstract(pd.getPropertyType())) {
+                value = ClassUtil.newInstance(pd.getPropertyType());
+                if (pd.isWritable()) {
+                    pd.setValue(bean, value);
+                }
+            } else if (Map.class.isAssignableFrom(pd.getPropertyType())) {
+                value = new HashMap<String, Object>();
+                if (pd.isWritable()) {
+                    pd.setValue(bean, value);
+                }
             }
         }
         return value;
@@ -455,7 +472,8 @@ public class S2RequestProcessor extends RequestProcessor {
                 pcd = pcd.getArguments()[0];
                 for (int j = size; j <= indexes[i]; j++) {
                     if (i == indexes.length - 1) {
-                        list.add(ClassUtil.newInstance(pcd.getRawClass()));
+                        list.add(ClassUtil.newInstance(convertClass(pcd
+                                .getRawClass())));
                     } else {
                         list.add(new ArrayList());
                     }
@@ -532,6 +550,7 @@ public class S2RequestProcessor extends RequestProcessor {
     protected Object fillArrayValue(Object array, int[] indexes,
             Class<?> elementType) {
         Object value = array;
+        elementType = convertClass(elementType);
         for (int i = 0; i < indexes.length; i++) {
             Object value2 = Array.get(value, indexes[i]);
             if (i == indexes.length - 1 && value2 == null) {
@@ -541,6 +560,20 @@ public class S2RequestProcessor extends RequestProcessor {
             value = value2;
         }
         return value;
+    }
+
+    /**
+     * クラスが抽象クラスかつMap系ならHashMapに変換します。
+     * 
+     * @param clazz
+     *            クラス
+     * @return 変換後のクラス
+     */
+    protected Class<?> convertClass(Class<?> clazz) {
+        if (ModifierUtil.isAbstract(clazz) && Map.class.isAssignableFrom(clazz)) {
+            return HashMap.class;
+        }
+        return clazz;
     }
 
     /**
