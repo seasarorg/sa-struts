@@ -8,10 +8,10 @@
   <artifactId>sa-struts</artifactId>
   <packaging>jar</packaging>
   <name>sa-struts</name>
-  <version>1.0.1-rc1</version>
+  <version>1.0.1-rc2</version>
   <description></description>
-  <url>http://sastruts.sandbox.seasar.org/</url>
-  <inceptionYear>2004-2007</inceptionYear>
+  <url>http://sastruts.seasar.org/</url>
+  <inceptionYear>2004-2008</inceptionYear>
   <mailingLists>
     <mailingList>
       <name>Seasar-user</name>

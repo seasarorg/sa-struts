@@ -18,18 +18,20 @@ package org.seasar.struts.action;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 /**
- * 配列を集合として扱うクラスです。
+ * 配列をリストとして扱うクラスです。
  * 
  * @author higa
  * 
  */
 @SuppressWarnings("unchecked")
-public class ArrayWrapper implements Collection {
+public class ArrayWrapper implements List {
 
     /**
-     * 配列です。
+     * オリジナルの配列です。
      */
     protected Object array;
 
@@ -42,7 +44,7 @@ public class ArrayWrapper implements Collection {
      * インスタンスを構築します。
      * 
      * @param array
-     *            配列
+     *            オリジナルの配列
      */
     public ArrayWrapper(Object array) {
         this.array = array;
@@ -53,7 +55,15 @@ public class ArrayWrapper implements Collection {
         throw new UnsupportedOperationException("add");
     }
 
+    public void add(int index, Object element) {
+        throw new UnsupportedOperationException("add");
+    }
+
     public boolean addAll(Collection c) {
+        throw new UnsupportedOperationException("addAll");
+    }
+
+    public boolean addAll(int index, Collection c) {
         throw new UnsupportedOperationException("addAll");
     }
 
@@ -69,15 +79,39 @@ public class ArrayWrapper implements Collection {
         throw new UnsupportedOperationException("containsAll");
     }
 
+    public Object get(int index) {
+        return WrapperUtil.convert(Array.get(array, index));
+    }
+
+    public int indexOf(Object o) {
+        throw new UnsupportedOperationException("indexOf");
+    }
+
     public boolean isEmpty() {
-        throw new UnsupportedOperationException("isEmpty");
+        return size() == 0;
     }
 
     public Iterator iterator() {
         return new ArrayIteratorWrapper(array);
     }
 
+    public int lastIndexOf(Object o) {
+        throw new UnsupportedOperationException("lastIndexOf");
+    }
+
+    public ListIterator listIterator() {
+        throw new UnsupportedOperationException("listIterator");
+    }
+
+    public ListIterator listIterator(int index) {
+        throw new UnsupportedOperationException("listIterator");
+    }
+
     public boolean remove(Object o) {
+        throw new UnsupportedOperationException("remove");
+    }
+
+    public Object remove(int index) {
         throw new UnsupportedOperationException("remove");
     }
 
@@ -89,8 +123,16 @@ public class ArrayWrapper implements Collection {
         throw new UnsupportedOperationException("retainAll");
     }
 
+    public Object set(int index, Object element) {
+        throw new UnsupportedOperationException("set");
+    }
+
     public int size() {
         return size;
+    }
+
+    public List subList(int fromIndex, int toIndex) {
+        throw new UnsupportedOperationException("subList");
     }
 
     public Object[] toArray() {

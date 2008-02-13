@@ -40,16 +40,6 @@ public class ArrayWrapperTest extends TestCase {
     /**
      * @throws Exception
      */
-    public void testToArray() throws Exception {
-        ArrayWrapper wrapper = new ArrayWrapper(new int[] { 1 });
-        Object[] array = wrapper.toArray();
-        assertEquals(1, array.length);
-        assertEquals(1, array[0]);
-    }
-
-    /**
-     * @throws Exception
-     */
     @SuppressWarnings("unchecked")
     public void testIterator_nest() throws Exception {
         ArrayWrapper wrapper = new ArrayWrapper(new int[][] { new int[] { 1 } });
@@ -57,6 +47,25 @@ public class ArrayWrapperTest extends TestCase {
         Collection c = (Collection) i.next();
         assertEquals(ArrayWrapper.class, c.getClass());
         assertEquals(1, c.iterator().next());
+    }
+
+    /**
+     * @throws Exception
+     */
+    @SuppressWarnings("unchecked")
+    public void testGet() throws Exception {
+        ArrayWrapper wrapper = new ArrayWrapper(new int[] { 1 });
+        assertEquals(1, wrapper.get(0));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testToArray() throws Exception {
+        ArrayWrapper wrapper = new ArrayWrapper(new int[] { 1 });
+        Object[] array = wrapper.toArray();
+        assertEquals(1, array.length);
+        assertEquals(1, array[0]);
     }
 
     /**

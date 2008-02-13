@@ -30,7 +30,7 @@ import java.util.ListIterator;
 public class ListWrapper implements List {
 
     /**
-     * 
+     * オリジナルのリストです。
      */
     protected List list;
 
