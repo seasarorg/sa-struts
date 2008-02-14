@@ -123,13 +123,26 @@ public class S2ActionMappingTest extends S2TestCase {
     /**
      * @throws Exception
      */
-    public void testCreateForward() throws Exception {
+    public void testCreateForward_jsp() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
         ComponentDef cd = new ComponentDefImpl(MyAction.class, "aaaAction");
         actionMapping.setComponentDef(cd);
         ActionForward forward = actionMapping.createForward("hoge.jsp");
         assertNotNull(forward);
         assertEquals("/aaa/hoge.jsp", forward.getPath());
+        assertFalse(forward.getRedirect());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testCreateForward_jsp2() throws Exception {
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        ComponentDef cd = new ComponentDefImpl(MyAction.class, "aaaAction");
+        actionMapping.setComponentDef(cd);
+        ActionForward forward = actionMapping.createForward("/hoge.jsp");
+        assertNotNull(forward);
+        assertEquals("/hoge.jsp", forward.getPath());
         assertFalse(forward.getRedirect());
     }
 
@@ -189,6 +202,18 @@ public class S2ActionMappingTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testCreateForward_routing3() throws Exception {
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        actionMapping.setComponentDef(getComponentDef(MyAction.class));
+        ActionForward forward = actionMapping.createForward("/aaa/submit/2");
+        assertNotNull(forward);
+        assertEquals("/aaa.do?id=2&SAStruts.method=submit", forward.getPath());
+        assertFalse(forward.getRedirect());
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testCreateForward_null() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
         actionMapping.setComponentDef(getComponentDef(MyAction.class));
@@ -214,12 +239,12 @@ public class S2ActionMappingTest extends S2TestCase {
      */
     public void testGetViewDirectory() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
-        assertEquals("/login/", actionMapping.getViewDirectory("loginAction"));
+        assertEquals("/login/", actionMapping.getActionPath("loginAction"));
         assertEquals("/aaa/login/", actionMapping
-                .getViewDirectory("aaa_loginAction"));
-        assertEquals("/", actionMapping.getViewDirectory("indexAction"));
+                .getActionPath("aaa_loginAction"));
+        assertEquals("/", actionMapping.getActionPath("indexAction"));
         try {
-            actionMapping.getViewDirectory("hoge");
+            actionMapping.getActionPath("hoge");
             fail();
         } catch (IllegalArgumentException e) {
             System.out.println(e);
