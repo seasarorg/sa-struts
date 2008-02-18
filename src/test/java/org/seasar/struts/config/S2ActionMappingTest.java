@@ -177,6 +177,20 @@ public class S2ActionMappingTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testCreateForward_redirect3() throws Exception {
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        ComponentDef cd = new ComponentDefImpl(MyAction.class, "aaaAction");
+        actionMapping.setComponentDef(cd);
+        ActionForward forward = actionMapping
+                .createForward("/aaa?redirect=true");
+        assertNotNull(forward);
+        assertEquals("/aaa", forward.getPath());
+        assertTrue(forward.getRedirect());
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testCreateForward_routing() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
         actionMapping.setComponentDef(getComponentDef(MyAction.class));

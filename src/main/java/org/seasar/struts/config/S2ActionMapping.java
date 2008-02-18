@@ -108,7 +108,7 @@ public class S2ActionMapping extends ActionMapping {
             if (!path.startsWith("/")) {
                 path = getActionPath(componentDef.getComponentName()) + path;
             }
-            if (path.indexOf('.') < 0) {
+            if (path.indexOf('.') < 0 && !redirect) {
                 path = createRoutingPath(path);
             }
         }
