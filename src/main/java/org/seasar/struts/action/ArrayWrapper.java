@@ -31,14 +31,14 @@ import java.util.ListIterator;
 public class ArrayWrapper implements List {
 
     /**
+     * 配列の長さです。
+     */
+    public int length;
+
+    /**
      * オリジナルの配列です。
      */
     protected Object array;
-
-    /**
-     * 配列のサイズです。
-     */
-    protected int size;
 
     /**
      * インスタンスを構築します。
@@ -48,7 +48,7 @@ public class ArrayWrapper implements List {
      */
     public ArrayWrapper(Object array) {
         this.array = array;
-        size = Array.getLength(array);
+        length = Array.getLength(array);
     }
 
     public boolean add(Object o) {
@@ -128,7 +128,7 @@ public class ArrayWrapper implements List {
     }
 
     public int size() {
-        return size;
+        return length;
     }
 
     public List subList(int fromIndex, int toIndex) {
@@ -152,12 +152,11 @@ public class ArrayWrapper implements List {
     public String toString() {
         StringBuilder sb = new StringBuilder(30);
         sb.append('[');
-        int size = size();
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < length; i++) {
             sb.append(Array.get(array, i));
             sb.append(", ");
         }
-        if (size > 0) {
+        if (length > 0) {
             sb.setLength(sb.length() - 2);
         }
         sb.append(']');
