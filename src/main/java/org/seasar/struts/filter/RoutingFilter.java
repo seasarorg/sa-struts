@@ -46,10 +46,8 @@ public class RoutingFilter implements Filter {
             FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         String path = getPath(req);
-        if (!jspDirectAccess && req.getMethod().equalsIgnoreCase("get")
-                && path.endsWith(".jsp")) {
-            throw new ServletException(
-                    "Direct access for JSP is not permitted.");
+        if (!processDirectAccess(request, response, chain, path)) {
+            return;
         }
         if (path.indexOf('.') < 0) {
             String[] names = StringUtil.split(path, "/");
@@ -113,6 +111,37 @@ public class RoutingFilter implements Filter {
             return path;
         }
         return request.getServletPath();
+    }
+
+    /**
+     * ダイレクトアクセスを処理します。
+     * 
+     * @param request
+     *            リクエスト
+     * @param response
+     *            レスポンス
+     * @param chain
+     *            フィルタチェイン
+     * @param path
+     *            パス
+     * @return JSPのダイレクトアクセスのチェックがNGの場合は、 falseを返します。
+     * @throws IOException
+     *             IO例外が発生した場合。
+     */
+    protected boolean processDirectAccess(ServletRequest request,
+            ServletResponse response, FilterChain chain, String path)
+            throws IOException {
+        if (!jspDirectAccess
+                && ((HttpServletRequest) request).getMethod().equalsIgnoreCase(
+                        "get") && path.endsWith(".jsp")) {
+            ((HttpServletResponse) response).sendError(
+                    HttpServletResponse.SC_BAD_REQUEST,
+                    "Direct access for JSP is not permitted.");
+            return false;
+            // throw new ServletException(
+            // "Direct access for JSP is not permitted.");
+        }
+        return true;
     }
 
     /**
