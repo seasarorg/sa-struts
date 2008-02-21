@@ -46,6 +46,7 @@ import org.seasar.struts.exception.ExecuteMethodNotFoundRuntimeException;
 import org.seasar.struts.exception.IllegalExecuteMethodRuntimeException;
 import org.seasar.struts.exception.IllegalValidateMethodRuntimeException;
 import org.seasar.struts.exception.InputNotDefinedRuntimeException;
+import org.seasar.struts.exception.MultipleAllSelectedUrlPatternRuntimeException;
 import org.seasar.struts.util.S2PropertyMessageResourcesFactory;
 import org.seasar.struts.util.ValidatorResourcesUtil;
 import org.seasar.struts.validator.S2ValidatorResources;
@@ -156,6 +157,45 @@ public class ActionCustomizerTest extends S2TestCase {
         assertEquals("admin", roles[0]);
         assertEquals("user", roles[1]);
         assertEquals(2, actionMapping.getExecuteConfigSize());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testSetupMethod_inherit() throws Exception {
+        register(KkkAction.class, "kkkAction");
+        S2ActionMapping actionMapping = customizer
+                .createActionMapping(getComponentDef("kkkAction"));
+        assertNotNull(actionMapping.getExecuteConfig("index"));
+        assertNotNull(actionMapping.getExecuteConfig("execute"));
+        assertNotNull(actionMapping.getExecuteConfig("execute2"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testSetupMethod_allSelectedUrlPattern() throws Exception {
+        register(IiiAction.class, "iiiAction");
+        S2ActionMapping actionMapping = customizer
+                .createActionMapping(getComponentDef("iiiAction"));
+        S2ExecuteConfig executeConfig = actionMapping
+                .findExecuteConfig("execute");
+        assertNotNull(executeConfig);
+        assertEquals("execute", executeConfig.getMethod().getName());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testSetupMethod_multipleAllSelectedUrlPattern()
+            throws Exception {
+        register(JjjAction.class, "jjjAction");
+        try {
+            customizer.createActionMapping(getComponentDef("jjjAction"));
+            fail();
+        } catch (MultipleAllSelectedUrlPatternRuntimeException e) {
+            System.out.println(e);
+        }
     }
 
     /**
@@ -586,6 +626,62 @@ public class ActionCustomizerTest extends S2TestCase {
          */
         public ActionMessages validate2() {
             return null;
+        }
+    }
+
+    /**
+     * 
+     */
+    public static class IiiAction {
+        /**
+         * @return
+         */
+        @Execute(validator = false, urlPattern = "{id}")
+        public String index() {
+            return "start.jsp";
+        }
+
+        /**
+         * @return
+         */
+        @Execute(validator = false)
+        public String execute() {
+            return "execute.jsp";
+        }
+    }
+
+    /**
+     * 
+     */
+    public static class JjjAction {
+        /**
+         * @return
+         */
+        @Execute(validator = false, urlPattern = "{id}")
+        public String index() {
+            return "start.jsp";
+        }
+
+        /**
+         * @return
+         */
+        @Execute(validator = false, urlPattern = "{id2}")
+        public String execute() {
+            return "execute.jsp";
+        }
+    }
+
+    /**
+     * 
+     */
+    public static class KkkAction extends IiiAction {
+
+        /**
+         * @return
+         */
+        @Execute(validator = false)
+        public String execute2() {
+            return "execute.jsp";
         }
     }
 

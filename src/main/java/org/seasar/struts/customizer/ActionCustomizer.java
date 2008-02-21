@@ -31,6 +31,7 @@ import org.seasar.framework.container.ComponentCustomizer;
 import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.util.ClassUtil;
 import org.seasar.framework.util.MethodUtil;
+import org.seasar.framework.util.ModifierUtil;
 import org.seasar.framework.util.StringUtil;
 import org.seasar.framework.util.tiger.AnnotationUtil;
 import org.seasar.struts.action.ActionFormWrapperClass;
@@ -48,6 +49,7 @@ import org.seasar.struts.exception.ExecuteMethodNotFoundRuntimeException;
 import org.seasar.struts.exception.IllegalExecuteMethodRuntimeException;
 import org.seasar.struts.exception.IllegalValidateMethodRuntimeException;
 import org.seasar.struts.exception.InputNotDefinedRuntimeException;
+import org.seasar.struts.exception.MultipleAllSelectedUrlPatternRuntimeException;
 import org.seasar.struts.util.ActionUtil;
 import org.seasar.struts.util.MessageResourcesUtil;
 import org.seasar.struts.util.S2ModuleConfigUtil;
@@ -103,9 +105,17 @@ public class ActionCustomizer implements ComponentCustomizer {
      */
     protected void setupMethod(S2ActionMapping actionMapping,
             Class<?> actionClass) {
-        for (Method m : actionClass.getMethods()) {
-            Execute execute = m.getAnnotation(Execute.class);
-            if (execute != null) {
+        S2ExecuteConfig allSelectedExecuteConfig = null;
+        for (Class<?> clazz = actionClass; clazz != Object.class; clazz = clazz
+                .getSuperclass()) {
+            for (Method m : clazz.getDeclaredMethods()) {
+                if (!ModifierUtil.isPublic(m)) {
+                    continue;
+                }
+                Execute execute = m.getAnnotation(Execute.class);
+                if (execute == null) {
+                    continue;
+                }
                 if (m.getParameterTypes().length > 0
                         || m.getReturnType() != String.class) {
                     throw new IllegalExecuteMethodRuntimeException(actionClass,
@@ -144,8 +154,21 @@ public class ActionCustomizer implements ComponentCustomizer {
                 if (!StringUtil.isEmpty(roles)) {
                     executeConfig.setRoles(StringUtil.split(roles, ", "));
                 }
-                actionMapping.addExecuteConfig(executeConfig);
+                if (executeConfig.isUrlPatternAllSelected()) {
+                    if (allSelectedExecuteConfig != null) {
+                        throw new MultipleAllSelectedUrlPatternRuntimeException(
+                                allSelectedExecuteConfig.getUrlPattern(),
+                                executeConfig.getUrlPattern());
+                    }
+                    allSelectedExecuteConfig = executeConfig;
+                } else {
+                    actionMapping.addExecuteConfig(executeConfig);
+                }
+
             }
+        }
+        if (allSelectedExecuteConfig != null) {
+            actionMapping.addExecuteConfig(allSelectedExecuteConfig);
         }
         if (actionMapping.getExecuteConfigSize() == 0) {
             throw new ExecuteMethodNotFoundRuntimeException(actionClass);

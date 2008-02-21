@@ -52,6 +52,26 @@ public class S2ExecuteConfigTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testUrlPatternAllSelected() throws Exception {
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setMethod(getClass().getMethod("getClass"));
+        executeConfig.setUrlPattern("{id}");
+        assertTrue(executeConfig.isUrlPatternAllSelected());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testUrlPatternAllSelected_false() throws Exception {
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setMethod(getClass().getMethod("getClass"));
+        executeConfig.setUrlPattern("{id}/edit");
+        assertFalse(executeConfig.isUrlPatternAllSelected());
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testIsTarget_paramPath() throws Exception {
         S2ExecuteConfig executeConfig = new S2ExecuteConfig();
         executeConfig.setMethod(getClass().getMethod("getClass"));

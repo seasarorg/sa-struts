@@ -77,6 +77,11 @@ public class S2ExecuteConfig implements Serializable {
     protected Pattern urlPatternRegexp;
 
     /**
+     * URLパターンが{id}のように全選択かどうかです。
+     */
+    protected boolean urlPatternAllSelected = false;
+
+    /**
      * URLのパラメータ名のリストです。
      */
     protected List<String> urlParamNames = new ArrayList<String>();
@@ -243,7 +248,18 @@ public class S2ExecuteConfig implements Serializable {
         if (index >= 0) {
             throw new IllegalUrlPatternRuntimeException(urlPattern);
         }
-        urlPatternRegexp = Pattern.compile("^" + sb.toString() + "$");
+        String pattern = sb.toString();
+        urlPatternAllSelected = pattern.equals("([^/]+)");
+        urlPatternRegexp = Pattern.compile("^" + pattern + "$");
+    }
+
+    /**
+     * URLパターンが{id}のように全選択かどうかを返します。
+     * 
+     * @return URLパターンが{id}のように全選択かどうか
+     */
+    public boolean isUrlPatternAllSelected() {
+        return urlPatternAllSelected;
     }
 
     /**

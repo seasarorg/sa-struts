@@ -16,9 +16,6 @@
 package org.seasar.struts.config;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -30,8 +27,10 @@ import org.seasar.framework.beans.factory.BeanDescFactory;
 import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
+import org.seasar.framework.util.ArrayMap;
 import org.seasar.framework.util.StringUtil;
 import org.seasar.struts.util.RoutingUtil;
+import org.seasar.struts.util.S2ExecuteConfigUtil;
 import org.seasar.struts.util.S2ModuleConfigUtil;
 
 /**
@@ -64,7 +63,7 @@ public class S2ActionMapping extends ActionMapping {
     /**
      * 実行設定のマップです
      */
-    protected Map<String, S2ExecuteConfig> executeConfigs = new HashMap<String, S2ExecuteConfig>();
+    protected ArrayMap executeConfigs = new ArrayMap();
 
     /**
      * アクションフォーム用のプロパティ記述です。
@@ -181,26 +180,27 @@ public class S2ActionMapping extends ActionMapping {
      */
     protected String getQueryString(String queryString, String actionPath,
             String paramPath) {
-        if (StringUtil.isEmpty(paramPath)) {
-            return queryString;
-        }
+        String queryString2 = "";
         S2ModuleConfig moduleConfig = S2ModuleConfigUtil.getModuleConfig();
         S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
                 .findActionConfig(actionPath);
         S2ExecuteConfig executeConfig = actionMapping
                 .findExecuteConfig(paramPath);
-
         if (executeConfig != null) {
-            String queryString2 = executeConfig.getQueryString(paramPath);
-            if (StringUtil.isEmpty(queryString)) {
-                return queryString2;
+            queryString2 = executeConfig.getQueryString(paramPath);
+        } else {
+            executeConfig = S2ExecuteConfigUtil.getExecuteConfig();
+            if (executeConfig != null) {
+                queryString2 = "?" + executeConfig.method.getName() + "=";
             }
-            if (StringUtil.isEmpty(queryString2)) {
-                return queryString;
-            }
-            return queryString + "&" + queryString2.substring(1);
         }
-        return queryString;
+        if (StringUtil.isEmpty(queryString)) {
+            return queryString2;
+        }
+        if (StringUtil.isEmpty(queryString2)) {
+            return queryString;
+        }
+        return queryString + "&" + queryString2.substring(1);
     }
 
     /**
@@ -274,8 +274,9 @@ public class S2ActionMapping extends ActionMapping {
      * 
      * @return 実行メソッド名の配列
      */
+    @SuppressWarnings("unchecked")
     public String[] getExecuteMethodNames() {
-        return executeConfigs.keySet().toArray(
+        return (String[]) executeConfigs.keySet().toArray(
                 new String[executeConfigs.size()]);
     }
 
@@ -287,9 +288,9 @@ public class S2ActionMapping extends ActionMapping {
      * @return 実行メソッド
      */
     public S2ExecuteConfig findExecuteConfig(String paramPath) {
-        for (Iterator<S2ExecuteConfig> i = executeConfigs.values().iterator(); i
-                .hasNext();) {
-            S2ExecuteConfig executeConfig = i.next();
+        for (int i = 0; i < executeConfigs.size(); i++) {
+            S2ExecuteConfig executeConfig = (S2ExecuteConfig) executeConfigs
+                    .get(i);
             if (executeConfig.isTarget(paramPath)) {
                 return executeConfig;
             }
@@ -306,11 +307,11 @@ public class S2ActionMapping extends ActionMapping {
      */
     public S2ExecuteConfig findExecuteConfig(HttpServletRequest request) {
         if (executeConfigs.size() == 1) {
-            return executeConfigs.values().iterator().next();
+            return (S2ExecuteConfig) executeConfigs.get(0);
         }
-        for (Iterator<S2ExecuteConfig> i = executeConfigs.values().iterator(); i
-                .hasNext();) {
-            S2ExecuteConfig executeConfig = i.next();
+        for (int i = 0; i < executeConfigs.size(); i++) {
+            S2ExecuteConfig executeConfig = (S2ExecuteConfig) executeConfigs
+                    .get(i);
             if (executeConfig.isTarget(request)) {
                 return executeConfig;
             }
@@ -326,7 +327,7 @@ public class S2ActionMapping extends ActionMapping {
      * @return 実行設定
      */
     public S2ExecuteConfig getExecuteConfig(String name) {
-        return executeConfigs.get(name);
+        return (S2ExecuteConfig) executeConfigs.get(name);
     }
 
     /**

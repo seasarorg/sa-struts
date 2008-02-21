@@ -26,6 +26,7 @@ import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.impl.ComponentDefImpl;
 import org.seasar.struts.annotation.Execute;
 import org.seasar.struts.customizer.ActionCustomizer;
+import org.seasar.struts.util.S2ExecuteConfigUtil;
 import org.seasar.struts.util.S2PropertyMessageResourcesFactory;
 import org.seasar.struts.validator.S2ValidatorResources;
 
@@ -109,6 +110,31 @@ public class S2ActionMappingTest extends S2TestCase {
             throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
         assertEquals("", actionMapping.getQueryString("", "/aaa", ""));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testGetQueryString_paramPathEmpty_queryStringEmpty_executeConfig()
+            throws Exception {
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setMethod(Object.class.getMethod("getClass"));
+        S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        assertEquals("?getClass=", actionMapping.getQueryString("", "/aaa", ""));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testGetQueryString_paramPathEmpty_executeConfig()
+            throws Exception {
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setMethod(Object.class.getMethod("getClass"));
+        S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        assertEquals("?aaa=1&getClass=", actionMapping.getQueryString("?aaa=1",
+                "/aaa", ""));
     }
 
     /**
