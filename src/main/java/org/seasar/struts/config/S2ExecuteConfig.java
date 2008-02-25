@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.seasar.framework.util.StringUtil;
 import org.seasar.struts.enums.SaveType;
+import org.seasar.struts.exception.IllegalInputPatternRuntimeException;
 import org.seasar.struts.exception.IllegalUrlPatternRuntimeException;
 import org.seasar.struts.util.URLEncoderUtil;
 
@@ -65,6 +66,11 @@ public class S2ExecuteConfig implements Serializable {
      * 検証エラー時の遷移先です。
      */
     protected String input;
+
+    /**
+     * 検証エラー時遷移先のパラメータ名のリストです。
+     */
+    protected List<String> inputParamNames = new ArrayList<String>();
 
     /**
      * URLのパターンです。
@@ -204,6 +210,62 @@ public class S2ExecuteConfig implements Serializable {
      */
     public void setInput(String input) {
         this.input = input;
+        if (StringUtil.isEmpty(input)) {
+            return;
+        }
+        char[] chars = input.toCharArray();
+        int length = chars.length;
+        int index = -1;
+        for (int i = 0; i < length; i++) {
+            if (chars[i] == '{') {
+                index = i;
+            } else if (chars[i] == '}') {
+                if (index >= 0) {
+                    inputParamNames.add(input.substring(index + 1, i));
+                    index = -1;
+                } else {
+                    throw new IllegalInputPatternRuntimeException(input);
+                }
+            }
+        }
+        if (index >= 0) {
+            throw new IllegalInputPatternRuntimeException(input);
+        }
+    }
+
+    /**
+     * パラメータを解決した検証エラー時の遷移先を返します。
+     * 
+     * @param request
+     *            リクエスト
+     * 
+     * @return 検証エラー時の遷移先
+     */
+    public String getParameterResolvedInput(HttpServletRequest request) {
+        String s = input;
+        for (String name : inputParamNames) {
+            s = s.replace("{" + name + "}", getRequestValueAsString(request,
+                    name));
+        }
+        return s;
+    }
+
+    /**
+     * リクエストの値を文字列として返します。
+     * 
+     * @param request
+     *            リクエスト
+     * @param name
+     *            名前
+     * @return 文字列としてのリクエストの値
+     */
+    protected String getRequestValueAsString(HttpServletRequest request,
+            String name) {
+        Object value = request.getAttribute(name);
+        if (value != null) {
+            return value.toString();
+        }
+        return request.getParameter(name);
     }
 
     /**

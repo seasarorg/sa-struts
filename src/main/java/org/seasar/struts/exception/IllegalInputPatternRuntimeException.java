@@ -19,35 +19,35 @@ import org.seasar.framework.exception.SRuntimeException;
 
 /**
  * 
- * URLパターンが間違っている場合の例外です。
+ * inputパターンが間違っている場合の例外です。
  * 
  * 
  * @author higa
  * 
  */
-public class IllegalUrlPatternRuntimeException extends SRuntimeException {
+public class IllegalInputPatternRuntimeException extends SRuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    private String urlPattern;
+    private String inputPattern;
 
     /**
      * インスタンスを構築します。
      * 
-     * @param urlPattern
-     *            URLパターン
+     * @param inputPattern
+     *            inputパターン
      */
-    public IllegalUrlPatternRuntimeException(String urlPattern) {
-        super("ESAS0007", new Object[] { urlPattern });
-        this.urlPattern = urlPattern;
+    public IllegalInputPatternRuntimeException(String inputPattern) {
+        super("ESAS0010", new Object[] { inputPattern });
+        this.inputPattern = inputPattern;
     }
 
     /**
-     * URLパターンを返します。
+     * inputパターンを返します。
      * 
-     * @return URLパターン
+     * @return inputパターン
      */
-    public String getUrlPattern() {
-        return urlPattern;
+    public String getInputPattern() {
+        return inputPattern;
     }
 }

@@ -21,15 +21,15 @@ import junit.framework.TestCase;
  * @author higa
  * 
  */
-public class IllegalUrlPatternRuntimeExceptionTest extends TestCase {
+public class IllegalInputPatternRuntimeExceptionTest extends TestCase {
 
     /**
      * @throws Exception
      */
     public void testAll() throws Exception {
-        IllegalUrlPatternRuntimeException e = new IllegalUrlPatternRuntimeException(
+        IllegalInputPatternRuntimeException e = new IllegalInputPatternRuntimeException(
                 "edit/{id");
         System.out.println(e);
-        assertEquals("edit/{id", e.getUrlPattern());
+        assertEquals("edit/{id", e.getInputPattern());
     }
 }

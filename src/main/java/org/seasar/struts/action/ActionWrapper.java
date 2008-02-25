@@ -203,6 +203,7 @@ public class ActionWrapper extends Action {
             request.getSession().setAttribute(Globals.ERROR_KEY, errors);
         }
         exportPropertiesToRequest(request);
-        return actionMapping.createForward(executeConfig.getInput());
+        return actionMapping.createForward(executeConfig
+                .getParameterResolvedInput(request));
     }
 }

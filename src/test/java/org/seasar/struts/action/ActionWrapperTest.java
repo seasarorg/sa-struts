@@ -236,6 +236,23 @@ public class ActionWrapperTest extends S2TestCase {
     }
 
     /**
+     * @throws Exception
+     */
+    public void testInputForwardForPattern() throws Exception {
+        register(GggAction.class, "aaa_gggAction");
+        ActionCustomizer customizer = new ActionCustomizer();
+        customizer.customize(getComponentDef("aaa_gggAction"));
+        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
+                .findActionConfig("/aaa/ggg");
+        GggAction action = (GggAction) getComponent("aaa_gggAction");
+        action.id = "111";
+        ActionWrapper wrapper = new ActionWrapper(actionMapping);
+        ActionForward forward = wrapper.execute(getRequest(), actionMapping
+                .getExecuteConfig("execute2"));
+        assertEquals("/edit/111", forward.getPath());
+    }
+
+    /**
      * 
      */
     public static class BbbAction {
@@ -365,6 +382,11 @@ public class ActionWrapperTest extends S2TestCase {
         /**
          * 
          */
+        public String id;
+
+        /**
+         * 
+         */
         @Required
         public String hoge;
 
@@ -373,7 +395,15 @@ public class ActionWrapperTest extends S2TestCase {
          */
         @Execute(input = "/aaa/input2.jsp")
         public String execute() {
-            return "success";
+            return "execute.jsp";
+        }
+
+        /**
+         * @return
+         */
+        @Execute(input = "/edit/{id}")
+        public String execute2() {
+            return "execute2.jsp";
         }
     }
 

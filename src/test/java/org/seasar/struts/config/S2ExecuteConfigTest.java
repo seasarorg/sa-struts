@@ -143,4 +143,58 @@ public class S2ExecuteConfigTest extends S2TestCase {
         assertEquals("?SAStruts.method=getClass", executeConfig
                 .getQueryString(""));
     }
+
+    /**
+     * @throws Exception
+     */
+    public void testInputPattern() throws Exception {
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setInput("edit/{id}");
+        assertEquals(1, executeConfig.inputParamNames.size());
+        assertEquals("id", executeConfig.inputParamNames.get(0));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testGetRequestValueAsStringForParameter() throws Exception {
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        getRequest().setParameter("aaa", "111");
+        assertEquals("111", executeConfig.getRequestValueAsString(getRequest(),
+                "aaa"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testGetRequestValueAsStringForAttribute() throws Exception {
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        getRequest().setAttribute("aaa", "222");
+        assertEquals("222", executeConfig.getRequestValueAsString(getRequest(),
+                "aaa"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testGetRequestValueAsStringForAttributeAndParameter()
+            throws Exception {
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        getRequest().setParameter("aaa", "111");
+        getRequest().setAttribute("aaa", "222");
+        assertEquals("222", executeConfig.getRequestValueAsString(getRequest(),
+                "aaa"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testGetParameterResolvedInput() throws Exception {
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setInput("edit/{id}/{id2}");
+        getRequest().setAttribute("id", "111");
+        getRequest().setAttribute("id2", "222");
+        assertEquals("edit/111/222", executeConfig
+                .getParameterResolvedInput(getRequest()));
+    }
 }
