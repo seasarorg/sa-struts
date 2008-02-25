@@ -18,6 +18,7 @@ package org.seasar.struts.util;
 import javax.servlet.http.HttpServletRequest;
 
 import org.seasar.framework.container.SingletonS2Container;
+import org.seasar.framework.util.StringUtil;
 
 /**
  * リクエストに関するユーティリティです。
@@ -37,5 +38,29 @@ public final class RequestUtil {
      */
     public static HttpServletRequest getRequest() {
         return SingletonS2Container.getComponent(HttpServletRequest.class);
+    }
+
+    /**
+     * パスを返します。
+     * 
+     * @return パス
+     */
+    public static String getPath() {
+        return getPath(getRequest());
+    }
+
+    /**
+     * パスを返します。
+     * 
+     * @param request
+     *            リクエスト
+     * @return パス
+     */
+    public static String getPath(HttpServletRequest request) {
+        String path = request.getPathInfo();
+        if (!StringUtil.isEmpty(path)) {
+            return path;
+        }
+        return request.getServletPath();
     }
 }

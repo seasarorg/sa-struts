@@ -17,8 +17,16 @@ package org.seasar.struts.taglib;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.PageContext;
 
+import org.apache.struts.Globals;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionServlet;
+import org.apache.struts.config.FormBeanConfig;
+import org.apache.struts.taglib.TagUtils;
 import org.apache.struts.taglib.html.FormTag;
+import org.seasar.struts.util.RequestUtil;
 
 /**
  * Seasar2用のFormTagです。
@@ -29,6 +37,40 @@ import org.apache.struts.taglib.html.FormTag;
 public class S2FormTag extends FormTag {
 
     private static final long serialVersionUID = 1L;
+
+    @Override
+    protected void lookup() throws JspException {
+        moduleConfig = TagUtils.getInstance().getModuleConfig(pageContext);
+        if (moduleConfig == null) {
+            JspException e = new JspException(messages
+                    .getMessage("formTag.collections"));
+            pageContext.setAttribute(Globals.EXCEPTION_KEY, e,
+                    PageContext.REQUEST_SCOPE);
+            throw e;
+        }
+        servlet = (ActionServlet) pageContext.getServletContext().getAttribute(
+                Globals.ACTION_SERVLET_KEY);
+        mapping = (ActionMapping) moduleConfig.findActionConfig(action);
+        if (mapping == null) {
+            JspException e = new JspException(messages.getMessage(
+                    "formTag.mapping", action));
+            pageContext.setAttribute(Globals.EXCEPTION_KEY, e,
+                    PageContext.REQUEST_SCOPE);
+            throw e;
+        }
+        FormBeanConfig formBeanConfig = moduleConfig.findFormBeanConfig(mapping
+                .getName());
+        if (formBeanConfig == null) {
+            JspException e = new JspException(messages.getMessage(
+                    "formTag.formBean", mapping.getName(), action));
+            pageContext.setAttribute(Globals.EXCEPTION_KEY, e,
+                    PageContext.REQUEST_SCOPE);
+            throw e;
+        }
+        beanName = mapping.getAttribute();
+        beanScope = mapping.getScope();
+        beanType = formBeanConfig.getType();
+    }
 
     @Override
     protected void renderAction(StringBuffer results) {
@@ -43,7 +85,13 @@ public class S2FormTag extends FormTag {
             value.append(contextPath);
         }
         if (!action.startsWith("/")) {
-            value.append("/");
+            String s = RequestUtil.getPath();
+            if (s.indexOf('.') > 0) {
+                s = s.substring(0, s.lastIndexOf('/') + 1);
+            } else if (!s.endsWith("/")) {
+                s = s + "/";
+            }
+            value.append(s);
         }
         value.append(action);
         if (!action.endsWith("/")) {

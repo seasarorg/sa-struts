@@ -17,6 +17,7 @@ import org.seasar.framework.util.StringUtil;
 import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.config.S2ModuleConfig;
+import org.seasar.struts.util.RequestUtil;
 import org.seasar.struts.util.RoutingUtil;
 import org.seasar.struts.util.S2ModuleConfigUtil;
 
@@ -45,7 +46,7 @@ public class RoutingFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
-        String path = getPath(req);
+        String path = RequestUtil.getPath(req);
         if (!processDirectAccess(request, response, chain, path)) {
             return;
         }
@@ -96,21 +97,6 @@ public class RoutingFilter implements Filter {
             }
         }
         chain.doFilter(request, response);
-    }
-
-    /**
-     * パスを返します。
-     * 
-     * @param request
-     *            リクエスト
-     * @return パス
-     */
-    protected String getPath(HttpServletRequest request) {
-        String path = request.getPathInfo();
-        if (!StringUtil.isEmpty(path)) {
-            return path;
-        }
-        return request.getServletPath();
     }
 
     /**
