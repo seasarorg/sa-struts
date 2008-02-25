@@ -19,7 +19,6 @@ import org.apache.struts.config.ActionConfig;
 import org.apache.struts.config.impl.ModuleConfigImpl;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
-import org.seasar.framework.container.hotdeploy.HotdeployUtil;
 import org.seasar.framework.util.Disposable;
 import org.seasar.framework.util.DisposableUtil;
 import org.seasar.framework.util.StringUtil;
@@ -83,37 +82,18 @@ public class S2ModuleConfig extends ModuleConfigImpl implements Disposable {
         }
         ActionConfig ac = (ActionConfig) actionConfigs.get(path);
         if (ac == null) {
-            if (HotdeployUtil.isHotdeploy()) {
-                if (path.indexOf('.') < 0) {
-                    String[] names = StringUtil.split(path, "/");
-                    S2Container container = SingletonS2ContainerFactory
-                            .getContainer();
-                    StringBuilder sb = new StringBuilder(50);
-                    for (int i = 0; i < names.length; i++) {
-                        if (container.hasComponentDef(sb + names[i] + "Action")) {
-                            String actionPath = RoutingUtil.getActionPath(
-                                    names, i);
-                            S2ActionMapping mapping = (S2ActionMapping) actionConfigs
-                                    .get(actionPath);
-                            String paramPath = RoutingUtil.getParamPath(names,
-                                    i + 1);
-                            if (StringUtil.isEmpty(paramPath)) {
-                                return mapping;
-                            }
-                            S2ExecuteConfig executeConfig = mapping
-                                    .findExecuteConfig(paramPath);
-                            if (executeConfig != null) {
-                                return mapping;
-                            }
-
-                        }
-                        sb.append(names[i] + "_");
-                    }
-                    if (container.hasComponentDef("indexAction")) {
-                        String actionPath = "/index";
+            if (path.indexOf('.') < 0) {
+                String[] names = StringUtil.split(path, "/");
+                S2Container container = SingletonS2ContainerFactory
+                        .getContainer();
+                StringBuilder sb = new StringBuilder(50);
+                for (int i = 0; i < names.length; i++) {
+                    if (container.hasComponentDef(sb + names[i] + "Action")) {
+                        String actionPath = RoutingUtil.getActionPath(names, i);
                         S2ActionMapping mapping = (S2ActionMapping) actionConfigs
                                 .get(actionPath);
-                        String paramPath = RoutingUtil.getParamPath(names, 0);
+                        String paramPath = RoutingUtil.getParamPath(names,
+                                i + 1);
                         if (StringUtil.isEmpty(paramPath)) {
                             return mapping;
                         }
@@ -122,6 +102,22 @@ public class S2ModuleConfig extends ModuleConfigImpl implements Disposable {
                         if (executeConfig != null) {
                             return mapping;
                         }
+
+                    }
+                    sb.append(names[i] + "_");
+                }
+                if (container.hasComponentDef("indexAction")) {
+                    String actionPath = "/index";
+                    S2ActionMapping mapping = (S2ActionMapping) actionConfigs
+                            .get(actionPath);
+                    String paramPath = RoutingUtil.getParamPath(names, 0);
+                    if (StringUtil.isEmpty(paramPath)) {
+                        return mapping;
+                    }
+                    S2ExecuteConfig executeConfig = mapping
+                            .findExecuteConfig(paramPath);
+                    if (executeConfig != null) {
+                        return mapping;
                     }
                 }
             }
