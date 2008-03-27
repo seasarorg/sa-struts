@@ -490,6 +490,81 @@ public class S2RequestProcessor extends RequestProcessor {
     }
 
     /**
+     * インデックス化されたプロパティの値を設定します。
+     * 
+     * @param bean
+     *            JavaBeans
+     * @param name
+     *            名前
+     * @param indexes
+     *            インデックスの配列
+     * @return インデックス化されたプロパティの値
+     * 
+     */
+    @SuppressWarnings("unchecked")
+    protected void setIndexedProperty(Object bean, String name, int[] indexes,
+            Object value) {
+        BeanDesc beanDesc = BeanDescFactory.getBeanDesc(bean.getClass());
+        if (!beanDesc.hasPropertyDesc(name)) {
+            return null;
+        }
+        PropertyDesc pd = beanDesc.getPropertyDesc(name);
+        if (!pd.isReadable()) {
+            return null;
+        }
+        if (pd.getPropertyType().isArray()) {
+            Object array = pd.getValue(bean);
+            Class<?> elementType = getArrayElementType(pd.getPropertyType(),
+                    indexes.length);
+            if (array == null) {
+                int[] newIndexes = new int[indexes.length];
+                newIndexes[0] = indexes[0] + 1;
+                array = Array.newInstance(elementType, newIndexes);
+            }
+            array = expand(array, indexes, elementType);
+            pd.setValue(bean, array);
+            return fillArrayValue(array, indexes, elementType);
+        } else if (List.class.isAssignableFrom(pd.getPropertyType())) {
+            List list = (List) pd.getValue(bean);
+            if (list == null) {
+                list = new ArrayList(Math.max(50, indexes[0]));
+                pd.setValue(bean, list);
+            }
+            ParameterizedClassDesc pcd = pd.getParameterizedClassDesc();
+            for (int i = 0; i < indexes.length; i++) {
+                if (pcd == null || !pcd.isParameterizedClass()
+                        || !List.class.isAssignableFrom(pcd.getRawClass())) {
+                    StringBuilder sb = new StringBuilder();
+                    for (int j = 0; j <= i; j++) {
+                        sb.append("[").append(indexes[j]).append("]");
+                    }
+                    throw new NoParameterizedListRuntimeException(
+                            getRealClass(beanDesc.getBeanClass()), pd
+                                    .getPropertyName()
+                                    + sb);
+                }
+                int size = list.size();
+                pcd = pcd.getArguments()[0];
+                for (int j = size; j <= indexes[i]; j++) {
+                    if (i == indexes.length - 1) {
+                        list.add(ClassUtil.newInstance(convertClass(pcd
+                                .getRawClass())));
+                    } else {
+                        list.add(new ArrayList());
+                    }
+                }
+                if (i < indexes.length - 1) {
+                    list = (List) list.get(indexes[i]);
+                }
+            }
+            return list.get(indexes[indexes.length - 1]);
+        } else {
+            throw new IndexedPropertyNotListArrayRuntimeException(
+                    getRealClass(beanDesc.getBeanClass()), pd.getPropertyName());
+        }
+    }
+
+    /**
      * 配列の要素の型を返します。
      * 
      * @param clazz
@@ -537,7 +612,7 @@ public class S2RequestProcessor extends RequestProcessor {
     }
 
     /**
-     * 配列の値を返します。
+     * 配列の最後の要素を必要なら埋めて値を返します。
      * 
      * @param array
      *            配列
