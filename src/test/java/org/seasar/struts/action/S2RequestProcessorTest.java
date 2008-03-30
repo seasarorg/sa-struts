@@ -257,6 +257,16 @@ public class S2RequestProcessorTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testSetProperty_indexed_list() throws Exception {
+        BbbAction bean = new BbbAction();
+        S2RequestProcessor processor = new S2RequestProcessor();
+        processor.setProperty(bean, "hogeList[1]", new String[] { "111" });
+        assertEquals("111", bean.hogeList.get(1));
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testSetProperty_indexed_nested_bean() throws Exception {
         BbbAction bean = new BbbAction();
         S2RequestProcessor processor = new S2RequestProcessor();
@@ -567,13 +577,33 @@ public class S2RequestProcessorTest extends S2TestCase {
     /**
      * @throws Exception
      */
-    public void testFillArrayValue() throws Exception {
+    public void testGetArrayValue() throws Exception {
         S2RequestProcessor processor = new S2RequestProcessor();
-        assertEquals(1, processor.fillArrayValue(
+        assertEquals(1, processor.getArrayValue(
                 new int[][] { new int[] { 1 } }, new int[] { 0, 0 }, int.class));
-        assertNotNull(processor.fillArrayValue(
+        assertNotNull(processor.getArrayValue(
                 new MyBean[][] { new MyBean[] { null } }, new int[] { 0, 0 },
                 MyBean.class));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testSetArrayValue() throws Exception {
+        S2RequestProcessor processor = new S2RequestProcessor();
+        int[] array = new int[] { 0 };
+        processor.setArrayValue(array, new int[] { 0 }, 1);
+        assertEquals(1, array[0]);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testSetArrayValue_nest() throws Exception {
+        S2RequestProcessor processor = new S2RequestProcessor();
+        int[][] array = new int[][] { new int[] { 0 } };
+        processor.setArrayValue(array, new int[] { 0, 0 }, 1);
+        assertEquals(1, array[0][0]);
     }
 
     /**

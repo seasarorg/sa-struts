@@ -326,7 +326,10 @@ public class S2RequestProcessor extends RequestProcessor {
                     getSimpleProperty(bean, name.substring(0, nestedIndex)),
                     name.substring(nestedIndex + 1), value);
         } else {
-            throw new IllegalArgumentException(name);
+            IndexParsedResult result = parseIndex(name
+                    .substring(indexedIndex + 1));
+            setIndexedProperty(bean, name.substring(0, indexedIndex),
+                    result.indexes, value);
         }
     }
 
@@ -448,7 +451,7 @@ public class S2RequestProcessor extends RequestProcessor {
             }
             array = expand(array, indexes, elementType);
             pd.setValue(bean, array);
-            return fillArrayValue(array, indexes, elementType);
+            return getArrayValue(array, indexes, elementType);
         } else if (List.class.isAssignableFrom(pd.getPropertyType())) {
             List list = (List) pd.getValue(bean);
             if (list == null) {
@@ -498,19 +501,22 @@ public class S2RequestProcessor extends RequestProcessor {
      *            名前
      * @param indexes
      *            インデックスの配列
-     * @return インデックス化されたプロパティの値
-     * 
+     * @param value
+     *            値
      */
     @SuppressWarnings("unchecked")
     protected void setIndexedProperty(Object bean, String name, int[] indexes,
             Object value) {
         BeanDesc beanDesc = BeanDescFactory.getBeanDesc(bean.getClass());
         if (!beanDesc.hasPropertyDesc(name)) {
-            return null;
+            return;
         }
         PropertyDesc pd = beanDesc.getPropertyDesc(name);
-        if (!pd.isReadable()) {
-            return null;
+        if (!pd.isWritable()) {
+            return;
+        }
+        if (value.getClass().isArray() && Array.getLength(value) > 0) {
+            value = Array.get(value, 0);
         }
         if (pd.getPropertyType().isArray()) {
             Object array = pd.getValue(bean);
@@ -523,7 +529,7 @@ public class S2RequestProcessor extends RequestProcessor {
             }
             array = expand(array, indexes, elementType);
             pd.setValue(bean, array);
-            return fillArrayValue(array, indexes, elementType);
+            setArrayValue(array, indexes, value);
         } else if (List.class.isAssignableFrom(pd.getPropertyType())) {
             List list = (List) pd.getValue(bean);
             if (list == null) {
@@ -557,7 +563,7 @@ public class S2RequestProcessor extends RequestProcessor {
                     list = (List) list.get(indexes[i]);
                 }
             }
-            return list.get(indexes[indexes.length - 1]);
+            list.set(indexes[indexes.length - 1], value);
         } else {
             throw new IndexedPropertyNotListArrayRuntimeException(
                     getRealClass(beanDesc.getBeanClass()), pd.getPropertyName());
@@ -612,7 +618,7 @@ public class S2RequestProcessor extends RequestProcessor {
     }
 
     /**
-     * 配列の最後の要素を必要なら埋めて値を返します。
+     * 配列の値を返します。
      * 
      * @param array
      *            配列
@@ -622,7 +628,7 @@ public class S2RequestProcessor extends RequestProcessor {
      *            配列の要素の型
      * @return 配列の値
      */
-    protected Object fillArrayValue(Object array, int[] indexes,
+    protected Object getArrayValue(Object array, int[] indexes,
             Class<?> elementType) {
         Object value = array;
         elementType = convertClass(elementType);
@@ -635,6 +641,23 @@ public class S2RequestProcessor extends RequestProcessor {
             value = value2;
         }
         return value;
+    }
+
+    /**
+     * 配列の値を返します。
+     * 
+     * @param array
+     *            配列
+     * @param indexes
+     *            インデックスの配列
+     * @param value
+     *            値
+     */
+    protected void setArrayValue(Object array, int[] indexes, Object value) {
+        for (int i = 0; i < indexes.length - 1; i++) {
+            array = Array.get(array, indexes[i]);
+        }
+        Array.set(array, indexes[indexes.length - 1], value);
     }
 
     /**
