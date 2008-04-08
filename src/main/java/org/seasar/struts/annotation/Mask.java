@@ -50,6 +50,12 @@ public @interface Mask {
     Arg arg0() default @Arg(key = "");
 
     /**
+     * メッセージの引数の配列です。
+     * 
+     */
+    Arg[] args() default {};
+
+    /**
      * 検証の対象となるメソッド名を指定します。 複数ある場合はカンマで区切ります。
      * 
      */
