@@ -29,11 +29,14 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.struts.Globals;
 import org.apache.struts.config.ModuleConfig;
 import org.apache.struts.upload.CommonsMultipartRequestHandler;
 import org.apache.struts.upload.FormFile;
+import org.apache.struts.upload.MultipartRequestHandler;
 import org.apache.struts.upload.MultipartRequestWrapper;
 
 /**
@@ -43,6 +46,13 @@ import org.apache.struts.upload.MultipartRequestWrapper;
  * 
  */
 public class S2MultipartRequestHandler extends CommonsMultipartRequestHandler {
+
+    /**
+     * ファイルアップロードでサイズオーバーの例外をリクエストの属性に格納するときのキーです。
+     */
+    public static final String SIZE_EXCEPTION_KEY = S2MultipartRequestHandler.class
+            .getName()
+            + ".EXCEPTION";
 
     /**
      * テキストとファイルのパラメータです。
@@ -68,23 +78,25 @@ public class S2MultipartRequestHandler extends CommonsMultipartRequestHandler {
             throws ServletException {
         ModuleConfig ac = (ModuleConfig) request
                 .getAttribute(Globals.MODULE_KEY);
-        S2ServletFileUpload upload = new S2ServletFileUpload(
+        ServletFileUpload upload = new ServletFileUpload(
                 new DiskFileItemFactory((int) getSizeThreshold(ac), new File(
                         getRepositoryPath(ac))));
-        // The following line is to support an "EncodingFilter"
-        // see http://nagoya.apache.org/bugzilla/show_bug.cgi?id=23255
         upload.setHeaderEncoding(request.getCharacterEncoding());
-        // Set the maximum size before a FileUploadException will be thrown.
         upload.setSizeMax(getSizeMax(ac));
-
-        // Create the hash tables to be populated.
         elementsText = new Hashtable();
         elementsFile = new Hashtable();
         elementsAll = new Hashtable();
-
         List items = null;
         try {
             items = upload.parseRequest(request);
+        } catch (SizeLimitExceededException e) {
+            request.setAttribute(
+                    MultipartRequestHandler.ATTRIBUTE_MAX_LENGTH_EXCEEDED,
+                    Boolean.TRUE);
+            request.setAttribute(
+                    SIZE_EXCEPTION_KEY,
+                    e);
+            return;
         } catch (FileUploadException e) {
             log.error("Failed to parse multipart request", e);
             throw new ServletException(e);
