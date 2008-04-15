@@ -38,6 +38,78 @@ public class S2FormTag extends FormTag {
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * onkeypressのイベントを定義します。
+     */
+    protected String onkeypress;
+
+    /**
+     * onkeyupのイベントを定義します。
+     */
+    protected String onkeyup;
+
+    /**
+     * onkeydownのイベントを定義します。
+     */
+    protected String onkeydown;
+
+    /**
+     * onkeypressのイベント定義を返します。
+     * 
+     * @return onkeypressのイベント定義
+     */
+    public String getOnkeypress() {
+        return onkeypress;
+    }
+
+    /**
+     * onkeypressのイベント定義を設定します。
+     * 
+     * @param onkeypress
+     *            onkeypressのイベント定義
+     */
+    public void setOnkeypress(String onkeypress) {
+        this.onkeypress = onkeypress;
+    }
+
+    /**
+     * onkeyupのイベント定義を返します。
+     * 
+     * @return onkeyupのイベント定義
+     */
+    public String getOnkeyup() {
+        return onkeyup;
+    }
+
+    /**
+     * onkeyupのイベント定義を設定します。
+     * 
+     * @param onkeyup
+     *            onkeyupのイベント定義
+     */
+    public void setOnkeyup(String onkeyup) {
+        this.onkeyup = onkeyup;
+    }
+
+    /**
+     * onkeydownのイベント定義を返します。
+     * 
+     * @return onkeydownのイベント定義
+     */
+    public String getOnkeydown() {
+        return onkeydown;
+    }
+
+    /**
+     * onkeydownのイベント定義を設定します。
+     * 
+     * @param onkeydown
+     *            onkeydownのイベント定義
+     */
+    public void setOnkeydown(String onkeydown) {
+        this.onkeydown = onkeydown;
+    }
+
     @Override
     protected void lookup() throws JspException {
         moduleConfig = TagUtils.getInstance().getModuleConfig(pageContext);
@@ -100,4 +172,21 @@ public class S2FormTag extends FormTag {
         results.append(response.encodeURL(value.toString()));
         results.append("\"");
     }
+
+    @Override
+    public void release() {
+        super.release();
+        onkeypress = null;
+        onkeyup = null;
+        onkeydown = null;
+    }
+
+    @Override
+    protected void renderOtherAttributes(StringBuffer results) {
+        super.renderOtherAttributes(results);
+        renderAttribute(results, "onkeypress", onkeypress);
+        renderAttribute(results, "onkeyup", onkeyup);
+        renderAttribute(results, "onkeydown", onkeydown);
+    }
+
 }
