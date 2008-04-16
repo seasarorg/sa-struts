@@ -15,8 +15,11 @@
  */
 package org.seasar.struts.util;
 
+import org.apache.struts.Globals;
 import org.seasar.extension.unit.S2TestCase;
+import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
+import org.seasar.struts.config.S2ModuleConfig;
 
 /**
  * @author higa
@@ -30,5 +33,20 @@ public class S2ExecuteConfigUtilTest extends S2TestCase {
     public void testExecuteConfig() throws Exception {
         S2ExecuteConfigUtil.setExecuteConfig(new S2ExecuteConfig());
         assertNotNull(S2ExecuteConfigUtil.getExecuteConfig());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testFindExecuteConfig() throws Exception {
+        S2ModuleConfig moduleConfig = new S2ModuleConfig("");
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        actionMapping.setPath("/aaa");
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setMethod(getClass().getMethod("getClass"));
+        actionMapping.addExecuteConfig(executeConfig);
+        moduleConfig.addActionConfig(actionMapping);
+        getServletContext().setAttribute(Globals.MODULE_KEY, moduleConfig);
+        assertNotNull(S2ExecuteConfigUtil.findExecuteConfig("/aaa", "getClass"));
     }
 }

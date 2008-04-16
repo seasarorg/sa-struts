@@ -14,12 +14,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.framework.util.StringUtil;
-import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
-import org.seasar.struts.config.S2ModuleConfig;
 import org.seasar.struts.util.RequestUtil;
 import org.seasar.struts.util.RoutingUtil;
-import org.seasar.struts.util.S2ModuleConfigUtil;
+import org.seasar.struts.util.S2ExecuteConfigUtil;
 
 /**
  * リクエストされたURLを適切なアクションに振り分けるフィルタです。
@@ -64,15 +62,14 @@ public class RoutingFilter implements Filter {
                                 null, null);
                         return;
                     }
-                    S2ExecuteConfig executeConfig = findExecuteConfig(
-                            actionPath, paramPath);
+                    S2ExecuteConfig executeConfig = S2ExecuteConfigUtil
+                            .findExecuteConfig(actionPath, paramPath);
                     if (executeConfig != null) {
                         forward((HttpServletRequest) request,
                                 (HttpServletResponse) response, actionPath,
                                 paramPath, executeConfig);
                         return;
                     }
-
                 }
                 sb.append(names[i] + "_");
             }
@@ -85,8 +82,8 @@ public class RoutingFilter implements Filter {
                             null);
                     return;
                 }
-                S2ExecuteConfig executeConfig = findExecuteConfig(actionPath,
-                        paramPath);
+                S2ExecuteConfig executeConfig = S2ExecuteConfigUtil
+                        .findExecuteConfig(actionPath, paramPath);
                 if (executeConfig != null) {
                     forward((HttpServletRequest) request,
                             (HttpServletResponse) response, actionPath,
@@ -128,23 +125,6 @@ public class RoutingFilter implements Filter {
             // "Direct access for JSP is not permitted.");
         }
         return true;
-    }
-
-    /**
-     * 実行設定を返します。
-     * 
-     * @param actionPath
-     *            アクションパス
-     * @param paramPath
-     *            パラメータパス
-     * @return 実行設定
-     */
-    protected S2ExecuteConfig findExecuteConfig(String actionPath,
-            String paramPath) {
-        S2ModuleConfig moduleConfig = S2ModuleConfigUtil.getModuleConfig();
-        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
-                .findActionConfig(actionPath);
-        return actionMapping.findExecuteConfig(paramPath);
     }
 
     /**

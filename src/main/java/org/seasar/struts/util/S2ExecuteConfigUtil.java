@@ -15,7 +15,9 @@
  */
 package org.seasar.struts.util;
 
+import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
+import org.seasar.struts.config.S2ModuleConfig;
 
 /**
  * Seasar2の実行設定に関するユーティリティです。
@@ -47,5 +49,22 @@ public final class S2ExecuteConfigUtil {
      */
     public static void setExecuteConfig(S2ExecuteConfig executeConfig) {
         RequestUtil.getRequest().setAttribute(KEY, executeConfig);
+    }
+
+    /**
+     * 実行設定を探します。
+     * 
+     * @param actionPath
+     *            アクションパス
+     * @param paramPath
+     *            パラメータパス
+     * @return 実行設定
+     */
+    public static S2ExecuteConfig findExecuteConfig(String actionPath,
+            String paramPath) {
+        S2ModuleConfig moduleConfig = S2ModuleConfigUtil.getModuleConfig();
+        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
+                .findActionConfig(actionPath);
+        return actionMapping.findExecuteConfig(paramPath);
     }
 }

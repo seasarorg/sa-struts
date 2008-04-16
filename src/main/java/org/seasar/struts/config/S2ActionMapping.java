@@ -136,14 +136,34 @@ public class S2ActionMapping extends ActionMapping {
             if (container.hasComponentDef(sb + names[i] + "Action")) {
                 String actionPath = RoutingUtil.getActionPath(names, i);
                 String paramPath = RoutingUtil.getParamPath(names, i + 1);
-                return actionPath + ".do"
-                        + getQueryString(queryString, actionPath, paramPath);
+                if (StringUtil.isEmpty(paramPath)) {
+                    return actionPath
+                            + ".do"
+                            + getQueryString(queryString, actionPath, paramPath);
+                }
+                S2ExecuteConfig executeConfig = S2ExecuteConfigUtil
+                        .findExecuteConfig(actionPath, paramPath);
+                if (executeConfig != null) {
+                    return actionPath
+                            + ".do"
+                            + getQueryString(queryString, actionPath, paramPath);
+                }
             }
             sb.append(names[i] + "_");
         }
         if (container.hasComponentDef("indexAction")) {
-            return "/index.do"
-                    + getQueryString(queryString, "/", path.substring(1));
+            String actionPath = "/";
+            String paramPath = RoutingUtil.getParamPath(names, 0);
+            if (StringUtil.isEmpty(paramPath)) {
+                return "/index.do"
+                        + getQueryString(queryString, actionPath, paramPath);
+            }
+            S2ExecuteConfig executeConfig = S2ExecuteConfigUtil
+                    .findExecuteConfig(actionPath, paramPath);
+            if (executeConfig != null) {
+                return "/index.do"
+                        + getQueryString(queryString, actionPath, paramPath);
+            }
         }
         return originalPath;
     }

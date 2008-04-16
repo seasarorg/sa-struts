@@ -149,6 +149,28 @@ public class S2ActionMappingTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testCreateRoutingPath_nest() throws Exception {
+        register(MySubmit.class, "aaa_submitAction");
+        customizer.customize(getComponentDef("aaa_submitAction"));
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        assertEquals("/aaa/submit.do?aaa=1&id=2&SAStruts.method=hoge",
+                actionMapping.createRoutingPath("/aaa/submit/hoge/2?aaa=1"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testCreateRoutingPath_index() throws Exception {
+        register(MyAction.class, "indexAction");
+        customizer.customize(getComponentDef("indexAction"));
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        assertEquals("/index.do?hoge=1&id=2&SAStruts.method=submit",
+                actionMapping.createRoutingPath("/submit/2?hoge=1"));
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testCreateForward_jsp() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
         ComponentDef cd = new ComponentDefImpl(MyAction.class, "aaaAction");
@@ -447,6 +469,11 @@ public class S2ActionMappingTest extends S2TestCase {
         /**
          * 
          */
+        public String id;
+
+        /**
+         * 
+         */
         public MyActionForm myActionForm;
 
         /**
@@ -454,6 +481,25 @@ public class S2ActionMappingTest extends S2TestCase {
          */
         @Execute(validator = false, urlPattern = "submit/{id}")
         public String submit() {
+            return "hoge.jsp";
+        }
+    }
+
+    /**
+     * 
+     */
+    public static class MySubmit {
+
+        /**
+         * 
+         */
+        public String id;
+
+        /**
+         * @return
+         */
+        @Execute(validator = false, urlPattern = "hoge/{id}")
+        public String hoge() {
             return "hoge.jsp";
         }
     }
