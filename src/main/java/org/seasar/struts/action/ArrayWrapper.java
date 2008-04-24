@@ -72,7 +72,13 @@ public class ArrayWrapper implements List {
     }
 
     public boolean contains(Object o) {
-        throw new UnsupportedOperationException("contains");
+        for (int i = 0; i < length; i++) {
+            Object o2 = get(i);
+            if (o != null && o.equals(o2) || o == null && o2 == null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean containsAll(Collection c) {
@@ -84,7 +90,13 @@ public class ArrayWrapper implements List {
     }
 
     public int indexOf(Object o) {
-        throw new UnsupportedOperationException("indexOf");
+        for (int i = 0; i < length; i++) {
+            Object o2 = get(i);
+            if (o != null && o.equals(o2) || o == null && o2 == null) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public boolean isEmpty() {

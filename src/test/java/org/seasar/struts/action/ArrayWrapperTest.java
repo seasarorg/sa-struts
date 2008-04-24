@@ -83,4 +83,40 @@ public class ArrayWrapperTest extends TestCase {
         ArrayWrapper wrapper = new ArrayWrapper(new int[] {});
         assertEquals("[]", wrapper.toString());
     }
+
+    /**
+     * @throws Exception
+     */
+    public void testContains() throws Exception {
+        ArrayWrapper wrapper = new ArrayWrapper(new int[] { 1 });
+        assertTrue(wrapper.contains(1));
+        assertFalse(wrapper.contains(0));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testContains_null() throws Exception {
+        ArrayWrapper wrapper = new ArrayWrapper(new Integer[] { null });
+        assertTrue(wrapper.contains(null));
+        assertFalse(wrapper.contains(0));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testIndexOf() throws Exception {
+        ArrayWrapper wrapper = new ArrayWrapper(new int[] { 1 });
+        assertEquals(0, wrapper.indexOf(1));
+        assertEquals(-1, wrapper.indexOf(0));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testIndexOf_null() throws Exception {
+        ArrayWrapper wrapper = new ArrayWrapper(new Integer[] { null });
+        assertEquals(0, wrapper.indexOf(null));
+        assertEquals(-1, wrapper.indexOf(0));
+    }
 }
