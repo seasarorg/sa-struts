@@ -117,9 +117,12 @@ public class RoutingFilter implements Filter {
         if (!jspDirectAccess
                 && ((HttpServletRequest) request).getMethod().equalsIgnoreCase(
                         "get") && path.endsWith(".jsp")) {
+            String message = "Direct access for JSP is not permitted.";
+            if (path.endsWith("index.jsp")) {
+                message += " Remove \"index.jsp\" from welcome-file-list of (default) \"web.xml\".";
+            }
             ((HttpServletResponse) response).sendError(
-                    HttpServletResponse.SC_BAD_REQUEST,
-                    "Direct access for JSP is not permitted.");
+                    HttpServletResponse.SC_BAD_REQUEST, message);
             return false;
             // throw new ServletException(
             // "Direct access for JSP is not permitted.");

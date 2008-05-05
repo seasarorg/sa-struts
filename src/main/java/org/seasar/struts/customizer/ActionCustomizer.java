@@ -48,7 +48,7 @@ import org.seasar.struts.config.S2ModuleConfig;
 import org.seasar.struts.exception.ExecuteMethodNotFoundRuntimeException;
 import org.seasar.struts.exception.IllegalExecuteMethodRuntimeException;
 import org.seasar.struts.exception.IllegalValidateMethodRuntimeException;
-import org.seasar.struts.exception.InputNotDefinedRuntimeException;
+import org.seasar.struts.exception.IllegalValidatorOfExecuteMethodRuntimeException;
 import org.seasar.struts.exception.MultipleAllSelectedUrlPatternRuntimeException;
 import org.seasar.struts.util.ActionUtil;
 import org.seasar.struts.util.MessageResourcesUtil;
@@ -140,7 +140,7 @@ public class ActionCustomizer implements ComponentCustomizer {
                         .input() : null;
                 if ((execute.validator() || validateMethod != null)
                         && input == null) {
-                    throw new InputNotDefinedRuntimeException(actionClass, m
+                    throw new IllegalValidatorOfExecuteMethodRuntimeException(actionClass, m
                             .getName());
                 }
                 S2ExecuteConfig executeConfig = new S2ExecuteConfig();

@@ -45,7 +45,7 @@ import org.seasar.struts.enums.SaveType;
 import org.seasar.struts.exception.ExecuteMethodNotFoundRuntimeException;
 import org.seasar.struts.exception.IllegalExecuteMethodRuntimeException;
 import org.seasar.struts.exception.IllegalValidateMethodRuntimeException;
-import org.seasar.struts.exception.InputNotDefinedRuntimeException;
+import org.seasar.struts.exception.IllegalValidatorOfExecuteMethodRuntimeException;
 import org.seasar.struts.exception.MultipleAllSelectedUrlPatternRuntimeException;
 import org.seasar.struts.util.S2PropertyMessageResourcesFactory;
 import org.seasar.struts.util.ValidatorResourcesUtil;
@@ -235,7 +235,7 @@ public class ActionCustomizerTest extends S2TestCase {
         try {
             customizer.createActionMapping(getComponentDef("aaa_fffAction"));
             fail();
-        } catch (InputNotDefinedRuntimeException e) {
+        } catch (IllegalValidatorOfExecuteMethodRuntimeException e) {
             System.out.println(e);
             assertEquals(FffAction.class, e.getActionClass());
             assertEquals("execute", e.getExecuteMethodName());

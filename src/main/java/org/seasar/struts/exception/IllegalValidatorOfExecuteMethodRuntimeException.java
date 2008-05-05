@@ -24,7 +24,7 @@ import org.seasar.framework.exception.SRuntimeException;
  * @author higa
  * 
  */
-public class InputNotDefinedRuntimeException extends SRuntimeException {
+public class IllegalValidatorOfExecuteMethodRuntimeException extends SRuntimeException {
 
     private static final long serialVersionUID = 1L;
 
@@ -40,7 +40,7 @@ public class InputNotDefinedRuntimeException extends SRuntimeException {
      * @param executeMethodName
      *            実行メソッド名
      */
-    public InputNotDefinedRuntimeException(Class<?> actionClass,
+    public IllegalValidatorOfExecuteMethodRuntimeException(Class<?> actionClass,
             String executeMethodName) {
         super("ESAS0005", new Object[] { actionClass.getName(),
                 executeMethodName });
