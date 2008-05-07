@@ -17,6 +17,7 @@ package org.seasar.struts.config;
 
 import java.lang.reflect.Method;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.struts.action.ActionForward;
@@ -26,6 +27,7 @@ import org.seasar.framework.beans.PropertyDesc;
 import org.seasar.framework.beans.factory.BeanDescFactory;
 import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.S2Container;
+import org.seasar.framework.container.SingletonS2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.framework.util.ArrayMap;
 import org.seasar.framework.util.StringUtil;
@@ -44,6 +46,8 @@ public class S2ActionMapping extends ActionMapping {
     private static final long serialVersionUID = 1L;
 
     private static final String REDIRECT = "redirect=true";
+
+    private static final String VIEW_PREFIX = "sastruts.VIEW_PREFIX";
 
     /**
      * コンポーネント定義です。
@@ -109,6 +113,13 @@ public class S2ActionMapping extends ActionMapping {
             }
             if (path.indexOf('.') < 0 && !redirect) {
                 path = createRoutingPath(path);
+            } else {
+                ServletContext sc = SingletonS2Container
+                        .getComponent(ServletContext.class);
+                String viewPrefix = sc.getInitParameter(VIEW_PREFIX);
+                if (!StringUtil.isBlank(viewPrefix)) {
+                    path = viewPrefix.trim() + path;
+                }
             }
         }
         return new ActionForward(path, redirect);
