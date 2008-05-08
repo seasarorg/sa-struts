@@ -44,11 +44,30 @@ public class RoutingFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
+        HttpServletResponse res = (HttpServletResponse) response;
+        String contextPath = req.getContextPath();
+        if (contextPath.equals("/")) {
+            contextPath = "";
+        }
         String path = RequestUtil.getPath(req);
         if (!processDirectAccess(request, response, chain, path)) {
             return;
         }
         if (path.indexOf('.') < 0) {
+            int index = path.lastIndexOf('?');
+            if (index < 0) {
+                if (!path.endsWith("/")) {
+                    res.sendRedirect(contextPath + path + "/");
+                    return;
+                }
+            } else {
+                String path2 = path.substring(1, index);
+                String queryString = path.substring(index);
+                if (!path2.endsWith("/")) {
+                    res.sendRedirect(contextPath + path2 + "/" + queryString);
+                    return;
+                }
+            }
             String[] names = StringUtil.split(path, "/");
             S2Container container = SingletonS2ContainerFactory.getContainer();
             StringBuilder sb = new StringBuilder(50);
@@ -124,8 +143,6 @@ public class RoutingFilter implements Filter {
             ((HttpServletResponse) response).sendError(
                     HttpServletResponse.SC_BAD_REQUEST, message);
             return false;
-            // throw new ServletException(
-            // "Direct access for JSP is not permitted.");
         }
         return true;
     }
