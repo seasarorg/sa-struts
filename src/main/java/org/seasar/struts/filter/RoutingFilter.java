@@ -54,19 +54,13 @@ public class RoutingFilter implements Filter {
             return;
         }
         if (path.indexOf('.') < 0) {
-            int index = path.lastIndexOf('?');
-            if (index < 0) {
-                if (!path.endsWith("/")) {
-                    res.sendRedirect(contextPath + path + "/");
-                    return;
+            if (!path.endsWith("/")) {
+                String queryString = "";
+                if (req.getQueryString() != null) {
+                    queryString = "?" + req.getQueryString();
                 }
-            } else {
-                String path2 = path.substring(1, index);
-                String queryString = path.substring(index);
-                if (!path2.endsWith("/")) {
-                    res.sendRedirect(contextPath + path2 + "/" + queryString);
-                    return;
-                }
+                res.sendRedirect(contextPath + path + "/" + queryString);
+                return;
             }
             String[] names = StringUtil.split(path, "/");
             S2Container container = SingletonS2ContainerFactory.getContainer();

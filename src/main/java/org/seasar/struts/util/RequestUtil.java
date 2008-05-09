@@ -58,9 +58,19 @@ public final class RequestUtil {
      */
     public static String getPath(HttpServletRequest request) {
         String path = request.getPathInfo();
-        if (!StringUtil.isEmpty(path)) {
+        if (StringUtil.isEmpty(path)) {
+            path = request.getServletPath();
+        }
+        if (path == null) {
+            return null;
+        }
+        String viewPrefix = ServletContextUtil.getViewPrefix();
+        if (viewPrefix == null) {
             return path;
         }
-        return request.getServletPath();
+        if (path.startsWith(viewPrefix)) {
+            path = path.substring(viewPrefix.length());
+        }
+        return path;
     }
 }

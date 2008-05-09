@@ -112,8 +112,8 @@ public class S2ActionMapping extends ActionMapping {
                 path = createRoutingPath(path);
             } else {
                 String viewPrefix = ServletContextUtil.getViewPrefix();
-                if (!StringUtil.isBlank(viewPrefix)) {
-                    path = viewPrefix.trim() + path;
+                if (viewPrefix != null) {
+                    path = viewPrefix + path;
                 }
             }
         }

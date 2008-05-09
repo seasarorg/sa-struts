@@ -29,4 +29,14 @@ public class RequestUtilTest extends S2TestCase {
     public void testGetRequest() throws Exception {
         assertNotNull(RequestUtil.getRequest());
     }
+
+    /**
+     * @throws Exception
+     */
+    public void testGetPath_viewPath() throws Exception {
+        getRequest().setPathInfo("/WEB-INF/jsp/hoge.jsp");
+        getServletContext().setInitParameter("sastruts.VIEW_PREFIX",
+                "/WEB-INF/jsp");
+        assertEquals("/hoge.jsp", RequestUtil.getPath());
+    }
 }

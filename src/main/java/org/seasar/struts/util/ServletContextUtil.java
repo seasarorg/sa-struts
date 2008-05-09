@@ -18,6 +18,7 @@ package org.seasar.struts.util;
 import javax.servlet.ServletContext;
 
 import org.seasar.framework.container.SingletonS2Container;
+import org.seasar.framework.util.StringUtil;
 
 /**
  * サーブレットコンテキストに関するユーティリティです。
@@ -47,6 +48,10 @@ public final class ServletContextUtil {
      * @return Viewプレフィックス
      */
     public static String getViewPrefix() {
-        return getServletContext().getInitParameter(VIEW_PREFIX);
+        String viewPrefix = getServletContext().getInitParameter(VIEW_PREFIX);
+        if (StringUtil.isBlank(viewPrefix)) {
+            return null;
+        }
+        return viewPrefix.trim();
     }
 }
