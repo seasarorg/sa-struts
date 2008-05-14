@@ -269,6 +269,22 @@ public class S2ActionMappingTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testCreateForward_redirect_viewPrefix() throws Exception {
+        getServletContext().setInitParameter("sastruts.VIEW_PREFIX",
+        "/WEB-INF/jsp");
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        ComponentDef cd = new ComponentDefImpl(MyAction.class, "aaaAction");
+        actionMapping.setComponentDef(cd);
+        ActionForward forward = actionMapping
+                .createForward("/bbb/ccc?redirect=true");
+        assertNotNull(forward);
+        assertEquals("view prefix must be ignored on redirection", "/bbb/ccc", forward.getPath());
+        assertTrue(forward.getRedirect());
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testCreateForward_routing() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
         actionMapping.setComponentDef(getComponentDef(MyAction.class));

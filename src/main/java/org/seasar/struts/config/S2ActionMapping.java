@@ -108,12 +108,14 @@ public class S2ActionMapping extends ActionMapping {
             if (!path.startsWith("/")) {
                 path = getActionPath(componentDef.getComponentName()) + path;
             }
-            if (path.indexOf('.') < 0 && !redirect) {
-                path = createRoutingPath(path);
-            } else {
-                String viewPrefix = ServletContextUtil.getViewPrefix();
-                if (viewPrefix != null) {
-                    path = viewPrefix + path;
+            if (!redirect) {
+                if (path.indexOf('.') < 0) {
+                    path = createRoutingPath(path);
+                } else {
+                    String viewPrefix = ServletContextUtil.getViewPrefix();
+                    if (viewPrefix != null) {
+                        path = viewPrefix + path;
+                    }
                 }
             }
         }
