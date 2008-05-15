@@ -45,7 +45,7 @@ import org.seasar.struts.enums.SaveType;
 import org.seasar.struts.exception.ExecuteMethodNotFoundRuntimeException;
 import org.seasar.struts.exception.IllegalExecuteMethodRuntimeException;
 import org.seasar.struts.exception.IllegalValidateMethodRuntimeException;
-import org.seasar.struts.exception.IllegalValidatorOfExecuteMethodRuntimeException;
+import org.seasar.struts.exception.InputNotFoundRuntimeException;
 import org.seasar.struts.exception.MultipleAllSelectedUrlPatternRuntimeException;
 import org.seasar.struts.util.S2PropertyMessageResourcesFactory;
 import org.seasar.struts.util.ValidatorResourcesUtil;
@@ -225,21 +225,6 @@ public class ActionCustomizerTest extends S2TestCase {
         } catch (ExecuteMethodNotFoundRuntimeException e) {
             System.out.println(e);
             assertEquals(EeeAction.class, e.getTargetClass());
-        }
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testSetupMethod_inputNotDefined() throws Exception {
-        register(FffAction.class, "aaa_fffAction");
-        try {
-            customizer.createActionMapping(getComponentDef("aaa_fffAction"));
-            fail();
-        } catch (IllegalValidatorOfExecuteMethodRuntimeException e) {
-            System.out.println(e);
-            assertEquals(FffAction.class, e.getActionClass());
-            assertEquals("execute", e.getExecuteMethodName());
         }
     }
 
@@ -432,7 +417,8 @@ public class ActionCustomizerTest extends S2TestCase {
         forms.put("execute", form);
         Field field = BbbAction.class.getDeclaredField("hoge");
         Required r = field.getAnnotation(Required.class);
-        customizer.processAnnotation("hoge", r, validatorResources, forms);
+        customizer.processValidatorAnnotation("hoge", r, validatorResources,
+                forms);
         assertNotNull(form.getField("hoge"));
     }
 
@@ -449,6 +435,9 @@ public class ActionCustomizerTest extends S2TestCase {
         org.apache.commons.validator.Field f = form.getField("hoge");
         assertEquals("hoge", f.getProperty());
         assertEquals("required", f.getDepends());
+        S2ExecuteConfig executeConfig = actionMapping
+                .getExecuteConfig("execute2");
+        assertTrue(executeConfig.isValidator());
     }
 
     /**
@@ -466,6 +455,21 @@ public class ActionCustomizerTest extends S2TestCase {
         validatorResources.addConstant("hoge", "bbb");
         assertEquals("bbb", customizer.resolveKey("${hoge}", false, props,
                 validatorResources));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testCheckInput() throws Exception {
+        register(FffAction.class, "aaa_fffAction");
+        try {
+            customizer.customize(getComponentDef("aaa_fffAction"));
+            fail();
+        } catch (InputNotFoundRuntimeException e) {
+            System.out.println(e);
+            assertEquals(FffAction.class, e.getActionClass());
+            assertEquals("execute", e.getExecuteMethodName());
+        }
     }
 
     /**
@@ -493,7 +497,7 @@ public class ActionCustomizerTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute(validator = false, validate = "validate", input = "/aaa/input2.jsp", roles = "admin,user", stopOnValidationError = false)
+        @Execute(validate = "validate", input = "/aaa/input2.jsp", roles = "admin,user", stopOnValidationError = false)
         public String execute() {
             return "input2.jsp";
         }
@@ -533,7 +537,7 @@ public class ActionCustomizerTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute(validator = false)
+        @Execute
         public String execute() {
             return "success";
         }
@@ -629,7 +633,7 @@ public class ActionCustomizerTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute(validator = false, urlPattern = "{id}")
+        @Execute(urlPattern = "{id}")
         public String index() {
             return "start.jsp";
         }
@@ -637,7 +641,7 @@ public class ActionCustomizerTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute(validator = false)
+        @Execute
         public String execute() {
             return "execute.jsp";
         }
@@ -650,7 +654,7 @@ public class ActionCustomizerTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute(validator = false, urlPattern = "{id}")
+        @Execute(urlPattern = "{id}")
         public String index() {
             return "start.jsp";
         }
@@ -658,7 +662,7 @@ public class ActionCustomizerTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute(validator = false, urlPattern = "{id2}")
+        @Execute(urlPattern = "{id2}")
         public String execute() {
             return "execute.jsp";
         }
@@ -672,7 +676,7 @@ public class ActionCustomizerTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute(validator = false)
+        @Execute
         public String execute2() {
             return "execute.jsp";
         }

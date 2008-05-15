@@ -50,7 +50,7 @@ public class S2ExecuteConfig implements Serializable {
     /**
      * バリデータを呼び出すかどうかです。
      */
-    protected boolean validator = true;
+    protected boolean validator = false;
 
     /**
      * 検証メソッドです。
