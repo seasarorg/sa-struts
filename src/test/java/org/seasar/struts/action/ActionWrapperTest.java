@@ -441,7 +441,7 @@ public class ActionWrapperTest extends S2TestCase {
          */
         @Execute(validate = "validate", input = "input.jsp", stopOnValidationError = false)
         public String execute() {
-            return "success";
+            return "result.jsp";
         }
 
         /**
