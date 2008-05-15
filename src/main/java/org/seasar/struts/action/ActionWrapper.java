@@ -98,19 +98,29 @@ public class ActionWrapper extends Action {
      */
     protected ActionForward execute(HttpServletRequest request,
             S2ExecuteConfig executeConfig) {
+        ActionMessages errors = new ActionMessages();
         if (executeConfig.isValidator()) {
-            ActionMessages errors = validate(request, executeConfig);
-            if (errors != null && !errors.isEmpty()) {
-                return processErrors(errors, request, executeConfig);
+            ActionMessages errors2 = validate(request, executeConfig);
+            if (errors2 != null && !errors2.isEmpty()) {
+                errors.add(errors2);
+                if (executeConfig.isStopOnValidationError()) {
+                    return processErrors(errors, request, executeConfig);
+                }
             }
         }
         Method validateMethod = executeConfig.getValidateMethod();
         if (validateMethod != null) {
-            ActionMessages errors = (ActionMessages) MethodUtil.invoke(
+            ActionMessages errors2 = (ActionMessages) MethodUtil.invoke(
                     validateMethod, action, null);
-            if (errors != null && !errors.isEmpty()) {
-                return processErrors(errors, request, executeConfig);
+            if (errors2 != null && !errors2.isEmpty()) {
+                errors.add(errors2);
+                if (executeConfig.isStopOnValidationError()) {
+                    return processErrors(errors, request, executeConfig);
+                }
             }
+        }
+        if (!errors.isEmpty()) {
+            return processErrors(errors, request, executeConfig);
         }
         String next = (String) MethodUtil.invoke(executeConfig.getMethod(),
                 action, null);

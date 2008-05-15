@@ -85,20 +85,17 @@ public class ActionWrapperTest extends S2TestCase {
      */
     public void testExecute_validate() throws Exception {
         register(CccAction.class, "cccAction");
-        S2ActionMapping actionMapping = new S2ActionMapping();
-        actionMapping.setComponentDef(getComponentDef("cccAction"));
-        Method m = CccAction.class.getDeclaredMethod("execute");
-        Method m2 = CccAction.class.getDeclaredMethod("validate");
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
-        executeConfig.setMethod(m);
-        executeConfig.setValidateMethod(m2);
-        executeConfig.setInput("/aaa/input.jsp");
-        S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
+        ActionCustomizer customizer = new ActionCustomizer();
+        customizer.customize(getComponentDef("cccAction"));
+        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
+                .findActionConfig("/ccc");
+        S2ExecuteConfigUtil.setExecuteConfig(actionMapping
+                .findExecuteConfig(getRequest()));
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
         ForwardConfig forward = wrapper.execute(actionMapping, null,
                 getRequest(), getResponse());
         assertNotNull(forward);
-        assertEquals("/aaa/input.jsp", forward.getPath());
+        assertEquals("/ccc/input.jsp", forward.getPath());
         assertNotNull(getRequest().getAttribute(Globals.ERROR_KEY));
     }
 
@@ -106,18 +103,18 @@ public class ActionWrapperTest extends S2TestCase {
      * @throws Exception
      */
     public void testExecute_validator() throws Exception {
-        register(EeeAction.class, "aaa_eeeAction");
+        register(EeeAction.class, "eeeAction");
         ActionCustomizer customizer = new ActionCustomizer();
-        customizer.customize(getComponentDef("aaa_eeeAction"));
+        customizer.customize(getComponentDef("eeeAction"));
         S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
-                .findActionConfig("/aaa/eee");
+                .findActionConfig("/eee/");
         S2ExecuteConfigUtil.setExecuteConfig(actionMapping
                 .findExecuteConfig(getRequest()));
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
         ForwardConfig forward = wrapper.execute(actionMapping, null,
                 getRequest(), getResponse());
         assertNotNull(forward);
-        assertEquals("/aaa/input.jsp", forward.getPath());
+        assertEquals("/eee/input.jsp", forward.getPath());
         assertNotNull(getRequest().getAttribute(Globals.ERROR_KEY));
     }
 
@@ -126,22 +123,43 @@ public class ActionWrapperTest extends S2TestCase {
      */
     public void testExecute_validate_session() throws Exception {
         register(DddAction.class, "dddAction");
-        S2ActionMapping actionMapping = new S2ActionMapping();
-        actionMapping.setComponentDef(getComponentDef("dddAction"));
-        Method m = DddAction.class.getDeclaredMethod("execute");
-        Method m2 = DddAction.class.getDeclaredMethod("validate");
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
-        executeConfig.setMethod(m);
-        executeConfig.setValidateMethod(m2);
-        executeConfig.setSaveErrors(SaveType.SESSION);
-        executeConfig.setInput("/aaa/input.jsp");
-        S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
+        ActionCustomizer customizer = new ActionCustomizer();
+        customizer.customize(getComponentDef("dddAction"));
+        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
+                .findActionConfig("/ddd/");
+        S2ExecuteConfigUtil.setExecuteConfig(actionMapping
+                .findExecuteConfig(getRequest()));
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
         ForwardConfig forward = wrapper.execute(actionMapping, null,
                 getRequest(), getResponse());
         assertNotNull(forward);
-        assertEquals("/aaa/input.jsp", forward.getPath());
+        assertEquals("/ddd/input.jsp", forward.getPath());
         assertNotNull(getRequest().getSession().getAttribute(Globals.ERROR_KEY));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testExecute_stopOnValidationError() throws Exception {
+        register(HhhAction.class, "hhhAction");
+        ActionCustomizer customizer = new ActionCustomizer();
+        customizer.customize(getComponentDef("hhhAction"));
+        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
+                .findActionConfig("/hhh");
+        S2ExecuteConfigUtil.setExecuteConfig(actionMapping
+                .findExecuteConfig(getRequest()));
+        ActionWrapper wrapper = new ActionWrapper(actionMapping);
+        ForwardConfig forward = wrapper.execute(actionMapping, null,
+                getRequest(), getResponse());
+        assertNotNull(forward);
+        assertEquals("/hhh/input.jsp", forward.getPath());
+        ActionMessages errors = (ActionMessages) getRequest().getAttribute(
+                Globals.ERROR_KEY);
+        assertNotNull(errors);
+        assertFalse(errors.isEmpty());
+        assertEquals(2, errors.size());
+        assertNotNull(errors.get("hoge"));
+        assertNotNull(errors.get("hoge2"));
     }
 
     /**
@@ -291,9 +309,9 @@ public class ActionWrapperTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute(validate = "validate")
+        @Execute(validate = "validate", input = "input.jsp")
         public String execute() {
-            return "success";
+            return "result.jsp";
         }
 
         /**
@@ -314,9 +332,9 @@ public class ActionWrapperTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute(validate = "validate", saveErrors = SaveType.SESSION, input = "/aaa/input.jsp")
+        @Execute(validate = "validate", saveErrors = SaveType.SESSION, input = "input.jsp")
         public String execute() {
-            return "success";
+            return "result.jsp";
         }
 
         /**
@@ -343,7 +361,7 @@ public class ActionWrapperTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute(input = "/aaa/input.jsp")
+        @Execute(input = "input.jsp")
         public String execute() {
             return "success";
         }
@@ -404,6 +422,35 @@ public class ActionWrapperTest extends S2TestCase {
         @Execute(input = "/edit/{id}")
         public String execute2() {
             return "execute2.jsp";
+        }
+    }
+
+    /**
+     * 
+     */
+    public static class HhhAction {
+
+        /**
+         * 
+         */
+        @Required
+        public String hoge;
+
+        /**
+         * @return
+         */
+        @Execute(validate = "validate", input = "input.jsp", stopOnValidationError = false)
+        public String execute() {
+            return "success";
+        }
+
+        /**
+         * @return
+         */
+        public ActionMessages validate() {
+            ActionMessages errors = new ActionMessages();
+            errors.add("hoge2", new ActionMessage("errors.required", "hoge"));
+            return errors;
         }
     }
 

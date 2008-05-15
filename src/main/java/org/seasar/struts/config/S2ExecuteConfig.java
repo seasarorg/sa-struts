@@ -98,6 +98,12 @@ public class S2ExecuteConfig implements Serializable {
     protected String[] roles;
 
     /**
+     * trueの場合、バリデータや検証メソッドで検証エラーがあるとそこで検証がとまります。
+     * falseの場合、検証エラーがあっても後続の検証を続行します。 どちらの場合も検証エラーがあると実行メソッドは呼び出されません。
+     */
+    protected boolean stopOnValidationError = true;
+
+    /**
      * インスタンスを構築します。
      * 
      * @param method
@@ -341,6 +347,25 @@ public class S2ExecuteConfig implements Serializable {
      */
     public void setRoles(String[] roles) {
         this.roles = roles;
+    }
+
+    /**
+     * 検証エラーがあった場合にそこで検証をやめるかどうかを返します。
+     * 
+     * @return 検証エラーがあった場合にそこで検証をやめるかどうか
+     */
+    public boolean isStopOnValidationError() {
+        return stopOnValidationError;
+    }
+
+    /**
+     * 検証エラーがあった場合にそこで検証をやめるかどうかを設定します。
+     * 
+     * @param stopOnValidationError
+     *            検証エラーがあった場合にそこで検証をやめるかどうか
+     */
+    public void setStopOnValidationError(boolean stopOnValidationError) {
+        this.stopOnValidationError = stopOnValidationError;
     }
 
     /**

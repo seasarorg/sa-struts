@@ -157,6 +157,7 @@ public class ActionCustomizerTest extends S2TestCase {
         assertEquals("admin", roles[0]);
         assertEquals("user", roles[1]);
         assertEquals(2, actionMapping.getExecuteConfigSize());
+        assertFalse(executeConfig.isStopOnValidationError());
     }
 
     /**
@@ -492,7 +493,7 @@ public class ActionCustomizerTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute(validator = false, validate = "validate", input = "/aaa/input2.jsp", roles = "admin,user")
+        @Execute(validator = false, validate = "validate", input = "/aaa/input2.jsp", roles = "admin,user", stopOnValidationError = false)
         public String execute() {
             return "input2.jsp";
         }

@@ -140,8 +140,8 @@ public class ActionCustomizer implements ComponentCustomizer {
                         .input() : null;
                 if ((execute.validator() || validateMethod != null)
                         && input == null) {
-                    throw new IllegalValidatorOfExecuteMethodRuntimeException(actionClass, m
-                            .getName());
+                    throw new IllegalValidatorOfExecuteMethodRuntimeException(
+                            actionClass, m.getName());
                 }
                 S2ExecuteConfig executeConfig = new S2ExecuteConfig();
                 executeConfig.setMethod(m);
@@ -154,6 +154,8 @@ public class ActionCustomizer implements ComponentCustomizer {
                 if (!StringUtil.isEmpty(roles)) {
                     executeConfig.setRoles(StringUtil.split(roles, ", "));
                 }
+                executeConfig.setStopOnValidationError(execute
+                        .stopOnValidationError());
                 if (executeConfig.isUrlPatternAllSelected()) {
                     if (allSelectedExecuteConfig != null) {
                         throw new MultipleAllSelectedUrlPatternRuntimeException(

@@ -67,4 +67,11 @@ public @interface Execute {
      * 
      */
     String roles() default "";
+
+    /**
+     * trueの場合、バリデータや検証メソッドで検証エラーがあるとそこで検証がとまります。
+     * falseの場合、検証エラーがあっても後続の検証を続行します。 どちらの場合も検証エラーがあると実行メソッドは呼び出されません。
+     * 
+     */
+    boolean stopOnValidationError() default true;
 }
