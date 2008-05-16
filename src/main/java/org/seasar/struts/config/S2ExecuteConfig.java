@@ -48,14 +48,9 @@ public class S2ExecuteConfig implements Serializable {
     protected Method method;
 
     /**
-     * バリデータを呼び出すかどうかです。
-     */
-    protected boolean validator = true;
-
-    /**
      * 検証メソッドです。
      */
-    protected Method validateMethod;
+    protected List<S2ValidationConfig> validationConfigs;
 
     /**
      * エラーメッセージの保存場所です。
@@ -148,36 +143,33 @@ public class S2ExecuteConfig implements Serializable {
      * @return バリデータを呼び出すかどうか
      */
     public boolean isValidator() {
-        return validator;
+        if (validationConfigs != null) {
+            for (S2ValidationConfig cfg : validationConfigs) {
+                if (cfg.isValidator()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
-     * バリデータを呼び出すかどうかを設定します。
+     * 検証設定のリストを返します。
      * 
-     * @param validator
-     *            バリデータを呼び出すかどうか
+     * @return 検証設定のリスト
      */
-    public void setValidator(boolean validator) {
-        this.validator = validator;
+    public List<S2ValidationConfig> getValidationConfigs() {
+        return validationConfigs;
     }
 
     /**
-     * 検証メソッドを返します。
+     * 検証設定のリストを設定します。
      * 
-     * @return 検証メソッド
+     * @param validationConfigs
+     *            検証設定のリスト
      */
-    public Method getValidateMethod() {
-        return validateMethod;
-    }
-
-    /**
-     * 検証メソッドを設定します。
-     * 
-     * @param validateMethod
-     *            検証メソッド
-     */
-    public void setValidateMethod(Method validateMethod) {
-        this.validateMethod = validateMethod;
+    public void setValidationConfigs(List<S2ValidationConfig> validationConfigs) {
+        this.validationConfigs = validationConfigs;
     }
 
     /**

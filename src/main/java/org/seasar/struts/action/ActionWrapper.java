@@ -15,7 +15,7 @@
  */
 package org.seasar.struts.action;
 
-import java.lang.reflect.Method;
+import java.util.List;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -35,6 +35,7 @@ import org.seasar.framework.beans.PropertyDesc;
 import org.seasar.framework.util.MethodUtil;
 import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
+import org.seasar.struts.config.S2ValidationConfig;
 import org.seasar.struts.enums.SaveType;
 import org.seasar.struts.util.ActionFormUtil;
 import org.seasar.struts.util.S2ExecuteConfigUtil;
@@ -99,23 +100,27 @@ public class ActionWrapper extends Action {
     protected ActionForward execute(HttpServletRequest request,
             S2ExecuteConfig executeConfig) {
         ActionMessages errors = new ActionMessages();
-        if (executeConfig.isValidator()) {
-            ActionMessages errors2 = validate(request, executeConfig);
-            if (errors2 != null && !errors2.isEmpty()) {
-                errors.add(errors2);
-                if (executeConfig.isStopOnValidationError()) {
-                    return processErrors(errors, request, executeConfig);
-                }
-            }
-        }
-        Method validateMethod = executeConfig.getValidateMethod();
-        if (validateMethod != null) {
-            ActionMessages errors2 = (ActionMessages) MethodUtil.invoke(
-                    validateMethod, action, null);
-            if (errors2 != null && !errors2.isEmpty()) {
-                errors.add(errors2);
-                if (executeConfig.isStopOnValidationError()) {
-                    return processErrors(errors, request, executeConfig);
+        List<S2ValidationConfig> validationConfigs = executeConfig
+                .getValidationConfigs();
+        if (validationConfigs != null) {
+            for (S2ValidationConfig cfg : validationConfigs) {
+                if (cfg.isValidator()) {
+                    ActionMessages errors2 = validate(request, executeConfig);
+                    if (errors2 != null && !errors2.isEmpty()) {
+                        errors.add(errors2);
+                        if (executeConfig.isStopOnValidationError()) {
+                            return processErrors(errors, request, executeConfig);
+                        }
+                    }
+                } else {
+                    ActionMessages errors2 = (ActionMessages) MethodUtil
+                            .invoke(cfg.getValidateMethod(), action, null);
+                    if (errors2 != null && !errors2.isEmpty()) {
+                        errors.add(errors2);
+                        if (executeConfig.isStopOnValidationError()) {
+                            return processErrors(errors, request, executeConfig);
+                        }
+                    }
                 }
             }
         }

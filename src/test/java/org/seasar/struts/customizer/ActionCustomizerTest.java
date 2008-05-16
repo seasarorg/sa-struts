@@ -148,7 +148,7 @@ public class ActionCustomizerTest extends S2TestCase {
         assertNotNull(executeConfig);
         assertNotNull(executeConfig.getMethod());
         assertFalse(executeConfig.isValidator());
-        assertNotNull(executeConfig.getValidateMethod());
+        assertEquals(1, executeConfig.getValidationConfigs().size());
         assertEquals(SaveType.REQUEST, executeConfig.getSaveErrors());
         assertEquals("/aaa/input2.jsp", executeConfig.getInput());
         String[] roles = executeConfig.getRoles();

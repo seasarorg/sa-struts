@@ -15,6 +15,8 @@
  */
 package org.seasar.struts.config;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 
 import org.seasar.extension.unit.S2TestCase;
@@ -196,5 +198,21 @@ public class S2ExecuteConfigTest extends S2TestCase {
         getRequest().setAttribute("id2", "222");
         assertEquals("edit/111/222", executeConfig
                 .getParameterResolvedInput(getRequest()));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testIsValidator() throws Exception {
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        assertFalse(executeConfig.isValidator());
+        List<S2ValidationConfig> validationConfigs = new ArrayList<S2ValidationConfig>();
+        executeConfig.setValidationConfigs(validationConfigs);
+        assertFalse(executeConfig.isValidator());
+        validationConfigs.add(new S2ValidationConfig(getClass().getMethod(
+                "getClass")));
+        assertFalse(executeConfig.isValidator());
+        validationConfigs.add(new S2ValidationConfig());
+        assertTrue(executeConfig.isValidator());
     }
 }

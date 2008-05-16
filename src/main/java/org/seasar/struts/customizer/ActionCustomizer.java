@@ -18,8 +18,10 @@ package org.seasar.struts.customizer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.validator.Form;
@@ -45,11 +47,13 @@ import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.config.S2FormBeanConfig;
 import org.seasar.struts.config.S2ModuleConfig;
+import org.seasar.struts.config.S2ValidationConfig;
 import org.seasar.struts.exception.ExecuteMethodNotFoundRuntimeException;
 import org.seasar.struts.exception.IllegalExecuteMethodRuntimeException;
 import org.seasar.struts.exception.IllegalValidateMethodRuntimeException;
 import org.seasar.struts.exception.IllegalValidatorOfExecuteMethodRuntimeException;
 import org.seasar.struts.exception.MultipleAllSelectedUrlPatternRuntimeException;
+import org.seasar.struts.exception.UnmatchValidatorAndValidateRuntimeException;
 import org.seasar.struts.util.ActionUtil;
 import org.seasar.struts.util.MessageResourcesUtil;
 import org.seasar.struts.util.S2ModuleConfigUtil;
@@ -63,6 +67,11 @@ import org.seasar.struts.validator.S2ValidatorResources;
  * 
  */
 public class ActionCustomizer implements ComponentCustomizer {
+
+    /**
+     * バリデータをあらわします。
+     */
+    protected static final String VALIDATOR = "@";
 
     public void customize(ComponentDef componentDef) {
         S2ActionMapping actionMapping = createActionMapping(componentDef);
@@ -121,34 +130,48 @@ public class ActionCustomizer implements ComponentCustomizer {
                     throw new IllegalExecuteMethodRuntimeException(actionClass,
                             m.getName());
                 }
-                Method validateMethod = null;
-                String validate = execute.validate();
-                if (!StringUtil.isEmpty(validate)) {
-                    validateMethod = actionMapping.getActionBeanDesc()
-                            .getMethod(validate);
-                    if (validateMethod.getParameterTypes().length > 0
-                            || !ActionMessages.class
-                                    .isAssignableFrom(validateMethod
-                                            .getReturnType())) {
-                        throw new IllegalValidateMethodRuntimeException(
-                                actionClass, validateMethod.getName());
-
-                    }
-
-                }
                 String input = !StringUtil.isEmpty(execute.input()) ? execute
                         .input() : null;
-                if ((execute.validator() || validateMethod != null)
-                        && input == null) {
+                S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+                executeConfig.setMethod(m);
+                executeConfig.setSaveErrors(execute.saveErrors());
+                executeConfig.setInput(input);
+                List<S2ValidationConfig> validationConfigs = new ArrayList<S2ValidationConfig>();
+                String validate = execute.validate();
+                boolean validator = false;
+                if (!StringUtil.isEmpty(validate)) {
+                    BeanDesc beanDesc = actionMapping.getActionBeanDesc();
+                    for (String name : StringUtil.split(validate, ", ")) {
+                        if (VALIDATOR.equals(name)) {
+                            if (!execute.validator()) {
+                                throw new UnmatchValidatorAndValidateRuntimeException(
+                                        actionClass, m.getName());
+                            }
+                            validationConfigs.add(new S2ValidationConfig());
+                            validator = true;
+                        } else {
+                            Method validateMethod = beanDesc.getMethod(name);
+                            if (validateMethod.getParameterTypes().length > 0
+                                    || !ActionMessages.class
+                                            .isAssignableFrom(validateMethod
+                                                    .getReturnType())) {
+                                throw new IllegalValidateMethodRuntimeException(
+                                        actionClass, validateMethod.getName());
+
+                            }
+                            validationConfigs.add(new S2ValidationConfig(
+                                    validateMethod));
+                        }
+                    }
+                }
+                if (!validator && execute.validator()) {
+                    validationConfigs.add(0, new S2ValidationConfig());
+                }
+                if (!validationConfigs.isEmpty() && input == null) {
                     throw new IllegalValidatorOfExecuteMethodRuntimeException(
                             actionClass, m.getName());
                 }
-                S2ExecuteConfig executeConfig = new S2ExecuteConfig();
-                executeConfig.setMethod(m);
-                executeConfig.setValidator(execute.validator());
-                executeConfig.setValidateMethod(validateMethod);
-                executeConfig.setSaveErrors(execute.saveErrors());
-                executeConfig.setInput(input);
+                executeConfig.setValidationConfigs(validationConfigs);
                 executeConfig.setUrlPattern(execute.urlPattern());
                 String roles = execute.roles().trim();
                 if (!StringUtil.isEmpty(roles)) {
