@@ -525,7 +525,7 @@ public class S2ActionMappingTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute(urlPattern = "submit/{id}")
+        @Execute(validator = false, urlPattern = "submit/{id}")
         public String submit() {
             return "hoge.jsp";
         }

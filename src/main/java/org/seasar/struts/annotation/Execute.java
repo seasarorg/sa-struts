@@ -35,10 +35,7 @@ public @interface Execute {
     /**
      * バリデータを呼び出すかどうかです。
      * 
-     * 1.0.3-rc3以降から自動で設定されるようになったので設定する必要がなくなりました。
-     * 
      */
-    @Deprecated
     boolean validator() default true;
 
     /**

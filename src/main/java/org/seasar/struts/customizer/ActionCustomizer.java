@@ -48,7 +48,7 @@ import org.seasar.struts.config.S2ModuleConfig;
 import org.seasar.struts.exception.ExecuteMethodNotFoundRuntimeException;
 import org.seasar.struts.exception.IllegalExecuteMethodRuntimeException;
 import org.seasar.struts.exception.IllegalValidateMethodRuntimeException;
-import org.seasar.struts.exception.InputNotFoundRuntimeException;
+import org.seasar.struts.exception.IllegalValidatorOfExecuteMethodRuntimeException;
 import org.seasar.struts.exception.MultipleAllSelectedUrlPatternRuntimeException;
 import org.seasar.struts.util.ActionUtil;
 import org.seasar.struts.util.MessageResourcesUtil;
@@ -73,7 +73,6 @@ public class ActionCustomizer implements ComponentCustomizer {
         S2ValidatorResources validatorResources = ValidatorResourcesUtil
                 .getValidatorResources();
         setupValidator(actionMapping, validatorResources);
-        checkInput(actionMapping);
     }
 
     /**
@@ -139,8 +138,14 @@ public class ActionCustomizer implements ComponentCustomizer {
                 }
                 String input = !StringUtil.isEmpty(execute.input()) ? execute
                         .input() : null;
+                if ((execute.validator() || validateMethod != null)
+                        && input == null) {
+                    throw new IllegalValidatorOfExecuteMethodRuntimeException(
+                            actionClass, m.getName());
+                }
                 S2ExecuteConfig executeConfig = new S2ExecuteConfig();
                 executeConfig.setMethod(m);
+                executeConfig.setValidator(execute.validator());
                 executeConfig.setValidateMethod(validateMethod);
                 executeConfig.setSaveErrors(execute.saveErrors());
                 executeConfig.setInput(input);
@@ -250,9 +255,11 @@ public class ActionCustomizer implements ComponentCustomizer {
             S2ValidatorResources validatorResources) {
         Map<String, Form> forms = new HashMap<String, Form>();
         for (String methodName : actionMapping.getExecuteMethodNames()) {
-            Form form = new Form();
-            form.setName(actionMapping.getName() + "_" + methodName);
-            forms.put(methodName, form);
+            if (actionMapping.getExecuteConfig(methodName).isValidator()) {
+                Form form = new Form();
+                form.setName(actionMapping.getName() + "_" + methodName);
+                forms.put(methodName, form);
+            }
         }
         BeanDesc beanDesc = actionMapping.getActionFormBeanDesc();
         for (int i = 0; i < beanDesc.getPropertyDescSize(); i++) {
@@ -262,23 +269,18 @@ public class ActionCustomizer implements ComponentCustomizer {
                 continue;
             }
             for (Annotation anno : field.getDeclaredAnnotations()) {
-                processValidatorAnnotation(pd.getPropertyName(), anno,
+                processAnnotation(pd.getPropertyName(), anno,
                         validatorResources, forms);
             }
         }
-        for (String name : forms.keySet()) {
-            Form form = forms.get(name);
-            if (form.getFields().size() > 0) {
-                validatorResources.addForm(form);
-                S2ExecuteConfig executeConfig = actionMapping
-                        .getExecuteConfig(name);
-                executeConfig.setValidator(true);
-            }
+        for (Iterator<Form> i = forms.values().iterator(); i.hasNext();) {
+            validatorResources.addForm(i.next());
         }
+
     }
 
     /**
-     * 検証用のアノテーションを処理します。
+     * アノテーションを処理します。
      * 
      * 
      * @param propertyName
@@ -290,7 +292,7 @@ public class ActionCustomizer implements ComponentCustomizer {
      * @param forms
      *            メソッド名をキーにしたフォームのマップ
      */
-    protected void processValidatorAnnotation(String propertyName,
+    protected void processAnnotation(String propertyName,
             Annotation annotation, S2ValidatorResources validatorResources,
             Map<String, Form> forms) {
         Class<? extends Annotation> annotationType = annotation
@@ -490,25 +492,5 @@ public class ActionCustomizer implements ComponentCustomizer {
             }
         }
         return false;
-    }
-
-    /**
-     * 検証が必要なときにinput属性が指定されているかどうかチェックします。
-     * 
-     * @param actionMapping
-     *            アクションマッピング
-     */
-    protected void checkInput(S2ActionMapping actionMapping) {
-        for (String methodName : actionMapping.getExecuteMethodNames()) {
-            S2ExecuteConfig executeConfig = actionMapping
-                    .getExecuteConfig(methodName);
-            if ((executeConfig.isValidator() || executeConfig
-                    .getValidateMethod() != null)
-                    && executeConfig.getInput() == null) {
-                throw new InputNotFoundRuntimeException(
-                        actionMapping.getComponentDef().getComponentClass(),
-                        methodName);
-            }
-        }
     }
 }
