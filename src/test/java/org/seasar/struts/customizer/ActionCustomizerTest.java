@@ -41,12 +41,14 @@ import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.config.S2FormBeanConfig;
 import org.seasar.struts.config.S2ModuleConfig;
+import org.seasar.struts.config.S2ValidationConfig;
 import org.seasar.struts.enums.SaveType;
 import org.seasar.struts.exception.ExecuteMethodNotFoundRuntimeException;
 import org.seasar.struts.exception.IllegalExecuteMethodRuntimeException;
 import org.seasar.struts.exception.IllegalValidateMethodRuntimeException;
 import org.seasar.struts.exception.IllegalValidatorOfExecuteMethodRuntimeException;
 import org.seasar.struts.exception.MultipleAllSelectedUrlPatternRuntimeException;
+import org.seasar.struts.exception.UnmatchValidatorAndValidateRuntimeException;
 import org.seasar.struts.util.S2PropertyMessageResourcesFactory;
 import org.seasar.struts.util.ValidatorResourcesUtil;
 import org.seasar.struts.validator.S2ValidatorResources;
@@ -156,8 +158,28 @@ public class ActionCustomizerTest extends S2TestCase {
         assertEquals(2, roles.length);
         assertEquals("admin", roles[0]);
         assertEquals("user", roles[1]);
-        assertEquals(2, actionMapping.getExecuteConfigSize());
+        assertEquals(3, actionMapping.getExecuteConfigSize());
         assertFalse(executeConfig.isStopOnValidationError());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testSetupMethod_multiValidation() throws Exception {
+        S2ActionMapping actionMapping = customizer
+                .createActionMapping(getComponentDef("aaa_bbbAction"));
+        S2ExecuteConfig executeConfig = actionMapping
+                .getExecuteConfig("execute3");
+        assertNotNull(executeConfig);
+        assertTrue(executeConfig.isValidator());
+        List<S2ValidationConfig> configs = executeConfig.getValidationConfigs();
+        assertEquals(3, configs.size());
+        assertFalse(configs.get(0).isValidator());
+        assertNotNull(configs.get(0).getValidateMethod());
+        assertTrue(configs.get(1).isValidator());
+        assertNull(configs.get(1).getValidateMethod());
+        assertFalse(configs.get(2).isValidator());
+        assertNotNull(configs.get(2).getValidateMethod());
     }
 
     /**
@@ -270,6 +292,21 @@ public class ActionCustomizerTest extends S2TestCase {
             System.out.println(e);
             assertEquals(HhhAction.class, e.getTargetClass());
             assertEquals("validate", e.getMethodName());
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testSetupMethod_unmatchValidatorAndValidate() throws Exception {
+        register(LllAction.class, "lllAction");
+        try {
+            customizer.createActionMapping(getComponentDef("lllAction"));
+            fail();
+        } catch (UnmatchValidatorAndValidateRuntimeException e) {
+            System.out.println(e);
+            assertEquals(LllAction.class, e.getActionClass());
+            assertEquals("execute", e.getExecuteMethodName());
         }
     }
 
@@ -509,7 +546,22 @@ public class ActionCustomizerTest extends S2TestCase {
         /**
          * @return
          */
+        @Execute(validator = true, validate = "validate, @, validate2", input = "/aaa/input.jsp")
+        public String execute3() {
+            return "input.jsp";
+        }
+
+        /**
+         * @return
+         */
         public ActionMessages validate() {
+            return null;
+        }
+
+        /**
+         * @return
+         */
+        public ActionMessages validate2() {
             return null;
         }
 
@@ -674,6 +726,20 @@ public class ActionCustomizerTest extends S2TestCase {
          */
         @Execute(validator = false)
         public String execute2() {
+            return "execute.jsp";
+        }
+    }
+
+    /**
+     * 
+     */
+    public static class LllAction {
+
+        /**
+         * @return
+         */
+        @Execute(validator = false, validate = "@")
+        public String execute() {
             return "execute.jsp";
         }
     }

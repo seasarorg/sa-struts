@@ -241,6 +241,55 @@ public class ActionWrapperTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testValidate_multiValidation() throws Exception {
+        register(IiiAction.class, "iiiAction");
+        ActionCustomizer customizer = new ActionCustomizer();
+        customizer.customize(getComponentDef("iiiAction"));
+        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
+                .findActionConfig("/iii/");
+        IiiAction action = (IiiAction) getComponent(IiiAction.class);
+        action.validate = true;
+        ActionWrapper wrapper = new ActionWrapper(actionMapping);
+        ActionMessages errors = wrapper.validate(getRequest(), actionMapping
+                .getExecuteConfig("execute"));
+        assertNotNull(errors.get("hoge2"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testValidate_multiValidation2() throws Exception {
+        register(IiiAction.class, "iiiAction");
+        ActionCustomizer customizer = new ActionCustomizer();
+        customizer.customize(getComponentDef("iiiAction"));
+        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
+                .findActionConfig("/iii/");
+        ActionWrapper wrapper = new ActionWrapper(actionMapping);
+        ActionMessages errors = wrapper.validate(getRequest(), actionMapping
+                .getExecuteConfig("execute"));
+        assertNotNull(errors.get("hoge"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testValidate_multiValidation3() throws Exception {
+        register(IiiAction.class, "iiiAction");
+        ActionCustomizer customizer = new ActionCustomizer();
+        customizer.customize(getComponentDef("iiiAction"));
+        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
+                .findActionConfig("/iii/");
+        IiiAction action = (IiiAction) getComponent(IiiAction.class);
+        action.hoge = "111";
+        ActionWrapper wrapper = new ActionWrapper(actionMapping);
+        ActionMessages errors = wrapper.validate(getRequest(), actionMapping
+                .getExecuteConfig("execute"));
+        assertNotNull(errors.get("hoge3"));
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testInputForward() throws Exception {
         register(GggAction.class, "aaa_gggAction");
         ActionCustomizer customizer = new ActionCustomizer();
@@ -450,6 +499,49 @@ public class ActionWrapperTest extends S2TestCase {
         public ActionMessages validate() {
             ActionMessages errors = new ActionMessages();
             errors.add("hoge2", new ActionMessage("errors.required", "hoge"));
+            return errors;
+        }
+    }
+
+    /**
+     * 
+     */
+    public static class IiiAction {
+
+        boolean validate = false;
+
+        /**
+         * 
+         */
+        @Required
+        public String hoge;
+
+        /**
+         * @return
+         */
+        @Execute(validator = true, validate = "validate, @, validate2", input = "input.jsp")
+        public String execute() {
+            return "result.jsp";
+        }
+
+        /**
+         * @return
+         */
+        public ActionMessages validate() {
+            ActionMessages errors = new ActionMessages();
+            if (validate) {
+                errors.add("hoge2",
+                        new ActionMessage("errors.required", "hoge"));
+            }
+            return errors;
+        }
+
+        /**
+         * @return
+         */
+        public ActionMessages validate2() {
+            ActionMessages errors = new ActionMessages();
+            errors.add("hoge3", new ActionMessage("errors.required", "hoge"));
             return errors;
         }
     }
