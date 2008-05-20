@@ -169,7 +169,7 @@ public class ActionWrapper extends Action {
         BeanDesc beanDesc = actionMapping.getActionFormBeanDesc();
         for (int i = 0; i < beanDesc.getPropertyDescSize(); i++) {
             PropertyDesc pd = beanDesc.getPropertyDesc(i);
-            if (isExportable(pd.getPropertyType())) {
+            if (isExportable(pd)) {
                 Object value = WrapperUtil.convert(pd.getValue(actionForm));
                 if (value != null) {
                     request.setAttribute(pd.getPropertyName(), value);
@@ -179,7 +179,7 @@ public class ActionWrapper extends Action {
         beanDesc = actionMapping.getActionBeanDesc();
         for (int i = 0; i < beanDesc.getPropertyDescSize(); i++) {
             PropertyDesc pd = beanDesc.getPropertyDesc(i);
-            if (isExportable(pd.getPropertyType())) {
+            if (isExportable(pd)) {
                 Object value = WrapperUtil.convert(pd.getValue(action));
                 if (value != null) {
                     request.setAttribute(pd.getPropertyName(), value);
@@ -191,12 +191,16 @@ public class ActionWrapper extends Action {
     /**
      * リクエストに設定可能かどうかを返します。
      * 
-     * @param clazz
-     *            クラス
+     * @param propertyDesc
+     *            プロパティ記述
      * @return リクエストに設定可能かどうか
      */
-    protected boolean isExportable(Class<?> clazz) {
-        return !clazz.getName().startsWith("javax.servlet");
+    protected boolean isExportable(PropertyDesc propertyDesc) {
+        return !propertyDesc.getPropertyType().getName().startsWith(
+                "javax.servlet")
+                && !propertyDesc.getPropertyName().equals("requestScope")
+                && !propertyDesc.getPropertyName().equals("sessionScope")
+                && !propertyDesc.getPropertyName().equals("appplicationScope");
     }
 
     /**

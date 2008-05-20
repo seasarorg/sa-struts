@@ -17,6 +17,7 @@ package org.seasar.struts.action;
 
 import java.lang.reflect.Method;
 import java.util.Enumeration;
+import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -176,6 +177,7 @@ public class ActionWrapperTest extends S2TestCase {
         wrapper.execute(actionMapping, null, getRequest(), getResponse());
         assertEquals("111", getRequest().getAttribute("hoge"));
         assertNull(getRequest().getAttribute("request"));
+        assertNull(getRequest().getAttribute("requestScope"));
     }
 
     /**
@@ -333,6 +335,11 @@ public class ActionWrapperTest extends S2TestCase {
          * 
          */
         public HttpServletRequest request;
+
+        /**
+         * 
+         */
+        public Map<String, Object> requestScope;
 
         /**
          * @return
