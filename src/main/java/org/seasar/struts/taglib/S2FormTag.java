@@ -26,7 +26,11 @@ import org.apache.struts.action.ActionServlet;
 import org.apache.struts.config.FormBeanConfig;
 import org.apache.struts.taglib.TagUtils;
 import org.apache.struts.taglib.html.FormTag;
+import org.seasar.framework.container.S2Container;
+import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
+import org.seasar.framework.util.StringUtil;
 import org.seasar.struts.util.RequestUtil;
+import org.seasar.struts.util.RoutingUtil;
 
 /**
  * Seasar2用のFormTagです。
@@ -164,11 +168,23 @@ public class S2FormTag extends FormTag {
                 s = s + "/";
             }
             value.append(s);
+        } else {
+            String[] names = StringUtil.split(action, "/");
+            S2Container container = SingletonS2ContainerFactory.getContainer();
+            StringBuilder sb = new StringBuilder(50);
+            for (int i = 0; i < names.length; i++) {
+                if (container.hasComponentDef(sb + names[i] + "Action")) {
+                    String actionPath = RoutingUtil.getActionPath(names, i);
+                    String paramPath = RoutingUtil.getParamPath(names, i + 1);
+                    if (StringUtil.isEmpty(paramPath)) {
+                        action = actionPath + "/";
+                        break;
+                    }
+                }
+                sb.append(names[i] + "_");
+            }
         }
         value.append(action);
-        if (!action.endsWith("/")) {
-            value.append("/");
-        }
         results.append(response.encodeURL(value.toString()));
         results.append("\"");
     }

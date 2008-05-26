@@ -60,7 +60,7 @@ public class RoutingUtilTest extends S2TestCase {
      * @throws Exception
      */
     public void testGetParamPath_index() throws Exception {
-        String[] names = StringUtil.split("/higayasuo/edit/", "/");
+        String[] names = StringUtil.split("/higayasuo/edit", "/");
         assertEquals("higayasuo/edit", RoutingUtil.getParamPath(names, 0));
     }
 }

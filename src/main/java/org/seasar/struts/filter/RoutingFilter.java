@@ -54,14 +54,6 @@ public class RoutingFilter implements Filter {
             return;
         }
         if (path.indexOf('.') < 0) {
-            if (!path.endsWith("/")) {
-                String queryString = "";
-                if (req.getQueryString() != null) {
-                    queryString = "?" + req.getQueryString();
-                }
-                res.sendRedirect(contextPath + path + "/" + queryString);
-                return;
-            }
             String[] names = StringUtil.split(path, "/");
             S2Container container = SingletonS2ContainerFactory.getContainer();
             StringBuilder sb = new StringBuilder(50);
@@ -70,9 +62,18 @@ public class RoutingFilter implements Filter {
                     String actionPath = RoutingUtil.getActionPath(names, i);
                     String paramPath = RoutingUtil.getParamPath(names, i + 1);
                     if (StringUtil.isEmpty(paramPath)) {
-                        forward((HttpServletRequest) request,
-                                (HttpServletResponse) response, actionPath,
-                                null, null);
+                        if (path.equals(actionPath)) {
+                            String queryString = "";
+                            if (req.getQueryString() != null) {
+                                queryString = "?" + req.getQueryString();
+                            }
+                            res.sendRedirect(contextPath + path + "/"
+                                    + queryString);
+                        } else {
+                            forward((HttpServletRequest) request,
+                                    (HttpServletResponse) response, actionPath,
+                                    null, null);
+                        }
                         return;
                     }
                     S2ExecuteConfig executeConfig = S2ExecuteConfigUtil
