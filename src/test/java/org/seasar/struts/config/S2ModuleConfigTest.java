@@ -123,6 +123,7 @@ public class S2ModuleConfigTest extends S2TestCase {
                 .setPathInfo("/hello/hello.jsp");
         ActionConfig ac = moduleConfig.findActionConfig("edit/1");
         assertNotNull(ac);
+        assertEquals("/hello", ac.getPath());
     }
 
     /**
@@ -133,5 +134,6 @@ public class S2ModuleConfigTest extends S2TestCase {
         ((MockHttpServletRequestImpl) getRequest()).setPathInfo("/start.jsp");
         ActionConfig ac = moduleConfig.findActionConfig("edit/1");
         assertNotNull(ac);
+        assertEquals("/index", ac.getPath());
     }
 }

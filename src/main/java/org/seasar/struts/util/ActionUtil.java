@@ -51,4 +51,17 @@ public final class ActionUtil {
                 + actionName.replace('_', '/').substring(0,
                         actionName.length() - SUFFIX.length());
     }
+
+    /**
+     * Viewのパスからアクションのパスを計算します。
+     * 
+     * @return アクションのパス
+     */
+    public static String calcActionPath() {
+        String s = RequestUtil.getPath();
+        if (s.indexOf('.') > 0) {
+            s = s.substring(0, s.lastIndexOf('/') + 1);
+        }
+        return s;
+    }
 }

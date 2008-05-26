@@ -22,7 +22,7 @@ import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.framework.util.Disposable;
 import org.seasar.framework.util.DisposableUtil;
 import org.seasar.framework.util.StringUtil;
-import org.seasar.struts.util.RequestUtil;
+import org.seasar.struts.util.ActionUtil;
 import org.seasar.struts.util.RoutingUtil;
 
 /**
@@ -72,13 +72,7 @@ public class S2ModuleConfig extends ModuleConfigImpl implements Disposable {
             initialize();
         }
         if (!path.startsWith("/")) {
-            String s = RequestUtil.getPath();
-            if (s.indexOf('.') > 0) {
-                s = s.substring(0, s.lastIndexOf('/') + 1);
-            } else if (!s.endsWith("/")) {
-                s = s + "/";
-            }
-            path = s + path;
+            path = ActionUtil.calcActionPath() + path;
         }
         ActionConfig ac = (ActionConfig) actionConfigs.get(path);
         if (ac == null) {

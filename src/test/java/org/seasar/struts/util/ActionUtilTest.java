@@ -15,13 +15,13 @@
  */
 package org.seasar.struts.util;
 
-import junit.framework.TestCase;
+import org.seasar.extension.unit.S2TestCase;
 
 /**
  * @author higa
  * 
  */
-public class ActionUtilTest extends TestCase {
+public class ActionUtilTest extends S2TestCase {
 
     /**
      * @throws Exception
@@ -39,5 +39,15 @@ public class ActionUtilTest extends TestCase {
                 .fromActionNameToPath("aaa_bbbAction"));
         assertEquals("/aaa", ActionUtil.fromActionNameToPath("aaaAction"));
         assertEquals("/index", ActionUtil.fromActionNameToPath("indexAction"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testCalcActionPath() throws Exception {
+        getRequest().setPathInfo("/aaa/index.jsp");
+        assertEquals("/aaa/", ActionUtil.calcActionPath());
+        getRequest().setPathInfo("/aaa/");
+        assertEquals("/aaa/", ActionUtil.calcActionPath());
     }
 }
