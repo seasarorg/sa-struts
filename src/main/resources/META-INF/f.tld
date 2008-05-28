@@ -70,4 +70,16 @@
       ${f:br(f:h(textarea))}
     </example>
   </function>
+  
+  <function>
+    <description>
+      Calculates URL.
+    </description>
+    <name>url</name>
+    <function-class>org.seasar.struts.taglib.S2Functions</function-class>
+    <function-signature>java.lang.String url(java.lang.String)</function-signature>
+    <example>
+      &lt;a href="${f:url(param:info)}" ...
+    </example>
+  </function>
 </taglib>

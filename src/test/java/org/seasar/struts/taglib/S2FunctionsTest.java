@@ -15,13 +15,13 @@
  */
 package org.seasar.struts.taglib;
 
-import junit.framework.TestCase;
+import org.seasar.extension.unit.S2TestCase;
 
 /**
  * @author higa
  * 
  */
-public class S2FunctionsTest extends TestCase {
+public class S2FunctionsTest extends S2TestCase {
 
     /**
      * @throws Exception
@@ -164,5 +164,48 @@ public class S2FunctionsTest extends TestCase {
      */
     public void testBrForNull() throws Exception {
         assertEquals("", S2Functions.br(null));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testUrlForNull() throws Exception {
+        getServletContext().setServletContextName("/context");
+        getRequest().setPathInfo("/add/index.jsp");
+        assertEquals("/context/add/", S2Functions.url(null));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testUrlForNullAndContextNameNull() throws Exception {
+        getRequest().setPathInfo("/add/index.jsp");
+        assertEquals("/add/", S2Functions.url(null));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testUrlForAction() throws Exception {
+        register(String.class, "foreachAction");
+        getRequest().setPathInfo("/add/index.jsp");
+        assertEquals("/foreach/", S2Functions.url("/foreach"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testUrlForActionAndParameter() throws Exception {
+        register(String.class, "foreachAction");
+        getRequest().setPathInfo("/add/index.jsp");
+        assertEquals("/add/submit", S2Functions.url("/add/submit"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testUrlForParameter() throws Exception {
+        getRequest().setPathInfo("/add/index.jsp");
+        assertEquals("/add/edit/1", S2Functions.url("edit/1"));
     }
 }

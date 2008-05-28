@@ -21,8 +21,14 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
+import org.seasar.framework.container.S2Container;
+import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.framework.exception.ParseRuntimeException;
 import org.seasar.framework.util.StringUtil;
+import org.seasar.struts.util.ActionUtil;
+import org.seasar.struts.util.RequestUtil;
+import org.seasar.struts.util.ResponseUtil;
+import org.seasar.struts.util.RoutingUtil;
 import org.seasar.struts.util.URLEncoderUtil;
 
 /**
@@ -128,6 +134,44 @@ public class S2Functions {
      */
     public static String u(String input) {
         return URLEncoderUtil.encode(input);
+    }
+
+    /**
+     * URLを計算します。
+     * 
+     * @param input
+     *            入力値
+     * @return エスケープした結果
+     */
+    public static String url(String input) {
+        String contextPath = RequestUtil.getRequest().getContextPath();
+        StringBuilder sb = new StringBuilder();
+        if (contextPath.length() > 1) {
+            sb.append(contextPath);
+        }
+        if (input == null) {
+            sb.append(ActionUtil.calcActionPath());
+        } else if (!input.startsWith("/")) {
+            sb.append(ActionUtil.calcActionPath()).append(input);
+        } else {
+            String[] names = StringUtil.split(input, "/");
+            S2Container container = SingletonS2ContainerFactory.getContainer();
+            StringBuilder sb2 = new StringBuilder(50);
+            String input2 = input;
+            for (int i = 0; i < names.length; i++) {
+                if (container.hasComponentDef(sb2 + names[i] + "Action")) {
+                    String actionPath = RoutingUtil.getActionPath(names, i);
+                    String paramPath = RoutingUtil.getParamPath(names, i + 1);
+                    if (StringUtil.isEmpty(paramPath)) {
+                        input2 = actionPath + "/";
+                        break;
+                    }
+                }
+                sb2.append(names[i] + "_");
+            }
+            sb.append(input2);
+        }
+        return ResponseUtil.getResponse().encodeURL(sb.toString());
     }
 
     /**
