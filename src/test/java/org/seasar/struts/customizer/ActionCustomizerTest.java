@@ -43,6 +43,7 @@ import org.seasar.struts.config.S2FormBeanConfig;
 import org.seasar.struts.config.S2ModuleConfig;
 import org.seasar.struts.config.S2ValidationConfig;
 import org.seasar.struts.enums.SaveType;
+import org.seasar.struts.exception.DuplicateExecuteMethodAndPropertyRuntimeException;
 import org.seasar.struts.exception.ExecuteMethodNotFoundRuntimeException;
 import org.seasar.struts.exception.IllegalExecuteMethodRuntimeException;
 import org.seasar.struts.exception.IllegalValidateMethodRuntimeException;
@@ -307,6 +308,22 @@ public class ActionCustomizerTest extends S2TestCase {
             System.out.println(e);
             assertEquals(LllAction.class, e.getActionClass());
             assertEquals("execute", e.getExecuteMethodName());
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testSetupMethod_duplicateExecuteMethodAndProperty()
+            throws Exception {
+        register(MmmAction.class, "mmmAction");
+        try {
+            customizer.createActionMapping(getComponentDef("mmmAction"));
+            fail();
+        } catch (DuplicateExecuteMethodAndPropertyRuntimeException e) {
+            System.out.println(e);
+            assertEquals(MmmAction.class, e.getActionClass());
+            assertEquals("index", e.getExecuteMethodName());
         }
     }
 
@@ -741,6 +758,25 @@ public class ActionCustomizerTest extends S2TestCase {
         @Execute(validator = false, validate = "@")
         public String execute() {
             return "execute.jsp";
+        }
+    }
+
+    /**
+     * 
+     */
+    public static class MmmAction {
+
+        /**
+         * 
+         */
+        public String index;
+
+        /**
+         * @return
+         */
+        @Execute(validator = false)
+        public String index() {
+            return "index.jsp";
         }
     }
 

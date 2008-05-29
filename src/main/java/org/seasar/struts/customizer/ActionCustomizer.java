@@ -48,6 +48,7 @@ import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.config.S2FormBeanConfig;
 import org.seasar.struts.config.S2ModuleConfig;
 import org.seasar.struts.config.S2ValidationConfig;
+import org.seasar.struts.exception.DuplicateExecuteMethodAndPropertyRuntimeException;
 import org.seasar.struts.exception.ExecuteMethodNotFoundRuntimeException;
 import org.seasar.struts.exception.IllegalExecuteMethodRuntimeException;
 import org.seasar.struts.exception.IllegalValidateMethodRuntimeException;
@@ -98,8 +99,8 @@ public class ActionCustomizer implements ComponentCustomizer {
         actionMapping.setComponentDef(componentDef);
         actionMapping.setName(componentDef.getComponentName() + "Form");
         Class<?> actionClass = componentDef.getComponentClass();
-        setupMethod(actionMapping, actionClass);
         setupActionForm(actionMapping, actionClass);
+        setupMethod(actionMapping, actionClass);
         setupReset(actionMapping, actionClass);
         return actionMapping;
     }
@@ -129,6 +130,11 @@ public class ActionCustomizer implements ComponentCustomizer {
                         || m.getReturnType() != String.class) {
                     throw new IllegalExecuteMethodRuntimeException(actionClass,
                             m.getName());
+                }
+                if (actionMapping.getActionFormBeanDesc().hasPropertyDesc(
+                        m.getName())) {
+                    throw new DuplicateExecuteMethodAndPropertyRuntimeException(
+                            actionClass, m.getName());
                 }
                 String input = !StringUtil.isEmpty(execute.input()) ? execute
                         .input() : null;
