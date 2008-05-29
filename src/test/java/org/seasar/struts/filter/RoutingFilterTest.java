@@ -47,14 +47,15 @@ public class RoutingFilterTest extends S2TestCase {
                 mrf.createResources("SASMessages"));
         getServletContext().setAttribute(ValidatorPlugIn.VALIDATOR_KEY,
                 validatorResources);
-        register(AaaAction.class, "aaaAction");
-        customizer.customize(getComponentDef("aaaAction"));
+
     }
 
     /**
      * @throws Exception
      */
     public void testDoFilter() throws Exception {
+        register(AaaAction.class, "aaaAction");
+        customizer.customize(getComponentDef("aaaAction"));
         RoutingFilter filter = new RoutingFilter();
         ((MockHttpServletRequestImpl) getRequest()).setPathInfo("/aaa");
         filter.doFilter(getRequest(), getResponse(), null);
@@ -64,8 +65,54 @@ public class RoutingFilterTest extends S2TestCase {
      * @throws Exception
      */
     public void testDoFilter_param() throws Exception {
+        register(AaaAction.class, "aaaAction");
+        customizer.customize(getComponentDef("aaaAction"));
         RoutingFilter filter = new RoutingFilter();
         ((MockHttpServletRequestImpl) getRequest()).setPathInfo("/aaa/edit/1");
+        filter.doFilter(getRequest(), getResponse(), null);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testDoFilter_indexAction() throws Exception {
+        register(IndexAction.class, "indexAction");
+        customizer.customize(getComponentDef("indexAction"));
+        RoutingFilter filter = new RoutingFilter();
+        ((MockHttpServletRequestImpl) getRequest()).setPathInfo("/");
+        filter.doFilter(getRequest(), getResponse(), null);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testDoFilter_indexAction_param() throws Exception {
+        register(IndexAction.class, "indexAction");
+        customizer.customize(getComponentDef("indexAction"));
+        RoutingFilter filter = new RoutingFilter();
+        ((MockHttpServletRequestImpl) getRequest()).setPathInfo("/hoge/edit");
+        filter.doFilter(getRequest(), getResponse(), null);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testDoFilter_nestedIndexAction() throws Exception {
+        register(IndexAction.class, "aaa_indexAction");
+        customizer.customize(getComponentDef("aaa_indexAction"));
+        RoutingFilter filter = new RoutingFilter();
+        ((MockHttpServletRequestImpl) getRequest()).setPathInfo("/aaa");
+        filter.doFilter(getRequest(), getResponse(), null);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testDoFilter_nestedIndexAction_param() throws Exception {
+        register(IndexAction.class, "aaa_indexAction");
+        customizer.customize(getComponentDef("aaa_indexAction"));
+        RoutingFilter filter = new RoutingFilter();
+        ((MockHttpServletRequestImpl) getRequest()).setPathInfo("/aaa/1/edit");
         filter.doFilter(getRequest(), getResponse(), null);
     }
 
@@ -85,6 +132,27 @@ public class RoutingFilterTest extends S2TestCase {
          * @return
          */
         @Execute(validator = false, urlPattern = "edit/{id}")
+        public String edit() {
+            return "edit.jsp";
+        }
+    }
+
+    /**
+     * 
+     */
+    public static class IndexAction {
+        /**
+         * @return
+         */
+        @Execute(validator = false)
+        public String index() {
+            return "index.jsp";
+        }
+
+        /**
+         * @return
+         */
+        @Execute(validator = false, urlPattern = "{id}/edit")
         public String edit() {
             return "edit.jsp";
         }

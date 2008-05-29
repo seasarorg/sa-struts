@@ -140,6 +140,30 @@ public class S2ActionMappingTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testGetActionPath() throws Exception {
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        assertEquals("/aaa/", actionMapping.getActionPath("aaaAction"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testGetActionPath_index() throws Exception {
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        assertEquals("/", actionMapping.getActionPath("indexAction"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testGetActionPath_nested_index() throws Exception {
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        assertEquals("/aaa/", actionMapping.getActionPath("aaa_indexAction"));
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testCreateRoutingPath() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
         assertEquals("/aaa.do?hoge=1&id=2&SAStruts.method=submit",
@@ -162,10 +186,28 @@ public class S2ActionMappingTest extends S2TestCase {
      */
     public void testCreateRoutingPath_index() throws Exception {
         register(MyAction.class, "indexAction");
-        customizer.customize(getComponentDef("indexAction"));
+        ComponentDef cd = getComponentDef("indexAction");
+        customizer.customize(cd);
         S2ActionMapping actionMapping = new S2ActionMapping();
-        assertEquals("/index.do?hoge=1&id=2&SAStruts.method=submit",
-                actionMapping.createRoutingPath("/submit/2?hoge=1"));
+        actionMapping.setComponentDef(cd);
+        ActionForward forward = actionMapping.createForward("submit/2?hoge=1");
+        assertEquals("/index.do?hoge=1&id=2&SAStruts.method=submit", forward
+                .getPath());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testCreateRoutingPath_nested_index() throws Exception {
+        register(MyAction.class, "bbb_indexAction");
+        ComponentDef cd = getComponentDef("bbb_indexAction");
+        customizer.customize(cd);
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        actionMapping.setComponentDef(cd);
+        ActionForward forward = actionMapping
+                .createForward("/bbb/submit/2?hoge=1");
+        assertEquals("/bbb/index.do?hoge=1&id=2&SAStruts.method=submit",
+                forward.getPath());
     }
 
     /**
@@ -227,6 +269,20 @@ public class S2ActionMappingTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testCreateForward_jsp_nestedIndex() throws Exception {
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        ComponentDef cd = new ComponentDefImpl(MyAction.class,
+                "bbb_indexAction");
+        actionMapping.setComponentDef(cd);
+        ActionForward forward = actionMapping.createForward("hoge.jsp");
+        assertNotNull(forward);
+        assertEquals("/bbb/hoge.jsp", forward.getPath());
+        assertFalse(forward.getRedirect());
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testCreateForward_redirect() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
         ComponentDef cd = new ComponentDefImpl(MyAction.class, "aaaAction");
@@ -271,14 +327,15 @@ public class S2ActionMappingTest extends S2TestCase {
      */
     public void testCreateForward_redirect_viewPrefix() throws Exception {
         getServletContext().setInitParameter("sastruts.VIEW_PREFIX",
-        "/WEB-INF/jsp");
+                "/WEB-INF/jsp");
         S2ActionMapping actionMapping = new S2ActionMapping();
         ComponentDef cd = new ComponentDefImpl(MyAction.class, "aaaAction");
         actionMapping.setComponentDef(cd);
         ActionForward forward = actionMapping
                 .createForward("/bbb/ccc?redirect=true");
         assertNotNull(forward);
-        assertEquals("view prefix must be ignored on redirection", "/bbb/ccc", forward.getPath());
+        assertEquals("view prefix must be ignored on redirection", "/bbb/ccc",
+                forward.getPath());
         assertTrue(forward.getRedirect());
     }
 

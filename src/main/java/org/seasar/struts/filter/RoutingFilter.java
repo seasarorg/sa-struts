@@ -62,7 +62,35 @@ public class RoutingFilter implements Filter {
                     String actionPath = RoutingUtil.getActionPath(names, i);
                     String paramPath = RoutingUtil.getParamPath(names, i + 1);
                     if (StringUtil.isEmpty(paramPath)) {
-                        if (path.equals(actionPath)) {
+                        if (!path.endsWith("/")) {
+                            String queryString = "";
+                            if (req.getQueryString() != null) {
+                                queryString = "?" + req.getQueryString();
+                            }
+                            res.sendRedirect(contextPath + path + "/"
+                                    + queryString);
+                        } else {
+                            forward((HttpServletRequest) request,
+                                    (HttpServletResponse) response, actionPath,
+                                    null, null);
+                        }
+                        return;
+                    }
+                    S2ExecuteConfig executeConfig = S2ExecuteConfigUtil
+                            .findExecuteConfig(actionPath, paramPath);
+                    if (executeConfig != null) {
+                        forward((HttpServletRequest) request,
+                                (HttpServletResponse) response, actionPath,
+                                paramPath, executeConfig);
+                        return;
+                    }
+                }
+                if (container.hasComponentDef(sb + "indexAction")) {
+                    String actionPath = RoutingUtil.getActionPath(names, i - 1)
+                            + "/index";
+                    String paramPath = RoutingUtil.getParamPath(names, i);
+                    if (StringUtil.isEmpty(paramPath)) {
+                        if (!path.endsWith("/")) {
                             String queryString = "";
                             if (req.getQueryString() != null) {
                                 queryString = "?" + req.getQueryString();
@@ -86,6 +114,34 @@ public class RoutingFilter implements Filter {
                     }
                 }
                 sb.append(names[i] + "_");
+                if (container.hasComponentDef(sb + "indexAction")) {
+                    String actionPath = RoutingUtil.getActionPath(names, i)
+                            + "/index";
+                    String paramPath = RoutingUtil.getParamPath(names, i + 1);
+                    if (StringUtil.isEmpty(paramPath)) {
+                        if (!path.endsWith("/")) {
+                            String queryString = "";
+                            if (req.getQueryString() != null) {
+                                queryString = "?" + req.getQueryString();
+                            }
+                            res.sendRedirect(contextPath + path + "/"
+                                    + queryString);
+                        } else {
+                            forward((HttpServletRequest) request,
+                                    (HttpServletResponse) response, actionPath,
+                                    null, null);
+                        }
+                        return;
+                    }
+                    S2ExecuteConfig executeConfig = S2ExecuteConfigUtil
+                            .findExecuteConfig(actionPath, paramPath);
+                    if (executeConfig != null) {
+                        forward((HttpServletRequest) request,
+                                (HttpServletResponse) response, actionPath,
+                                paramPath, executeConfig);
+                        return;
+                    }
+                }
             }
             if (container.hasComponentDef("indexAction")) {
                 String actionPath = "/index";
@@ -104,7 +160,6 @@ public class RoutingFilter implements Filter {
                             paramPath, executeConfig);
                     return;
                 }
-
             }
         }
         chain.doFilter(request, response);
