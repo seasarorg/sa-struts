@@ -149,7 +149,7 @@ public class S2Functions {
         if (contextPath.length() > 1) {
             sb.append(contextPath);
         }
-        if (input == null) {
+        if (StringUtil.isEmpty(input)) {
             sb.append(ActionUtil.calcActionPath());
         } else if (!input.startsWith("/")) {
             sb.append(ActionUtil.calcActionPath()).append(input);
