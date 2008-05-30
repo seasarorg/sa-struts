@@ -332,6 +332,34 @@ public class S2ActionMapping extends ActionMapping {
         return action;
     }
 
+    /**
+     * プロパティの値を返します。
+     * 
+     * @param name
+     *            プロパティ名
+     * @return プロパティの値
+     */
+    public String getPropertyAsString(String name) {
+        Object target = getActionForm();
+        BeanDesc beanDesc = getActionFormBeanDesc();
+        Object value = null;
+        if (beanDesc.hasPropertyDesc(name)) {
+            value = beanDesc.getPropertyDesc(name).getValue(target);
+        }
+        if (value != null) {
+            return value.toString();
+        }
+        target = getAction();
+        beanDesc = getActionBeanDesc();
+        if (beanDesc.hasPropertyDesc(name)) {
+            value = beanDesc.getPropertyDesc(name).getValue(target);
+        }
+        if (value != null) {
+            return value.toString();
+        }
+        return "null";
+    }
+
     @Override
     public String getType() {
         return componentDef.getComponentClass().getName();

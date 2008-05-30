@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 
 import org.seasar.extension.unit.S2TestCase;
+import org.seasar.struts.annotation.Execute;
 
 /**
  * @author higa
@@ -159,45 +160,27 @@ public class S2ExecuteConfigTest extends S2TestCase {
     /**
      * @throws Exception
      */
-    public void testGetRequestValueAsStringForParameter() throws Exception {
+    public void testResolveInut() throws Exception {
         S2ExecuteConfig executeConfig = new S2ExecuteConfig();
-        getRequest().setParameter("aaa", "111");
-        assertEquals("111", executeConfig.getRequestValueAsString(getRequest(),
-                "aaa"));
+        executeConfig.setInput("edit/{id}");
+        register(AaaAction.class, "aaaAction");
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        actionMapping.setComponentDef(getComponentDef("aaaAction"));
+        AaaAction action = (AaaAction) getComponent("aaaAction");
+        action.id = "111";
+        assertEquals("edit/111", executeConfig.resolveInput(actionMapping));
     }
 
     /**
      * @throws Exception
      */
-    public void testGetRequestValueAsStringForAttribute() throws Exception {
+    public void testResolveInut_null() throws Exception {
         S2ExecuteConfig executeConfig = new S2ExecuteConfig();
-        getRequest().setAttribute("aaa", "222");
-        assertEquals("222", executeConfig.getRequestValueAsString(getRequest(),
-                "aaa"));
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testGetRequestValueAsStringForAttributeAndParameter()
-            throws Exception {
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
-        getRequest().setParameter("aaa", "111");
-        getRequest().setAttribute("aaa", "222");
-        assertEquals("222", executeConfig.getRequestValueAsString(getRequest(),
-                "aaa"));
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testGetParameterResolvedInput() throws Exception {
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
-        executeConfig.setInput("edit/{id}/{id2}");
-        getRequest().setAttribute("id", "111");
-        getRequest().setAttribute("id2", "222");
-        assertEquals("edit/111/222", executeConfig
-                .getParameterResolvedInput(getRequest()));
+        executeConfig.setInput("edit/{id}");
+        register(AaaAction.class, "aaaAction");
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        actionMapping.setComponentDef(getComponentDef("aaaAction"));
+        assertEquals("edit/null", executeConfig.resolveInput(actionMapping));
     }
 
     /**
@@ -214,5 +197,23 @@ public class S2ExecuteConfigTest extends S2TestCase {
         assertFalse(executeConfig.isValidator());
         validationConfigs.add(new S2ValidationConfig());
         assertTrue(executeConfig.isValidator());
+    }
+
+    /**
+     * 
+     */
+    public static class AaaAction {
+        /**
+         * 
+         */
+        public String id;
+
+        /**
+         * @return
+         */
+        @Execute(validator = false)
+        public String index() {
+            return "index.jsp";
+        }
     }
 }

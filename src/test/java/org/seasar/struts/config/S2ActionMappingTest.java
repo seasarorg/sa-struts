@@ -546,6 +546,31 @@ public class S2ActionMappingTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testGetPropertyAsString() throws Exception {
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        actionMapping.setComponentDef(getComponentDef(MyAction.class));
+        MyAction action = (MyAction) getComponent(MyAction.class);
+        action.id = "111";
+        assertEquals("111", actionMapping.getPropertyAsString("id"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testGetPropertyAsString_actionForm() throws Exception {
+        register(MyActionForm.class, "myActionForm");
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        actionMapping.setComponentDef(getComponentDef(MyAction.class));
+        actionMapping.setActionFormPropertyDesc(actionMapping
+                .getActionBeanDesc().getPropertyDesc("myActionForm"));
+        MyActionForm actionForm = (MyActionForm) getComponent(MyActionForm.class);
+        actionForm.aaa = "222";
+        assertEquals("222", actionMapping.getPropertyAsString("aaa"));
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testActionForm_action() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
         actionMapping.setComponentDef(getComponentDef(MyAction.class));
@@ -612,5 +637,9 @@ public class S2ActionMappingTest extends S2TestCase {
      */
     public static class MyActionForm {
 
+        /**
+         * 
+         */
+        public String aaa;
     }
 }

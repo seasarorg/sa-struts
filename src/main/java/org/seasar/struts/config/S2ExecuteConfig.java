@@ -234,36 +234,18 @@ public class S2ExecuteConfig implements Serializable {
     /**
      * パラメータを解決した検証エラー時の遷移先を返します。
      * 
-     * @param request
-     *            リクエスト
+     * @param actionMapping
+     *            アクションマッピング
      * 
      * @return 検証エラー時の遷移先
      */
-    public String getParameterResolvedInput(HttpServletRequest request) {
+    public String resolveInput(S2ActionMapping actionMapping) {
         String s = input;
         for (String name : inputParamNames) {
-            s = s.replace("{" + name + "}", getRequestValueAsString(request,
-                    name));
+            s = s.replace("{" + name + "}", actionMapping
+                    .getPropertyAsString(name));
         }
         return s;
-    }
-
-    /**
-     * リクエストの値を文字列として返します。
-     * 
-     * @param request
-     *            リクエスト
-     * @param name
-     *            名前
-     * @return 文字列としてのリクエストの値
-     */
-    protected String getRequestValueAsString(HttpServletRequest request,
-            String name) {
-        Object value = request.getAttribute(name);
-        if (value != null) {
-            return value.toString();
-        }
-        return request.getParameter(name);
     }
 
     /**
