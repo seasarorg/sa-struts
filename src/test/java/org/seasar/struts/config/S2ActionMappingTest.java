@@ -571,6 +571,15 @@ public class S2ActionMappingTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testGetPropertyAsString_null() throws Exception {
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        actionMapping.setComponentDef(getComponentDef(MyAction.class));
+        assertEquals("null", actionMapping.getPropertyAsString("id"));
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testActionForm_action() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
         actionMapping.setComponentDef(getComponentDef(MyAction.class));

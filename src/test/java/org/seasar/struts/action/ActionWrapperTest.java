@@ -90,14 +90,18 @@ public class ActionWrapperTest extends S2TestCase {
         customizer.customize(getComponentDef("cccAction"));
         S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
                 .findActionConfig("/ccc");
+        getRequest().setParameter("execute", "submit");
         S2ExecuteConfigUtil.setExecuteConfig(actionMapping
                 .findExecuteConfig(getRequest()));
+        CccAction action = (CccAction) getComponent(CccAction.class);
+        action.aaa = "111";
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
         ForwardConfig forward = wrapper.execute(actionMapping, null,
                 getRequest(), getResponse());
         assertNotNull(forward);
-        assertEquals("/ccc/input.jsp", forward.getPath());
+        assertEquals("/ccc.do?SAStruts.method=input", forward.getPath());
         assertNotNull(getRequest().getAttribute(Globals.ERROR_KEY));
+        assertNull(getRequest().getAttribute("aaa"));
     }
 
     /**
@@ -161,6 +165,27 @@ public class ActionWrapperTest extends S2TestCase {
         assertEquals(2, errors.size());
         assertNotNull(errors.get("hoge"));
         assertNotNull(errors.get("hoge2"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testExecute_notExportPropertiesToRequest() throws Exception {
+        ActionCustomizer customizer = new ActionCustomizer();
+        customizer.customize(getComponentDef("bbbAction"));
+        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
+                .findActionConfig("/bbb");
+        getRequest().setParameter("execute3", "submit");
+        S2ExecuteConfigUtil.setExecuteConfig(actionMapping
+                .findExecuteConfig(getRequest()));
+        BbbAction action = (BbbAction) getComponent("bbbAction");
+        action.hoge = "111";
+        ActionWrapper wrapper = new ActionWrapper(actionMapping);
+        ForwardConfig forward = wrapper.execute(actionMapping, null,
+                getRequest(), getResponse());
+        assertNotNull(forward);
+        assertEquals("/bbb/execute", forward.getPath());
+        assertNull(getRequest().getAttribute("hoge"));
     }
 
     /**
@@ -322,6 +347,20 @@ public class ActionWrapperTest extends S2TestCase {
     }
 
     /**
+     * @throws Exception
+     */
+    public void testIsExporablePath() throws Exception {
+        ActionCustomizer customizer = new ActionCustomizer();
+        customizer.customize(getComponentDef(BbbAction.class));
+        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
+                .findActionConfig("/bbb");
+        ActionWrapper wrapper = new ActionWrapper(actionMapping);
+        assertTrue(wrapper.isExporablePath("/hoge.jsp"));
+        assertFalse(wrapper.isExporablePath("/hoge"));
+        assertFalse(wrapper.isExporablePath("/hoge.do"));
+    }
+
+    /**
      * 
      */
     public static class BbbAction {
@@ -344,6 +383,7 @@ public class ActionWrapperTest extends S2TestCase {
         /**
          * @return
          */
+        @Execute(validator = false)
         public String index() {
             hoge = "111";
             return "index.jsp";
@@ -352,8 +392,17 @@ public class ActionWrapperTest extends S2TestCase {
         /**
          * @return
          */
+        @Execute(validator = false)
         public String execute2() {
             return "execute2.jsp";
+        }
+
+        /**
+         * @return
+         */
+        @Execute(validator = false)
+        public String execute3() {
+            return "execute";
         }
     }
 
@@ -363,11 +412,24 @@ public class ActionWrapperTest extends S2TestCase {
     public static class CccAction {
 
         /**
+         * 
+         */
+        public String aaa;
+
+        /**
          * @return
          */
-        @Execute(validate = "validate", input = "input.jsp")
+        @Execute(validate = "validate", input = "input")
         public String execute() {
             return "result.jsp";
+        }
+
+        /**
+         * @return
+         */
+        @Execute(validator = false)
+        public String input() {
+            return "input.jsp";
         }
 
         /**

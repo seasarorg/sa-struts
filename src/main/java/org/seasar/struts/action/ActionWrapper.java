@@ -130,7 +130,7 @@ public class ActionWrapper extends Action {
         String next = (String) MethodUtil.invoke(executeConfig.getMethod(),
                 action, null);
         ActionForward forward = actionMapping.createForward(next);
-        if (forward.getPath() != null && forward.getPath().indexOf(".") > 0) {
+        if (isExporablePath(forward.getPath())) {
             exportPropertiesToRequest(request);
         }
         return forward;
@@ -172,7 +172,7 @@ public class ActionWrapper extends Action {
         BeanDesc beanDesc = actionMapping.getActionFormBeanDesc();
         for (int i = 0; i < beanDesc.getPropertyDescSize(); i++) {
             PropertyDesc pd = beanDesc.getPropertyDesc(i);
-            if (isExportable(pd)) {
+            if (isExportablePath(pd)) {
                 Object value = WrapperUtil.convert(pd.getValue(actionForm));
                 if (value != null) {
                     request.setAttribute(pd.getPropertyName(), value);
@@ -182,7 +182,7 @@ public class ActionWrapper extends Action {
         beanDesc = actionMapping.getActionBeanDesc();
         for (int i = 0; i < beanDesc.getPropertyDescSize(); i++) {
             PropertyDesc pd = beanDesc.getPropertyDesc(i);
-            if (isExportable(pd)) {
+            if (isExportablePath(pd)) {
                 Object value = WrapperUtil.convert(pd.getValue(action));
                 if (value != null) {
                     request.setAttribute(pd.getPropertyName(), value);
@@ -198,12 +198,23 @@ public class ActionWrapper extends Action {
      *            プロパティ記述
      * @return リクエストに設定可能かどうか
      */
-    protected boolean isExportable(PropertyDesc propertyDesc) {
+    protected boolean isExportablePath(PropertyDesc propertyDesc) {
         return !propertyDesc.getPropertyType().getName().startsWith(
                 "javax.servlet")
                 && !propertyDesc.getPropertyName().equals("requestScope")
                 && !propertyDesc.getPropertyName().equals("sessionScope")
                 && !propertyDesc.getPropertyName().equals("appplicationScope");
+    }
+
+    /**
+     * プロパティをリクエストにエクスポート可能なパスかどうかを返します。
+     * 
+     * @param path
+     *            パス
+     * @return プロパティをリクエストにエクスポート可能なパスかどうか
+     */
+    protected boolean isExporablePath(String path) {
+        return path != null && path.indexOf(".") > 0 && path.indexOf(".do") < 0;
     }
 
     /**
@@ -226,7 +237,7 @@ public class ActionWrapper extends Action {
         }
         ActionForward forward = actionMapping.createForward(executeConfig
                 .resolveInput(actionMapping));
-        if (forward.getPath() != null && forward.getPath().indexOf(".") > 0) {
+        if (isExporablePath(forward.getPath())) {
             exportPropertiesToRequest(request);
         }
         return forward;
