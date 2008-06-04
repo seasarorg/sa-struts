@@ -191,6 +191,22 @@ public class ActionWrapperTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testExecute_returnNull() throws Exception {
+        ActionCustomizer customizer = new ActionCustomizer();
+        register(JjjAction.class, "jjjAction");
+        customizer.customize(getComponentDef(JjjAction.class));
+        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
+                .findActionConfig("/jjj");
+        S2ExecuteConfigUtil.setExecuteConfig(actionMapping
+                .findExecuteConfig(getRequest()));
+        ActionWrapper wrapper = new ActionWrapper(actionMapping);
+        assertNull(wrapper.execute(actionMapping, null, getRequest(),
+                getResponse()));
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testExportPropertiesToRequest() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
         actionMapping.setComponentDef(getComponentDef("bbbAction"));
@@ -612,6 +628,20 @@ public class ActionWrapperTest extends S2TestCase {
             ActionMessages errors = new ActionMessages();
             errors.add("hoge3", new ActionMessage("errors.required", "hoge"));
             return errors;
+        }
+    }
+
+    /**
+     * 
+     */
+    public static class JjjAction {
+
+        /**
+         * @return
+         */
+        @Execute(validator = false)
+        public String index() {
+            return null;
         }
     }
 

@@ -130,7 +130,7 @@ public class ActionWrapper extends Action {
         String next = (String) MethodUtil.invoke(executeConfig.getMethod(),
                 action, null);
         ActionForward forward = actionMapping.createForward(next);
-        if (isExporablePath(forward.getPath())) {
+        if (forward != null && isExporablePath(forward.getPath())) {
             exportPropertiesToRequest(request);
         }
         return forward;
