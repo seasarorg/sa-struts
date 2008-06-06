@@ -1,5 +1,5 @@
 <project name="SAStruts" default="dist" basedir=".">
-	<property name="ver" value="1.0.2-rc5"/>
+	<property name="ver" value="1.0.2-rc6"/>
 
 	<target name="dist">
 		<mkdir dir="target"/>

@@ -136,4 +136,15 @@ public class S2ModuleConfigTest extends S2TestCase {
         assertNotNull(ac);
         assertEquals("/index", ac.getPath());
     }
+
+    /**
+     * @throws Exception
+     */
+    public void testFindActionConfigForNestedIndex() throws Exception {
+        ((MockHttpServletRequestImpl) getRequest())
+                .setPathInfo("/aaa/index.jsp");
+        ActionConfig ac = moduleConfig.findActionConfig("edit/1");
+        assertNotNull(ac);
+        assertEquals("/aaa/index", ac.getPath());
+    }
 }

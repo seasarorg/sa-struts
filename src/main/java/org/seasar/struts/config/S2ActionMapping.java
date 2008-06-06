@@ -175,37 +175,13 @@ public class S2ActionMapping extends ActionMapping {
                 }
             }
             sb.append(names[i] + "_");
-            if (container.hasComponentDef(sb + "indexAction")) {
-                String actionPath = RoutingUtil.getActionPath(names, i)
-                        + "/index";
-                String paramPath = RoutingUtil.getParamPath(names, i + 1);
-                if (StringUtil.isEmpty(paramPath)) {
-                    return actionPath
-                            + ".do"
-                            + getQueryString(queryString, actionPath, paramPath);
-                }
-                S2ExecuteConfig executeConfig = S2ExecuteConfigUtil
-                        .findExecuteConfig(actionPath, paramPath);
-                if (executeConfig != null) {
-                    return actionPath
-                            + ".do"
-                            + getQueryString(queryString, actionPath, paramPath);
-                }
-            }
         }
-        if (container.hasComponentDef("indexAction")) {
-            String actionPath = "/index";
-            String paramPath = RoutingUtil.getParamPath(names, 0);
-            if (StringUtil.isEmpty(paramPath)) {
-                return actionPath + ".do"
-                        + getQueryString(queryString, actionPath, paramPath);
-            }
-            S2ExecuteConfig executeConfig = S2ExecuteConfigUtil
-                    .findExecuteConfig(actionPath, paramPath);
-            if (executeConfig != null) {
-                return actionPath + ".do"
-                        + getQueryString(queryString, actionPath, paramPath);
-            }
+        if (container.hasComponentDef(sb + "indexAction")) {
+            String actionPath = RoutingUtil.getActionPath(names,
+                    names.length - 1)
+                    + "/index";
+            return actionPath + ".do"
+                    + getQueryString(queryString, actionPath, "");
         }
         return originalPath;
     }

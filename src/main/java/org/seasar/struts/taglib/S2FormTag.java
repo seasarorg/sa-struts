@@ -26,11 +26,7 @@ import org.apache.struts.action.ActionServlet;
 import org.apache.struts.config.FormBeanConfig;
 import org.apache.struts.taglib.TagUtils;
 import org.apache.struts.taglib.html.FormTag;
-import org.seasar.framework.container.S2Container;
-import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
-import org.seasar.framework.util.StringUtil;
 import org.seasar.struts.util.ActionUtil;
-import org.seasar.struts.util.RoutingUtil;
 
 /**
  * Seasar2用のFormTagです。
@@ -130,21 +126,6 @@ public class S2FormTag extends FormTag {
             action = ActionUtil.calcActionPath();
         } else if (!action.startsWith("/")) {
             action = ActionUtil.calcActionPath() + action;
-        } else {
-            String[] names = StringUtil.split(action, "/");
-            S2Container container = SingletonS2ContainerFactory.getContainer();
-            StringBuilder sb = new StringBuilder(50);
-            for (int i = 0; i < names.length; i++) {
-                if (container.hasComponentDef(sb + names[i] + "Action")) {
-                    String actionPath = RoutingUtil.getActionPath(names, i);
-                    String paramPath = RoutingUtil.getParamPath(names, i + 1);
-                    if (StringUtil.isEmpty(paramPath)) {
-                        action = actionPath + "/";
-                        break;
-                    }
-                }
-                sb.append(names[i] + "_");
-            }
         }
         mapping = (ActionMapping) moduleConfig.findActionConfig(action);
         if (mapping == null) {
@@ -153,6 +134,11 @@ public class S2FormTag extends FormTag {
             pageContext.setAttribute(Globals.EXCEPTION_KEY, e,
                     PageContext.REQUEST_SCOPE);
             throw e;
+        }
+        if (action == null) {
+            action = mapping.getPath() + "/";
+        } else if (!action.startsWith("/")) {
+            action = mapping.getPath() + "/" + action;
         }
         FormBeanConfig formBeanConfig = moduleConfig.findFormBeanConfig(mapping
                 .getName());
