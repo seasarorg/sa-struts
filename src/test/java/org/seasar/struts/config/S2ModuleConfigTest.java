@@ -24,7 +24,6 @@ import org.seasar.framework.container.creator.ActionCreator;
 import org.seasar.framework.container.hotdeploy.HotdeployBehavior;
 import org.seasar.framework.container.impl.S2ContainerBehavior;
 import org.seasar.framework.convention.impl.NamingConventionImpl;
-import org.seasar.framework.mock.servlet.MockHttpServletRequestImpl;
 import org.seasar.framework.util.ClassUtil;
 import org.seasar.struts.customizer.ActionCustomizer;
 import org.seasar.struts.validator.S2ValidatorResources;
@@ -97,54 +96,5 @@ public class S2ModuleConfigTest extends S2TestCase {
     public void testFindActionConfig() throws Exception {
         ActionConfig ac = moduleConfig.findActionConfig("/hello");
         assertNotNull(ac);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testFindActionConfigForIndex() throws Exception {
-        ActionConfig ac = moduleConfig.findActionConfig("/");
-        assertNotNull(ac);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testFindActionConfigForParamPath() throws Exception {
-        ActionConfig ac = moduleConfig.findActionConfig("/hello/edit/1");
-        assertNotNull(ac);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testFindActionConfigForParamPathNoActionPath() throws Exception {
-        ((MockHttpServletRequestImpl) getRequest())
-                .setPathInfo("/hello/hello.jsp");
-        ActionConfig ac = moduleConfig.findActionConfig("edit/1");
-        assertNotNull(ac);
-        assertEquals("/hello", ac.getPath());
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testFindActionConfigForParamPathNoActionPathAndIndex()
-            throws Exception {
-        ((MockHttpServletRequestImpl) getRequest()).setPathInfo("/start.jsp");
-        ActionConfig ac = moduleConfig.findActionConfig("edit/1");
-        assertNotNull(ac);
-        assertEquals("/index", ac.getPath());
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testFindActionConfigForNestedIndex() throws Exception {
-        ((MockHttpServletRequestImpl) getRequest())
-                .setPathInfo("/aaa/index.jsp");
-        ActionConfig ac = moduleConfig.findActionConfig("edit/1");
-        assertNotNull(ac);
-        assertEquals("/aaa/index", ac.getPath());
     }
 }

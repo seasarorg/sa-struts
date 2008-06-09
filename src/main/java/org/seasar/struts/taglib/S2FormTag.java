@@ -26,7 +26,13 @@ import org.apache.struts.action.ActionServlet;
 import org.apache.struts.config.FormBeanConfig;
 import org.apache.struts.taglib.TagUtils;
 import org.apache.struts.taglib.html.FormTag;
+import org.seasar.framework.container.S2Container;
+import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
+import org.seasar.framework.util.StringUtil;
+import org.seasar.struts.config.S2ActionMapping;
+import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.util.ActionUtil;
+import org.seasar.struts.util.RoutingUtil;
 
 /**
  * Seasar2用のFormTagです。
@@ -127,18 +133,68 @@ public class S2FormTag extends FormTag {
         } else if (!action.startsWith("/")) {
             action = ActionUtil.calcActionPath() + action;
         }
-        mapping = (ActionMapping) moduleConfig.findActionConfig(action);
+        String path = action;
+        String queryString = "";
+        int index = action.indexOf('?');
+        if (index >= 0) {
+            path = action.substring(0, index);
+            queryString = action.substring(index);
+        }
+        String[] names = StringUtil.split(path, "/");
+        S2Container container = SingletonS2ContainerFactory.getContainer();
+        StringBuilder sb = new StringBuilder(50);
+        for (int i = 0; i < names.length; i++) {
+            if (container.hasComponentDef(sb + names[i] + "Action")) {
+                String actionPath = RoutingUtil.getActionPath(names, i);
+                S2ActionMapping s2mapping = (S2ActionMapping) moduleConfig
+                        .findActionConfig(actionPath);
+                String paramPath = RoutingUtil.getParamPath(names, i + 1);
+                if (StringUtil.isEmpty(paramPath)) {
+                    mapping = s2mapping;
+                    action = s2mapping.getPath() + "/" + queryString;
+                    break;
+                }
+                S2ExecuteConfig executeConfig = s2mapping
+                        .findExecuteConfig(paramPath);
+                if (executeConfig != null) {
+                    mapping = s2mapping;
+                    break;
+                }
+            }
+            if (container.hasComponentDef(sb + "indexAction")) {
+                String actionPath = RoutingUtil.getActionPath(names, i - 1)
+                        + "/index";
+                String paramPath = RoutingUtil.getParamPath(names, i);
+                S2ActionMapping s2mapping = (S2ActionMapping) moduleConfig
+                        .findActionConfig(actionPath);
+                if (StringUtil.isEmpty(paramPath)) {
+                    mapping = s2mapping;
+                    action = RoutingUtil.getActionPath(names, i - 1)
+                            + queryString;
+                    break;
+                }
+                S2ExecuteConfig executeConfig = s2mapping
+                        .findExecuteConfig(paramPath);
+                if (executeConfig != null) {
+                    mapping = s2mapping;
+                    break;
+                }
+            }
+            sb.append(names[i] + "_");
+        }
+        if (mapping == null && container.hasComponentDef(sb + "indexAction")) {
+            String actionPath = RoutingUtil.getActionPath(names,
+                    names.length - 1)
+                    + "/index";
+            mapping = (ActionMapping) moduleConfig.findActionConfig(actionPath);
+            action = RoutingUtil.getActionPath(names, names.length - 1) + "/";
+        }
         if (mapping == null) {
             JspException e = new JspException(messages.getMessage(
                     "formTag.mapping", action));
             pageContext.setAttribute(Globals.EXCEPTION_KEY, e,
                     PageContext.REQUEST_SCOPE);
             throw e;
-        }
-        if (action == null) {
-            action = mapping.getPath() + "/";
-        } else if (!action.startsWith("/")) {
-            action = mapping.getPath() + "/" + action;
         }
         FormBeanConfig formBeanConfig = moduleConfig.findFormBeanConfig(mapping
                 .getName());

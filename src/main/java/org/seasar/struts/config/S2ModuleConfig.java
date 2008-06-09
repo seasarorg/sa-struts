@@ -17,13 +17,11 @@ package org.seasar.struts.config;
 
 import org.apache.struts.config.ActionConfig;
 import org.apache.struts.config.impl.ModuleConfigImpl;
-import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
+import org.seasar.framework.container.hotdeploy.HotdeployUtil;
 import org.seasar.framework.util.Disposable;
 import org.seasar.framework.util.DisposableUtil;
-import org.seasar.framework.util.StringUtil;
 import org.seasar.struts.util.ActionUtil;
-import org.seasar.struts.util.RoutingUtil;
 
 /**
  * Seasar2用のモジュール設定です。
@@ -71,63 +69,12 @@ public class S2ModuleConfig extends ModuleConfigImpl implements Disposable {
         if (!initialized) {
             initialize();
         }
-        if (path == null) {
-            path = ActionUtil.calcActionPath();
-        } else if (!path.startsWith("/")) {
-            path = ActionUtil.calcActionPath() + path;
-        }
-        int index = path.indexOf('?');
-        if (index >= 0) {
-            path = path.substring(0, index);
-        }
         ActionConfig ac = (ActionConfig) actionConfigs.get(path);
-        if (ac != null) {
-            return ac;
+        if (ac == null && HotdeployUtil.isHotdeploy()) {
+            SingletonS2ContainerFactory.getContainer().getComponent(
+                    ActionUtil.fromPathToActionName(path));
         }
-        if (path.indexOf('.') < 0) {
-            String[] names = StringUtil.split(path, "/");
-            S2Container container = SingletonS2ContainerFactory.getContainer();
-            StringBuilder sb = new StringBuilder(50);
-            for (int i = 0; i < names.length; i++) {
-                if (container.hasComponentDef(sb + names[i] + "Action")) {
-                    String actionPath = RoutingUtil.getActionPath(names, i);
-                    S2ActionMapping mapping = (S2ActionMapping) actionConfigs
-                            .get(actionPath);
-                    String paramPath = RoutingUtil.getParamPath(names, i + 1);
-                    if (StringUtil.isEmpty(paramPath)) {
-                        return mapping;
-                    }
-                    S2ExecuteConfig executeConfig = mapping
-                            .findExecuteConfig(paramPath);
-                    if (executeConfig != null) {
-                        return mapping;
-                    }
-                }
-                if (container.hasComponentDef(sb + "indexAction")) {
-                    String actionPath = RoutingUtil.getActionPath(names, i - 1)
-                            + "/index";
-                    String paramPath = RoutingUtil.getParamPath(names, i);
-                    S2ActionMapping mapping = (S2ActionMapping) actionConfigs
-                            .get(actionPath);
-                    if (StringUtil.isEmpty(paramPath)) {
-                        return mapping;
-                    }
-                    S2ExecuteConfig executeConfig = mapping
-                            .findExecuteConfig(paramPath);
-                    if (executeConfig != null) {
-                        return mapping;
-                    }
-                }
-                sb.append(names[i] + "_");
-            }
-            if (container.hasComponentDef(sb + "indexAction")) {
-                String actionPath = RoutingUtil.getActionPath(names,
-                        names.length - 1)
-                        + "/index";
-                return (S2ActionMapping) actionConfigs.get(actionPath);
-            }
-        }
-        return null;
+        return (ActionConfig) actionConfigs.get(path);
     }
 
     @Override

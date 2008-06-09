@@ -112,7 +112,7 @@ public class ActionWrapperTest extends S2TestCase {
         ActionCustomizer customizer = new ActionCustomizer();
         customizer.customize(getComponentDef("eeeAction"));
         S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
-                .findActionConfig("/eee/");
+                .findActionConfig("/eee");
         S2ExecuteConfigUtil.setExecuteConfig(actionMapping
                 .findExecuteConfig(getRequest()));
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
@@ -131,7 +131,7 @@ public class ActionWrapperTest extends S2TestCase {
         ActionCustomizer customizer = new ActionCustomizer();
         customizer.customize(getComponentDef("dddAction"));
         S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
-                .findActionConfig("/ddd/");
+                .findActionConfig("/ddd");
         S2ExecuteConfigUtil.setExecuteConfig(actionMapping
                 .findExecuteConfig(getRequest()));
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
@@ -289,7 +289,7 @@ public class ActionWrapperTest extends S2TestCase {
         ActionCustomizer customizer = new ActionCustomizer();
         customizer.customize(getComponentDef("iiiAction"));
         S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
-                .findActionConfig("/iii/");
+                .findActionConfig("/iii");
         IiiAction action = (IiiAction) getComponent(IiiAction.class);
         action.validate = true;
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
@@ -306,7 +306,7 @@ public class ActionWrapperTest extends S2TestCase {
         ActionCustomizer customizer = new ActionCustomizer();
         customizer.customize(getComponentDef("iiiAction"));
         S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
-                .findActionConfig("/iii/");
+                .findActionConfig("/iii");
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
         ActionMessages errors = wrapper.validate(getRequest(), actionMapping
                 .getExecuteConfig("execute"));
@@ -321,7 +321,7 @@ public class ActionWrapperTest extends S2TestCase {
         ActionCustomizer customizer = new ActionCustomizer();
         customizer.customize(getComponentDef("iiiAction"));
         S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
-                .findActionConfig("/iii/");
+                .findActionConfig("/iii");
         IiiAction action = (IiiAction) getComponent(IiiAction.class);
         action.hoge = "111";
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
