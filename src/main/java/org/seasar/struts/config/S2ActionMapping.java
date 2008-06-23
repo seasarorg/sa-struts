@@ -15,6 +15,7 @@
  */
 package org.seasar.struts.config;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,12 +23,12 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.seasar.framework.beans.BeanDesc;
-import org.seasar.framework.beans.PropertyDesc;
 import org.seasar.framework.beans.factory.BeanDescFactory;
 import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.framework.util.ArrayMap;
+import org.seasar.framework.util.FieldUtil;
 import org.seasar.framework.util.StringUtil;
 import org.seasar.struts.util.RoutingUtil;
 import org.seasar.struts.util.S2ExecuteConfigUtil;
@@ -67,9 +68,9 @@ public class S2ActionMapping extends ActionMapping {
     protected ArrayMap executeConfigs = new ArrayMap();
 
     /**
-     * アクションフォーム用のプロパティ記述です。
+     * アクションフォーム用のフィールドです。
      */
-    protected PropertyDesc actionFormPropertyDesc;
+    protected Field actionFormField;
 
     /**
      * リセットメソッドです。
@@ -302,8 +303,8 @@ public class S2ActionMapping extends ActionMapping {
      */
     public Object getActionForm() {
         Object action = getAction();
-        if (actionFormPropertyDesc != null) {
-            return actionFormPropertyDesc.getValue(action);
+        if (actionFormField != null) {
+            return FieldUtil.get(actionFormField, action);
         }
         return action;
     }
@@ -422,24 +423,24 @@ public class S2ActionMapping extends ActionMapping {
     }
 
     /**
-     * アクションフォームのプロパティ記述を返します。
+     * アクションフォーム用のフィールドを返します。
      * 
-     * @return アクションフォームのプロパティ記述
+     * @return アクションフォーム用のフィールド
      */
-    public PropertyDesc getActionFormPropertyDesc() {
-        return actionFormPropertyDesc;
+    public Field getActionFormField() {
+        return actionFormField;
     }
 
     /**
-     * アクションフォームのプロパティ記述を設定します。
+     * アクションフォーム用ののフィールドを設定します。
      * 
-     * @param actionFormPropertyDesc
-     *            アクションフォームのプロパティ記述
+     * @param actionFormField
+     *            アクションフォーム用のフィールド
      */
-    public void setActionFormPropertyDesc(PropertyDesc actionFormPropertyDesc) {
-        this.actionFormPropertyDesc = actionFormPropertyDesc;
-        actionFormBeanDesc = BeanDescFactory.getBeanDesc(actionFormPropertyDesc
-                .getPropertyType());
+    public void setActionFormField(Field actionFormField) {
+        this.actionFormField = actionFormField;
+        actionFormBeanDesc = BeanDescFactory.getBeanDesc(actionFormField
+                .getType());
     }
 
     /**

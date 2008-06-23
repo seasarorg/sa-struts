@@ -216,17 +216,15 @@ public class ActionCustomizer implements ComponentCustomizer {
      */
     protected void setupActionForm(S2ActionMapping actionMapping,
             Class<?> actionClass) {
+        int size = actionMapping.getActionBeanDesc().getFieldSize();
         BeanDesc beanDesc = actionMapping.getActionBeanDesc();
-        for (int i = 0; i < beanDesc.getPropertyDescSize(); i++) {
-            PropertyDesc pd = beanDesc.getPropertyDesc(i);
-            Field field = pd.getField();
-            if (field == null) {
-                continue;
-            }
-            if (field.getAnnotation(ActionForm.class) != null) {
-                actionMapping.setActionFormPropertyDesc(pd);
+        for (int i = 0; i < size; i++) {
+            Field f = beanDesc.getField(i);
+            if (f.getAnnotation(ActionForm.class) != null) {
+                actionMapping.setActionFormField(f);
                 return;
             }
+
         }
     }
 

@@ -528,8 +528,8 @@ public class S2ActionMappingTest extends S2TestCase {
         S2ActionMapping actionMapping = new S2ActionMapping();
         ComponentDef cd = new ComponentDefImpl(MyAction.class);
         actionMapping.setComponentDef(cd);
-        actionMapping.setActionFormPropertyDesc(actionMapping
-                .getActionBeanDesc().getPropertyDesc("myActionForm"));
+        actionMapping.setActionFormField(actionMapping.getActionBeanDesc()
+                .getField("myActionForm"));
         assertEquals(MyActionForm.class, actionMapping.getActionFormBeanDesc()
                 .getBeanClass());
     }
@@ -561,8 +561,8 @@ public class S2ActionMappingTest extends S2TestCase {
         register(MyActionForm.class, "myActionForm");
         S2ActionMapping actionMapping = new S2ActionMapping();
         actionMapping.setComponentDef(getComponentDef(MyAction.class));
-        actionMapping.setActionFormPropertyDesc(actionMapping
-                .getActionBeanDesc().getPropertyDesc("myActionForm"));
+        actionMapping.setActionFormField(actionMapping.getActionBeanDesc()
+                .getField("myActionForm"));
         MyActionForm actionForm = (MyActionForm) getComponent(MyActionForm.class);
         actionForm.aaa = "222";
         assertEquals("222", actionMapping.getPropertyAsString("aaa"));
@@ -593,8 +593,8 @@ public class S2ActionMappingTest extends S2TestCase {
         register(MyActionForm.class, "myActionForm");
         S2ActionMapping actionMapping = new S2ActionMapping();
         actionMapping.setComponentDef(getComponentDef(MyAction.class));
-        actionMapping.setActionFormPropertyDesc(actionMapping
-                .getActionBeanDesc().getPropertyDesc("myActionForm"));
+        actionMapping.setActionFormField(actionMapping.getActionBeanDesc()
+                .getField("myActionForm"));
         assertTrue(actionMapping.getActionForm() instanceof MyActionForm);
     }
 

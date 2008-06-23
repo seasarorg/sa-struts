@@ -254,8 +254,8 @@ public class ActionWrapperTest extends S2TestCase {
         S2ExecuteConfig executeConfig = new S2ExecuteConfig();
         executeConfig.setMethod(m);
         S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
-        actionMapping.setActionFormPropertyDesc(actionMapping
-                .getActionBeanDesc().getPropertyDesc("myForm"));
+        actionMapping.setActionFormField(actionMapping.getActionBeanDesc()
+                .getField("myForm"));
         FffAction action = (FffAction) getComponent("fffAction");
         action.hoge = "111";
         action.myForm.aaa = "222";

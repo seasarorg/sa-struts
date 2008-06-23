@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.annotation.Resource;
+
 import org.apache.commons.beanutils.DynaClass;
 import org.apache.commons.validator.Form;
 import org.apache.commons.validator.Var;
@@ -331,10 +333,10 @@ public class ActionCustomizerTest extends S2TestCase {
      * @throws Exception
      */
     public void testSetupActionForm() throws Exception {
-        register(CccAction.class, "aaa_cccAction");
+        register(CccAction.class, "cccAction");
         S2ActionMapping actionMapping = customizer
-                .createActionMapping(getComponentDef("aaa_cccAction"));
-        assertNotNull(actionMapping.getActionFormPropertyDesc());
+                .createActionMapping(getComponentDef("cccAction"));
+        assertNotNull(actionMapping.getActionFormField());
     }
 
     /**
@@ -597,7 +599,8 @@ public class ActionCustomizerTest extends S2TestCase {
          * 
          */
         @ActionForm
-        public CccActionForm cccActionForm;
+        @Resource
+        protected CccActionForm cccActionForm;
 
         /**
          * @return
