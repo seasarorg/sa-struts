@@ -16,6 +16,7 @@
 package org.seasar.struts.customizer;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -183,6 +184,27 @@ public class ActionCustomizerTest extends S2TestCase {
         assertNull(configs.get(1).getValidateMethod());
         assertFalse(configs.get(2).isValidator());
         assertNotNull(configs.get(2).getValidateMethod());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testSetupMethod_validateMethod_actionForm() throws Exception {
+        register(CccAction.class, "cccAction");
+        S2ActionMapping actionMapping = customizer
+                .createActionMapping(getComponentDef("cccAction"));
+        S2ExecuteConfig executeConfig = actionMapping
+                .getExecuteConfig("execute");
+        assertNotNull(executeConfig);
+        assertTrue(executeConfig.isValidator());
+        List<S2ValidationConfig> configs = executeConfig.getValidationConfigs();
+        assertEquals(2, configs.size());
+        assertTrue(configs.get(0).isValidator());
+        assertNull(configs.get(0).getValidateMethod());
+        assertFalse(configs.get(1).isValidator());
+        Method m = configs.get(1).getValidateMethod();
+        assertNotNull(m);
+        assertEquals(CccActionForm.class, m.getDeclaringClass());
     }
 
     /**
@@ -605,7 +627,7 @@ public class ActionCustomizerTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute(validator = false)
+        @Execute(validator = true, validate = "validate", input = "index.jsp")
         public String execute() {
             return "success";
         }
@@ -791,6 +813,14 @@ public class ActionCustomizerTest extends S2TestCase {
          * 
          */
         public void reset() {
+        }
+
+        /**
+         * @return
+         * 
+         */
+        public ActionMessages validate() {
+            return null;
         }
     }
 }

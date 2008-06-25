@@ -19,6 +19,7 @@ import java.lang.reflect.Method;
 import java.util.Enumeration;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
@@ -102,6 +103,24 @@ public class ActionWrapperTest extends S2TestCase {
         assertEquals("/ccc.do?SAStruts.method=input", forward.getPath());
         assertNotNull(getRequest().getAttribute(Globals.ERROR_KEY));
         assertNull(getRequest().getAttribute("aaa"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testExecute_validate_actionForm() throws Exception {
+        register(KkkAction.class, "kkkAction");
+        register(KkkActionDto.class, "kkkActionDto");
+        ActionCustomizer customizer = new ActionCustomizer();
+        customizer.customize(getComponentDef("kkkAction"));
+        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
+                .findActionConfig("/kkk");
+        S2ExecuteConfigUtil.setExecuteConfig(actionMapping
+                .findExecuteConfig(getRequest()));
+        KkkActionDto dto = (KkkActionDto) getComponent(KkkActionDto.class);
+        ActionWrapper wrapper = new ActionWrapper(actionMapping);
+        wrapper.execute(actionMapping, null, getRequest(), getResponse());
+        assertTrue(dto.validated);
     }
 
     /**
@@ -268,15 +287,15 @@ public class ActionWrapperTest extends S2TestCase {
     /**
      * @throws Exception
      */
-    public void testValidate_validator() throws Exception {
+    public void testValidateUsingValidator() throws Exception {
         register(EeeAction.class, "aaa_eeeAction");
         ActionCustomizer customizer = new ActionCustomizer();
         customizer.customize(getComponentDef("aaa_eeeAction"));
         S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
                 .findActionConfig("/aaa/eee");
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
-        ActionMessages errors = wrapper.validate(getRequest(), actionMapping
-                .getExecuteConfig("execute"));
+        ActionMessages errors = wrapper.validateUsingValidator(getRequest(),
+                actionMapping.getExecuteConfig("execute"));
         System.out.println(errors);
         assertFalse(errors.isEmpty());
     }
@@ -284,7 +303,7 @@ public class ActionWrapperTest extends S2TestCase {
     /**
      * @throws Exception
      */
-    public void testValidate_multiValidation() throws Exception {
+    public void testValidateUsingValidator_multi() throws Exception {
         register(IiiAction.class, "iiiAction");
         ActionCustomizer customizer = new ActionCustomizer();
         customizer.customize(getComponentDef("iiiAction"));
@@ -293,30 +312,30 @@ public class ActionWrapperTest extends S2TestCase {
         IiiAction action = (IiiAction) getComponent(IiiAction.class);
         action.validate = true;
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
-        ActionMessages errors = wrapper.validate(getRequest(), actionMapping
-                .getExecuteConfig("execute"));
+        ActionMessages errors = wrapper.validateUsingValidator(getRequest(),
+                actionMapping.getExecuteConfig("execute"));
         assertNotNull(errors.get("hoge2"));
     }
 
     /**
      * @throws Exception
      */
-    public void testValidate_multiValidation2() throws Exception {
+    public void testValidateUsingValidator_multi2() throws Exception {
         register(IiiAction.class, "iiiAction");
         ActionCustomizer customizer = new ActionCustomizer();
         customizer.customize(getComponentDef("iiiAction"));
         S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
                 .findActionConfig("/iii");
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
-        ActionMessages errors = wrapper.validate(getRequest(), actionMapping
-                .getExecuteConfig("execute"));
+        ActionMessages errors = wrapper.validateUsingValidator(getRequest(),
+                actionMapping.getExecuteConfig("execute"));
         assertNotNull(errors.get("hoge"));
     }
 
     /**
      * @throws Exception
      */
-    public void testValidate_multiValidation3() throws Exception {
+    public void testValidateUsingValidator_multi3() throws Exception {
         register(IiiAction.class, "iiiAction");
         ActionCustomizer customizer = new ActionCustomizer();
         customizer.customize(getComponentDef("iiiAction"));
@@ -325,8 +344,8 @@ public class ActionWrapperTest extends S2TestCase {
         IiiAction action = (IiiAction) getComponent(IiiAction.class);
         action.hoge = "111";
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
-        ActionMessages errors = wrapper.validate(getRequest(), actionMapping
-                .getExecuteConfig("execute"));
+        ActionMessages errors = wrapper.validateUsingValidator(getRequest(),
+                actionMapping.getExecuteConfig("execute"));
         assertNotNull(errors.get("hoge3"));
     }
 
@@ -645,6 +664,27 @@ public class ActionWrapperTest extends S2TestCase {
         }
     }
 
+    /**
+     * 
+     */
+    public static class KkkAction {
+
+        /**
+         * 
+         */
+        @ActionForm
+        @Resource
+        protected KkkActionDto kkkActionDto;
+
+        /**
+         * @return
+         */
+        @Execute(validator = true, validate = "validate", input = "index.jsp")
+        public String index() {
+            return null;
+        }
+    }
+
     private static class MyActionServlet extends ActionServlet {
         private static final long serialVersionUID = 1L;
 
@@ -672,5 +712,22 @@ public class ActionWrapperTest extends S2TestCase {
          * 
          */
         public String aaa;
+    }
+
+    /**
+     * 
+     */
+    public static class KkkActionDto {
+
+        boolean validated = false;
+
+        /**
+         * @return
+         * 
+         */
+        public ActionMessages validate() {
+            validated = true;
+            return null;
+        }
     }
 }

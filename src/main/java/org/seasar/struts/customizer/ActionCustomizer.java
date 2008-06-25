@@ -146,7 +146,9 @@ public class ActionCustomizer implements ComponentCustomizer {
                 String validate = execute.validate();
                 boolean validator = false;
                 if (!StringUtil.isEmpty(validate)) {
-                    BeanDesc beanDesc = actionMapping.getActionBeanDesc();
+                    BeanDesc actionBeanDesc = actionMapping.getActionBeanDesc();
+                    BeanDesc actionFormBeanDesc = actionMapping
+                            .getActionFormBeanDesc();
                     for (String name : StringUtil.split(validate, ", ")) {
                         if (VALIDATOR.equals(name)) {
                             if (!execute.validator()) {
@@ -155,8 +157,22 @@ public class ActionCustomizer implements ComponentCustomizer {
                             }
                             validationConfigs.add(new S2ValidationConfig());
                             validator = true;
+                        } else if (actionFormBeanDesc.hasMethod(name)) {
+                            Method validateMethod = actionFormBeanDesc
+                                    .getMethod(name);
+                            if (validateMethod.getParameterTypes().length > 0
+                                    || !ActionMessages.class
+                                            .isAssignableFrom(validateMethod
+                                                    .getReturnType())) {
+                                throw new IllegalValidateMethodRuntimeException(
+                                        actionClass, validateMethod.getName());
+
+                            }
+                            validationConfigs.add(new S2ValidationConfig(
+                                    validateMethod));
                         } else {
-                            Method validateMethod = beanDesc.getMethod(name);
+                            Method validateMethod = actionBeanDesc
+                                    .getMethod(name);
                             if (validateMethod.getParameterTypes().length > 0
                                     || !ActionMessages.class
                                             .isAssignableFrom(validateMethod

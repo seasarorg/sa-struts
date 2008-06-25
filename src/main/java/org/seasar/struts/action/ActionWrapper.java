@@ -105,7 +105,8 @@ public class ActionWrapper extends Action {
         if (validationConfigs != null) {
             for (S2ValidationConfig cfg : validationConfigs) {
                 if (cfg.isValidator()) {
-                    ActionMessages errors2 = validate(request, executeConfig);
+                    ActionMessages errors2 = validateUsingValidator(request,
+                            executeConfig);
                     if (errors2 != null && !errors2.isEmpty()) {
                         errors.add(errors2);
                         if (executeConfig.isStopOnValidationError()) {
@@ -113,8 +114,13 @@ public class ActionWrapper extends Action {
                         }
                     }
                 } else {
+                    Object target = actionForm;
+                    if (cfg.getValidateMethod().getDeclaringClass() == actionMapping
+                            .getComponentDef().getComponentClass()) {
+                        target = action;
+                    }
                     ActionMessages errors2 = (ActionMessages) MethodUtil
-                            .invoke(cfg.getValidateMethod(), action, null);
+                            .invoke(cfg.getValidateMethod(), target, null);
                     if (errors2 != null && !errors2.isEmpty()) {
                         errors.add(errors2);
                         if (executeConfig.isStopOnValidationError()) {
@@ -145,7 +151,7 @@ public class ActionWrapper extends Action {
      *            実行設定
      * @return エラーメッセージ
      */
-    protected ActionMessages validate(HttpServletRequest request,
+    protected ActionMessages validateUsingValidator(HttpServletRequest request,
             S2ExecuteConfig executeConfig) {
         ServletContext application = ServletContextUtil.getServletContext();
         ActionMessages errors = new ActionMessages();
