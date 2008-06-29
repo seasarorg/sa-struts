@@ -109,20 +109,38 @@ public class ActionWrapperTest extends S2TestCase {
      * @throws Exception
      */
     public void testExecute_validate_actionForm() throws Exception {
-//        register(KkkAction.class, "kkkAction");
-//        register(KkkActionDto.class, "kkkActionDto");
-//        ActionCustomizer customizer = new ActionCustomizer();
-//        customizer.customize(getComponentDef("kkkAction"));
-//        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
-//                .findActionConfig("/kkk");
-//        S2ExecuteConfigUtil.setExecuteConfig(actionMapping
-//                .findExecuteConfig(getRequest()));
-//        KkkActionDto dto = (KkkActionDto) getComponent(KkkActionDto.class);
-//        ActionWrapper wrapper = new ActionWrapper(actionMapping);
-//        wrapper.execute(actionMapping, null, getRequest(), getResponse());
-//        assertTrue(dto.validated);
+        register(KkkAction.class, "kkkAction");
+        register(KkkActionDto.class, "kkkActionDto");
+        ActionCustomizer customizer = new ActionCustomizer();
+        customizer.customize(getComponentDef("kkkAction"));
+        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
+                .findActionConfig("/kkk");
+        S2ExecuteConfigUtil.setExecuteConfig(actionMapping
+                .findExecuteConfig(getRequest()));
+        KkkActionDto dto = (KkkActionDto) getComponent(KkkActionDto.class);
+        ActionWrapper wrapper = new ActionWrapper(actionMapping);
+        wrapper.execute(actionMapping, null, getRequest(), getResponse());
+        assertTrue(dto.validated);
     }
 
+    /**
+     * @throws Exception
+     */
+    public void testExecute_validate_newActionForm() throws Exception {
+        register(LllAction.class, "lllAction");
+        register(LllActionForm.class, "lllActionForm");
+        ActionCustomizer customizer = new ActionCustomizer();
+        customizer.customize(getComponentDef("lllAction"));
+        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
+                .findActionConfig("/lll");
+        S2ExecuteConfigUtil.setExecuteConfig(actionMapping
+                .findExecuteConfig(getRequest()));
+        LllActionForm form = (LllActionForm) getComponent(LllActionForm.class);
+        ActionWrapper wrapper = new ActionWrapper(actionMapping);
+        wrapper.execute(actionMapping, null, getRequest(), getResponse());
+        assertTrue(form.validated);
+    }
+    
     /**
      * @throws Exception
      */
@@ -684,7 +702,28 @@ public class ActionWrapperTest extends S2TestCase {
             return null;
         }
     }
+    
+    /**
+     * 
+     */
+    public static class LllAction {
 
+        /**
+         * 
+         */
+        @ActionForm
+        @Resource
+        protected LllActionForm lllActionForm;
+
+        /**
+         * @return
+         */
+        @Execute(validator = true, validate = "validate", input = "index.jsp")
+        public String index() {
+            return null;
+        }
+    }
+    
     private static class MyActionServlet extends ActionServlet {
         private static final long serialVersionUID = 1L;
 
@@ -718,6 +757,23 @@ public class ActionWrapperTest extends S2TestCase {
      * 
      */
     public static class KkkActionDto {
+
+        boolean validated = false;
+
+        /**
+         * @return
+         * 
+         */
+        public ActionMessages validate() {
+            validated = true;
+            return null;
+        }
+    }
+    
+    /**
+     * 
+     */
+    public static class LllActionForm {
 
         boolean validated = false;
 
