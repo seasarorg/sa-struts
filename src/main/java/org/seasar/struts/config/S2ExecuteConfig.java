@@ -99,6 +99,11 @@ public class S2ExecuteConfig implements Serializable {
     protected boolean stopOnValidationError = true;
 
     /**
+     * 実行メソッドの正常終了時にセッションからアクションフォームを削除するかどうかです。 trueの場合、アクションフォームを削除します。
+     */
+    protected boolean removeActionForm = false;
+
+    /**
      * インスタンスを構築します。
      * 
      * @param method
@@ -340,6 +345,25 @@ public class S2ExecuteConfig implements Serializable {
      */
     public void setStopOnValidationError(boolean stopOnValidationError) {
         this.stopOnValidationError = stopOnValidationError;
+    }
+
+    /**
+     * 実行メソッドの正常終了時にセッションからアクションフォームを削除するかどうか返します。
+     * 
+     * @return 実行メソッドの正常終了時にセッションからアクションフォームを削除するかどうか
+     */
+    public boolean isRemoveActionForm() {
+        return removeActionForm;
+    }
+
+    /**
+     * 実行メソッドの正常終了時にセッションからアクションフォームを削除するかどうかを設定します。
+     * 
+     * @param removeActionForm
+     *            実行メソッドの正常終了時にセッションからアクションフォームを削除するかどうか
+     */
+    public void setRemoveActionForm(boolean removeActionForm) {
+        this.removeActionForm = removeActionForm;
     }
 
     /**

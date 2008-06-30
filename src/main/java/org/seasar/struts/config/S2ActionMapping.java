@@ -28,7 +28,6 @@ import org.seasar.framework.container.ComponentDef;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.framework.util.ArrayMap;
-import org.seasar.framework.util.FieldUtil;
 import org.seasar.framework.util.StringUtil;
 import org.seasar.struts.util.RoutingUtil;
 import org.seasar.struts.util.S2ExecuteConfigUtil;
@@ -51,6 +50,11 @@ public class S2ActionMapping extends ActionMapping {
      * コンポーネント定義です。
      */
     protected ComponentDef componentDef;
+
+    /**
+     * アクションフォームのコンポーネント定義です。
+     */
+    protected ComponentDef actionFormComponentDef;
 
     /**
      * アクションのBean記述です。
@@ -264,9 +268,19 @@ public class S2ActionMapping extends ActionMapping {
      */
     public void setComponentDef(ComponentDef componentDef) {
         this.componentDef = componentDef;
+        actionFormComponentDef = componentDef;
         actionBeanDesc = BeanDescFactory.getBeanDesc(componentDef
                 .getComponentClass());
         actionFormBeanDesc = actionBeanDesc;
+    }
+
+    /**
+     * アクションフォームのコンポーネント定義を返します。
+     * 
+     * @return アクションフォームのコンポーネント定義
+     */
+    public ComponentDef getActionFormComponentDef() {
+        return actionFormComponentDef;
     }
 
     /**
@@ -302,11 +316,7 @@ public class S2ActionMapping extends ActionMapping {
      * @return POJOアクションフォーム
      */
     public Object getActionForm() {
-        Object action = getAction();
-        if (actionFormField != null) {
-            return FieldUtil.get(actionFormField, action);
-        }
-        return action;
+        return actionFormComponentDef.getComponent();
     }
 
     /**
@@ -441,6 +451,8 @@ public class S2ActionMapping extends ActionMapping {
         this.actionFormField = actionFormField;
         actionFormBeanDesc = BeanDescFactory.getBeanDesc(actionFormField
                 .getType());
+        actionFormComponentDef = SingletonS2ContainerFactory.getContainer()
+                .getComponentDef(actionFormField.getType());
     }
 
     /**

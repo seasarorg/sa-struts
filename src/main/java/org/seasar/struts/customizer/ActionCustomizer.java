@@ -211,7 +211,7 @@ public class ActionCustomizer implements ComponentCustomizer {
                 } else {
                     actionMapping.addExecuteConfig(executeConfig);
                 }
-
+                executeConfig.setRemoveActionForm(execute.removeActionForm());
             }
         }
         if (allSelectedExecuteConfig != null) {

@@ -164,6 +164,7 @@ public class ActionCustomizerTest extends S2TestCase {
         assertEquals("user", roles[1]);
         assertEquals(3, actionMapping.getExecuteConfigSize());
         assertFalse(executeConfig.isStopOnValidationError());
+        assertTrue(executeConfig.isRemoveActionForm());
     }
 
     /**
@@ -191,6 +192,7 @@ public class ActionCustomizerTest extends S2TestCase {
      */
     public void testSetupMethod_validateMethod_actionForm() throws Exception {
         register(CccAction.class, "cccAction");
+        register(CccActionForm.class, "cccActionForm");
         S2ActionMapping actionMapping = customizer
                 .createActionMapping(getComponentDef("cccAction"));
         S2ExecuteConfig executeConfig = actionMapping
@@ -356,6 +358,7 @@ public class ActionCustomizerTest extends S2TestCase {
      */
     public void testSetupActionForm() throws Exception {
         register(CccAction.class, "cccAction");
+        register(CccActionForm.class, "cccActionForm");
         S2ActionMapping actionMapping = customizer
                 .createActionMapping(getComponentDef("cccAction"));
         assertNotNull(actionMapping.getActionFormField());
@@ -374,9 +377,10 @@ public class ActionCustomizerTest extends S2TestCase {
      * @throws Exception
      */
     public void testSetupReset_actionForm() throws Exception {
-        register(CccAction.class, "aaa_cccAction");
+        register(CccAction.class, "cccAction");
+        register(CccActionForm.class, "cccActionForm");
         S2ActionMapping actionMapping = customizer
-                .createActionMapping(getComponentDef("aaa_cccAction"));
+                .createActionMapping(getComponentDef("cccAction"));
         assertNotNull(actionMapping.getResetMethod());
     }
 
@@ -571,7 +575,7 @@ public class ActionCustomizerTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute(validator = false, validate = "validate", input = "/aaa/input2.jsp", roles = "admin,user", stopOnValidationError = false)
+        @Execute(validator = false, validate = "validate", input = "/aaa/input2.jsp", roles = "admin,user", stopOnValidationError = false, removeActionForm = true)
         public String execute() {
             return "input2.jsp";
         }

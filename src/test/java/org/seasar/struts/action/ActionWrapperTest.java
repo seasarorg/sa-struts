@@ -30,6 +30,8 @@ import org.apache.struts.action.ActionMessages;
 import org.apache.struts.action.ActionServlet;
 import org.apache.struts.config.ForwardConfig;
 import org.seasar.extension.unit.S2TestCase;
+import org.seasar.framework.container.annotation.tiger.Component;
+import org.seasar.framework.container.annotation.tiger.InstanceType;
 import org.seasar.struts.annotation.ActionForm;
 import org.seasar.struts.annotation.Execute;
 import org.seasar.struts.annotation.Required;
@@ -414,6 +416,25 @@ public class ActionWrapperTest extends S2TestCase {
     }
 
     /**
+     * @throws Exception
+     */
+    public void testRemoveActionForm() throws Exception {
+        register(FffAction.class, "fffAction");
+        register(MyForm.class, "myForm");
+        ActionCustomizer customizer = new ActionCustomizer();
+        customizer.customize(getComponentDef("fffAction"));
+        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
+                .findActionConfig("/fff");
+        getComponent("myForm");
+        assertNotNull(getRequest().getSession().getAttribute("myForm"));
+        ActionWrapper wrapper = new ActionWrapper(actionMapping);
+        wrapper
+                .execute(getRequest(), actionMapping
+                        .getExecuteConfig("execute"));
+        assertNull(getRequest().getSession().getAttribute("myForm"));
+    }
+
+    /**
      * 
      */
     public static class BbbAction {
@@ -557,7 +578,7 @@ public class ActionWrapperTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute
+        @Execute(validator = false, removeActionForm = true)
         public String execute() {
             return "/aaa/bbb.jsp";
         }
@@ -746,6 +767,7 @@ public class ActionWrapperTest extends S2TestCase {
     /**
      * 
      */
+    @Component(instance = InstanceType.SESSION)
     public static class MyForm {
         /**
          * 

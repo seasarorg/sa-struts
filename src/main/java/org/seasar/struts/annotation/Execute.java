@@ -74,4 +74,10 @@ public @interface Execute {
      * 
      */
     boolean stopOnValidationError() default true;
+
+    /**
+     * trueの場合、実行メソッドが正常終了したときにセッションからアクションフォームを削除します。
+     * 
+     */
+    boolean removeActionForm() default false;
 }

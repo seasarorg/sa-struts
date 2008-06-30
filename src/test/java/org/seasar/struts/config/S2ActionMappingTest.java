@@ -525,6 +525,7 @@ public class S2ActionMappingTest extends S2TestCase {
      * @throws Exception
      */
     public void testActionFormBeanDesc_actionForm() throws Exception {
+        register(MyActionForm.class, "myActionForm");
         S2ActionMapping actionMapping = new S2ActionMapping();
         ComponentDef cd = new ComponentDefImpl(MyAction.class);
         actionMapping.setComponentDef(cd);
