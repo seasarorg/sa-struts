@@ -142,7 +142,7 @@ public class ActionWrapperTest extends S2TestCase {
         wrapper.execute(actionMapping, null, getRequest(), getResponse());
         assertTrue(form.validated);
     }
-    
+
     /**
      * @throws Exception
      */
@@ -274,7 +274,7 @@ public class ActionWrapperTest extends S2TestCase {
         BbbAction action = (BbbAction) getComponent("bbbAction");
         action.hoge = null;
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
-        wrapper.exportPropertiesToRequest(getRequest());
+        wrapper.exportPropertiesToRequest(getRequest(), executeConfig);
         Enumeration e = getRequest().getAttributeNames();
         while (e.hasMoreElements()) {
             assertFalse("hoge".equals(e.nextElement()));
@@ -425,13 +425,15 @@ public class ActionWrapperTest extends S2TestCase {
         customizer.customize(getComponentDef("fffAction"));
         S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
                 .findActionConfig("/fff");
-        getComponent("myForm");
+        MyForm myForm = (MyForm) getComponent("myForm");
+        myForm.aaa = "111";
         assertNotNull(getRequest().getSession().getAttribute("myForm"));
         ActionWrapper wrapper = new ActionWrapper(actionMapping);
         wrapper
                 .execute(getRequest(), actionMapping
                         .getExecuteConfig("execute"));
         assertNull(getRequest().getSession().getAttribute("myForm"));
+        assertNull(getRequest().getAttribute("aaa"));
     }
 
     /**
@@ -723,7 +725,7 @@ public class ActionWrapperTest extends S2TestCase {
             return null;
         }
     }
-    
+
     /**
      * 
      */
@@ -744,7 +746,7 @@ public class ActionWrapperTest extends S2TestCase {
             return null;
         }
     }
-    
+
     private static class MyActionServlet extends ActionServlet {
         private static final long serialVersionUID = 1L;
 
@@ -791,7 +793,7 @@ public class ActionWrapperTest extends S2TestCase {
             return null;
         }
     }
-    
+
     /**
      * 
      */

@@ -138,7 +138,7 @@ public class ActionWrapper extends Action {
                 action, null);
         ActionForward forward = actionMapping.createForward(next);
         if (forward != null && isExporablePath(forward.getPath())) {
-            exportPropertiesToRequest(request);
+            exportPropertiesToRequest(request, executeConfig);
         }
         if (executeConfig.isRemoveActionForm()) {
             RequestUtil.getRequest().getSession().removeAttribute(
@@ -179,21 +179,26 @@ public class ActionWrapper extends Action {
      * 
      * @param request
      *            リクエスト
+     * @param executeConfig
+     *            実行設定
      */
-    protected void exportPropertiesToRequest(HttpServletRequest request) {
-        BeanDesc beanDesc = actionMapping.getActionFormBeanDesc();
-        for (int i = 0; i < beanDesc.getPropertyDescSize(); i++) {
-            PropertyDesc pd = beanDesc.getPropertyDesc(i);
-            if (isExportablePath(pd)) {
-                Object value = WrapperUtil.convert(pd.getValue(actionForm));
-                if (value != null) {
-                    request.setAttribute(pd.getPropertyName(), value);
+    protected void exportPropertiesToRequest(HttpServletRequest request,
+            S2ExecuteConfig executeConfig) {
+        if (!executeConfig.isRemoveActionForm()) {
+            BeanDesc actionFormBeanDesc = actionMapping.getActionFormBeanDesc();
+            for (int i = 0; i < actionFormBeanDesc.getPropertyDescSize(); i++) {
+                PropertyDesc pd = actionFormBeanDesc.getPropertyDesc(i);
+                if (isExportablePath(pd)) {
+                    Object value = WrapperUtil.convert(pd.getValue(actionForm));
+                    if (value != null) {
+                        request.setAttribute(pd.getPropertyName(), value);
+                    }
                 }
             }
         }
-        beanDesc = actionMapping.getActionBeanDesc();
-        for (int i = 0; i < beanDesc.getPropertyDescSize(); i++) {
-            PropertyDesc pd = beanDesc.getPropertyDesc(i);
+        BeanDesc actionBeanDesc = actionMapping.getActionBeanDesc();
+        for (int i = 0; i < actionBeanDesc.getPropertyDescSize(); i++) {
+            PropertyDesc pd = actionBeanDesc.getPropertyDesc(i);
             if (isExportablePath(pd)) {
                 Object value = WrapperUtil.convert(pd.getValue(action));
                 if (value != null) {
@@ -250,7 +255,7 @@ public class ActionWrapper extends Action {
         ActionForward forward = actionMapping.createForward(executeConfig
                 .resolveInput(actionMapping));
         if (isExporablePath(forward.getPath())) {
-            exportPropertiesToRequest(request);
+            exportPropertiesToRequest(request, executeConfig);
         }
         return forward;
     }
