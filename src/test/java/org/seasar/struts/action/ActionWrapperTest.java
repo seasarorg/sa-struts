@@ -16,7 +16,6 @@
 package org.seasar.struts.action;
 
 import java.lang.reflect.Method;
-import java.util.Enumeration;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -246,67 +245,6 @@ public class ActionWrapperTest extends S2TestCase {
     /**
      * @throws Exception
      */
-    public void testExportPropertiesToRequest() throws Exception {
-        S2ActionMapping actionMapping = new S2ActionMapping();
-        actionMapping.setComponentDef(getComponentDef("bbbAction"));
-        Method m = BbbAction.class.getDeclaredMethod("index");
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
-        executeConfig.setMethod(m);
-        S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
-        ActionWrapper wrapper = new ActionWrapper(actionMapping);
-        wrapper.execute(actionMapping, null, getRequest(), getResponse());
-        assertEquals("111", getRequest().getAttribute("hoge"));
-        assertNull(getRequest().getAttribute("request"));
-        assertNull(getRequest().getAttribute("requestScope"));
-    }
-
-    /**
-     * @throws Exception
-     */
-    @SuppressWarnings("unchecked")
-    public void testExportPropertiesToRequestForValueIsNull() throws Exception {
-        S2ActionMapping actionMapping = new S2ActionMapping();
-        actionMapping.setComponentDef(getComponentDef("bbbAction"));
-        Method m = BbbAction.class.getDeclaredMethod("index");
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
-        executeConfig.setMethod(m);
-        S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
-        BbbAction action = (BbbAction) getComponent("bbbAction");
-        action.hoge = null;
-        ActionWrapper wrapper = new ActionWrapper(actionMapping);
-        wrapper.exportPropertiesToRequest(getRequest(), executeConfig);
-        Enumeration e = getRequest().getAttributeNames();
-        while (e.hasMoreElements()) {
-            assertFalse("hoge".equals(e.nextElement()));
-        }
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testExportPropertiesToRequest_actionAndForm() throws Exception {
-        register(FffAction.class, "fffAction");
-        register(MyForm.class, "myForm");
-        S2ActionMapping actionMapping = new S2ActionMapping();
-        actionMapping.setComponentDef(getComponentDef("fffAction"));
-        Method m = FffAction.class.getDeclaredMethod("execute");
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
-        executeConfig.setMethod(m);
-        S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
-        actionMapping.setActionFormField(actionMapping.getActionBeanDesc()
-                .getField("myForm"));
-        FffAction action = (FffAction) getComponent("fffAction");
-        action.hoge = "111";
-        action.myForm.aaa = "222";
-        ActionWrapper wrapper = new ActionWrapper(actionMapping);
-        wrapper.execute(actionMapping, null, getRequest(), getResponse());
-        assertEquals("111", getRequest().getAttribute("hoge"));
-        assertEquals("222", getRequest().getAttribute("aaa"));
-    }
-
-    /**
-     * @throws Exception
-     */
     public void testValidateUsingValidator() throws Exception {
         register(EeeAction.class, "aaa_eeeAction");
         ActionCustomizer customizer = new ActionCustomizer();
@@ -404,20 +342,6 @@ public class ActionWrapperTest extends S2TestCase {
     /**
      * @throws Exception
      */
-    public void testIsExporablePath() throws Exception {
-        ActionCustomizer customizer = new ActionCustomizer();
-        customizer.customize(getComponentDef(BbbAction.class));
-        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
-                .findActionConfig("/bbb");
-        ActionWrapper wrapper = new ActionWrapper(actionMapping);
-        assertTrue(wrapper.isExporablePath("/hoge.jsp"));
-        assertFalse(wrapper.isExporablePath("/hoge"));
-        assertFalse(wrapper.isExporablePath("/hoge.do"));
-    }
-
-    /**
-     * @throws Exception
-     */
     public void testRemoveActionForm() throws Exception {
         register(FffAction.class, "fffAction");
         register(MyForm.class, "myForm");
@@ -433,7 +357,6 @@ public class ActionWrapperTest extends S2TestCase {
                 .execute(getRequest(), actionMapping
                         .getExecuteConfig("execute"));
         assertNull(getRequest().getSession().getAttribute("myForm"));
-        assertNull(getRequest().getAttribute("aaa"));
     }
 
     /**

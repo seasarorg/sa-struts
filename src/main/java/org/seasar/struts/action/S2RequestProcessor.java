@@ -57,6 +57,7 @@ import org.seasar.struts.exception.IndexedPropertyNotListArrayRuntimeException;
 import org.seasar.struts.exception.NoParameterizedListRuntimeException;
 import org.seasar.struts.exception.NoRoleRuntimeException;
 import org.seasar.struts.util.ActionFormUtil;
+import org.seasar.struts.util.S2ActionMappingUtil;
 import org.seasar.struts.util.S2ExecuteConfigUtil;
 
 /**
@@ -288,6 +289,80 @@ public class S2RequestProcessor extends RequestProcessor {
                         .getActionFormBeanDesc().getBeanClass(), name, t);
             }
         }
+    }
+
+    @Override
+    protected void doForward(String uri, HttpServletRequest request,
+            HttpServletResponse response) throws IOException, ServletException {
+        if (isExporablePath(uri)) {
+            exportPropertiesToRequest(request, S2ActionMappingUtil
+                    .getActionMapping(), S2ExecuteConfigUtil.getExecuteConfig());
+        }
+        super.doForward(uri, request, response);
+    }
+
+    /**
+     * プロパティをリクエストに設定します。 *
+     * 
+     * @param request
+     *            リクエスト
+     * @param actionMapping
+     *            アクションマッピング
+     * @param executeConfig
+     *            実行設定
+     */
+    protected void exportPropertiesToRequest(HttpServletRequest request,
+            S2ActionMapping actionMapping, S2ExecuteConfig executeConfig) {
+        if (!executeConfig.isRemoveActionForm()) {
+            Object actionForm = actionMapping.getActionForm();
+            BeanDesc actionFormBeanDesc = actionMapping.getActionFormBeanDesc();
+            for (int i = 0; i < actionFormBeanDesc.getPropertyDescSize(); i++) {
+                PropertyDesc pd = actionFormBeanDesc.getPropertyDesc(i);
+                if (isExportableProperty(pd)) {
+                    Object value = WrapperUtil.convert(pd.getValue(actionForm));
+                    if (value != null) {
+                        request.setAttribute(pd.getPropertyName(), value);
+                    }
+                }
+            }
+        }
+        BeanDesc actionBeanDesc = actionMapping.getActionBeanDesc();
+        for (int i = 0; i < actionBeanDesc.getPropertyDescSize(); i++) {
+            Object action = actionMapping.getAction();
+            PropertyDesc pd = actionBeanDesc.getPropertyDesc(i);
+            if (isExportableProperty(pd)) {
+                Object value = WrapperUtil.convert(pd.getValue(action));
+                if (value != null) {
+                    request.setAttribute(pd.getPropertyName(), value);
+                }
+            }
+        }
+    }
+
+    /**
+     * リクエストに設定可能なプロパティかどうかを返します。
+     * 
+     * @param propertyDesc
+     *            プロパティ記述
+     * @return リクエストに設定可能かどうか
+     */
+    protected boolean isExportableProperty(PropertyDesc propertyDesc) {
+        return !propertyDesc.getPropertyType().getName().startsWith(
+                "javax.servlet")
+                && !propertyDesc.getPropertyName().equals("requestScope")
+                && !propertyDesc.getPropertyName().equals("sessionScope")
+                && !propertyDesc.getPropertyName().equals("appplicationScope");
+    }
+
+    /**
+     * プロパティをリクエストにエクスポート可能なパスかどうかを返します。
+     * 
+     * @param path
+     *            パス
+     * @return プロパティをリクエストにエクスポート可能なパスかどうか
+     */
+    protected boolean isExporablePath(String path) {
+        return path != null && path.indexOf(".") > 0 && path.indexOf(".do") < 0;
     }
 
     /**

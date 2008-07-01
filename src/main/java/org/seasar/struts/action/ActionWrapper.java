@@ -30,8 +30,6 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.validator.Resources;
-import org.seasar.framework.beans.BeanDesc;
-import org.seasar.framework.beans.PropertyDesc;
 import org.seasar.framework.util.MethodUtil;
 import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
@@ -136,16 +134,14 @@ public class ActionWrapper extends Action {
         }
         String next = (String) MethodUtil.invoke(executeConfig.getMethod(),
                 action, null);
-        ActionForward forward = actionMapping.createForward(next);
-        if (forward != null && isExporablePath(forward.getPath())) {
-            exportPropertiesToRequest(request, executeConfig);
-        }
         if (executeConfig.isRemoveActionForm()) {
             RequestUtil.getRequest().getSession().removeAttribute(
                     actionMapping.getActionFormComponentDef()
                             .getComponentName());
+            RequestUtil.getRequest().removeAttribute(
+                    actionMapping.getAttribute());
         }
-        return forward;
+        return actionMapping.createForward(next);
     }
 
     /**
@@ -175,66 +171,6 @@ public class ActionWrapper extends Action {
     }
 
     /**
-     * プロパティをリクエストに設定します。 *
-     * 
-     * @param request
-     *            リクエスト
-     * @param executeConfig
-     *            実行設定
-     */
-    protected void exportPropertiesToRequest(HttpServletRequest request,
-            S2ExecuteConfig executeConfig) {
-        if (!executeConfig.isRemoveActionForm()) {
-            BeanDesc actionFormBeanDesc = actionMapping.getActionFormBeanDesc();
-            for (int i = 0; i < actionFormBeanDesc.getPropertyDescSize(); i++) {
-                PropertyDesc pd = actionFormBeanDesc.getPropertyDesc(i);
-                if (isExportablePath(pd)) {
-                    Object value = WrapperUtil.convert(pd.getValue(actionForm));
-                    if (value != null) {
-                        request.setAttribute(pd.getPropertyName(), value);
-                    }
-                }
-            }
-        }
-        BeanDesc actionBeanDesc = actionMapping.getActionBeanDesc();
-        for (int i = 0; i < actionBeanDesc.getPropertyDescSize(); i++) {
-            PropertyDesc pd = actionBeanDesc.getPropertyDesc(i);
-            if (isExportablePath(pd)) {
-                Object value = WrapperUtil.convert(pd.getValue(action));
-                if (value != null) {
-                    request.setAttribute(pd.getPropertyName(), value);
-                }
-            }
-        }
-    }
-
-    /**
-     * リクエストに設定可能かどうかを返します。
-     * 
-     * @param propertyDesc
-     *            プロパティ記述
-     * @return リクエストに設定可能かどうか
-     */
-    protected boolean isExportablePath(PropertyDesc propertyDesc) {
-        return !propertyDesc.getPropertyType().getName().startsWith(
-                "javax.servlet")
-                && !propertyDesc.getPropertyName().equals("requestScope")
-                && !propertyDesc.getPropertyName().equals("sessionScope")
-                && !propertyDesc.getPropertyName().equals("appplicationScope");
-    }
-
-    /**
-     * プロパティをリクエストにエクスポート可能なパスかどうかを返します。
-     * 
-     * @param path
-     *            パス
-     * @return プロパティをリクエストにエクスポート可能なパスかどうか
-     */
-    protected boolean isExporablePath(String path) {
-        return path != null && path.indexOf(".") > 0 && path.indexOf(".do") < 0;
-    }
-
-    /**
      * 検証エラーの処理を行います。
      * 
      * @param errors
@@ -252,11 +188,7 @@ public class ActionWrapper extends Action {
         } else {
             request.getSession().setAttribute(Globals.ERROR_KEY, errors);
         }
-        ActionForward forward = actionMapping.createForward(executeConfig
+        return actionMapping.createForward(executeConfig
                 .resolveInput(actionMapping));
-        if (isExporablePath(forward.getPath())) {
-            exportPropertiesToRequest(request, executeConfig);
-        }
-        return forward;
     }
 }
