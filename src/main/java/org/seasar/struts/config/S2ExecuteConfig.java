@@ -104,6 +104,11 @@ public class S2ExecuteConfig implements Serializable {
     protected boolean removeActionForm = false;
 
     /**
+     * リセットメソッドです。
+     */
+    protected Method resetMethod;
+
+    /**
      * インスタンスを構築します。
      * 
      * @param method
@@ -364,6 +369,25 @@ public class S2ExecuteConfig implements Serializable {
      */
     public void setRemoveActionForm(boolean removeActionForm) {
         this.removeActionForm = removeActionForm;
+    }
+
+    /**
+     * リセットメソッドを返します。
+     * 
+     * @return リセットメソッド
+     */
+    public Method getResetMethod() {
+        return resetMethod;
+    }
+
+    /**
+     * リセットメソッドを設定します。
+     * 
+     * @param resetMethod
+     *            リセットメソッド
+     */
+    public void setResetMethod(Method resetMethod) {
+        this.resetMethod = resetMethod;
     }
 
     /**

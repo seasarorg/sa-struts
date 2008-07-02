@@ -94,7 +94,6 @@ public class S2RequestProcessor extends RequestProcessor {
         }
         ActionForm form = processActionForm(request, response, mapping);
         processPopulate(request, response, form, mapping);
-        processExecuteConfig(request, response, mapping);
         if (!processRoles(request, response, mapping)) {
             return;
         }
@@ -255,7 +254,6 @@ public class S2RequestProcessor extends RequestProcessor {
             return;
         }
         form.setServlet(servlet);
-        form.reset(mapping, request);
         String contentType = request.getContentType();
         String method = request.getMethod();
         form.setMultipartRequestHandler(null);
@@ -277,6 +275,8 @@ public class S2RequestProcessor extends RequestProcessor {
                 }
             }
         }
+        processExecuteConfig(request, response, mapping);
+        form.reset(mapping, request);
         Map<String, Object> params = getAllParameters(request, multipartHandler);
         S2ActionMapping actionMapping = (S2ActionMapping) mapping;
         for (Iterator<String> i = params.keySet().iterator(); i.hasNext();) {

@@ -101,7 +101,6 @@ public class ActionCustomizer implements ComponentCustomizer {
         Class<?> actionClass = componentDef.getComponentClass();
         setupActionForm(actionMapping, actionClass);
         setupMethod(actionMapping, actionClass);
-        setupReset(actionMapping, actionClass);
         return actionMapping;
     }
 
@@ -212,6 +211,14 @@ public class ActionCustomizer implements ComponentCustomizer {
                     actionMapping.addExecuteConfig(executeConfig);
                 }
                 executeConfig.setRemoveActionForm(execute.removeActionForm());
+                String reset = execute.reset();
+                if (!StringUtil.isEmpty(reset)) {
+                    Method resetMethod = actionMapping.getActionFormBeanDesc()
+                            .getMethodNoException(reset);
+                    if (resetMethod != null) {
+                        executeConfig.setResetMethod(resetMethod);
+                    }
+                }
             }
         }
         if (allSelectedExecuteConfig != null) {
@@ -241,23 +248,6 @@ public class ActionCustomizer implements ComponentCustomizer {
                 return;
             }
 
-        }
-    }
-
-    /**
-     * リセットの情報をセットアップします。
-     * 
-     * @param actionMapping
-     *            アクションマッピング
-     * @param actionClass
-     *            アクションクラス
-     */
-    protected void setupReset(S2ActionMapping actionMapping,
-            Class<?> actionClass) {
-        BeanDesc beanDesc = actionMapping.getActionFormBeanDesc();
-        Method method = beanDesc.getMethodNoException("reset");
-        if (method != null) {
-            actionMapping.setResetMethod(method);
         }
     }
 

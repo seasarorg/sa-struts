@@ -16,7 +16,6 @@
 package org.seasar.struts.config;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -75,11 +74,6 @@ public class S2ActionMapping extends ActionMapping {
      * アクションフォーム用のフィールドです。
      */
     protected Field actionFormField;
-
-    /**
-     * リセットメソッドです。
-     */
-    protected Method resetMethod;
 
     /**
      * インスタンスを構築します。
@@ -453,24 +447,5 @@ public class S2ActionMapping extends ActionMapping {
                 .getType());
         actionFormComponentDef = SingletonS2ContainerFactory.getContainer()
                 .getComponentDef(actionFormField.getType());
-    }
-
-    /**
-     * リセットメソッドを返します。
-     * 
-     * @return リセットメソッド
-     */
-    public Method getResetMethod() {
-        return resetMethod;
-    }
-
-    /**
-     * リセットメソッドを設定します。
-     * 
-     * @param resetMethod
-     *            リセットメソッド
-     */
-    public void setResetMethod(Method resetMethod) {
-        this.resetMethod = resetMethod;
     }
 }

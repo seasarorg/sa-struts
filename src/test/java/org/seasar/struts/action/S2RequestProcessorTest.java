@@ -199,24 +199,6 @@ public class S2RequestProcessorTest extends S2TestCase {
     /**
      * @throws Exception
      */
-    public void testProcessPopulate_reset() throws Exception {
-        register(BbbAction.class, "bbbAction");
-        BbbAction actionForm = (BbbAction) getComponent("bbbAction");
-        S2ActionMapping actionMapping = new S2ActionMapping();
-        actionMapping.setComponentDef(getComponentDef("bbbAction"));
-        actionMapping.setResetMethod(BbbAction.class.getMethod("reset"));
-        ActionFormWrapperClass wrapperClass = new ActionFormWrapperClass(
-                actionMapping);
-        ActionFormWrapper formWrapper = new ActionFormWrapper(wrapperClass);
-        S2RequestProcessor processor = new S2RequestProcessor();
-        processor.processPopulate(getRequest(), getResponse(), formWrapper,
-                actionMapping);
-        assertEquals("aaa", actionForm.hoge);
-    }
-
-    /**
-     * @throws Exception
-     */
     public void testSetProperty_simple() throws Exception {
         BbbAction bean = new BbbAction();
         S2RequestProcessor processor = new S2RequestProcessor();

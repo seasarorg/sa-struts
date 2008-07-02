@@ -80,4 +80,10 @@ public @interface Execute {
      * 
      */
     boolean removeActionForm() default false;
+
+    /**
+     * リセットメソッド名です。
+     * 
+     */
+    String reset() default "";
 }

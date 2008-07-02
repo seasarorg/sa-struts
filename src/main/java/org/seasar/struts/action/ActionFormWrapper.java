@@ -25,6 +25,8 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 import org.seasar.framework.beans.PropertyNotFoundRuntimeException;
 import org.seasar.framework.util.MethodUtil;
+import org.seasar.struts.config.S2ExecuteConfig;
+import org.seasar.struts.util.S2ExecuteConfigUtil;
 
 /**
  * アクションフォームのラッパーです。
@@ -59,9 +61,12 @@ public class ActionFormWrapper extends ActionForm implements DynaBean {
 
     @Override
     public void reset(ActionMapping mapping, HttpServletRequest request) {
-        Method m = actionFormWrapperClass.actionMapping.getResetMethod();
-        if (m != null) {
-            MethodUtil.invoke(m, actionForm, null);
+        S2ExecuteConfig executeConfig = S2ExecuteConfigUtil.getExecuteConfig();
+        if (executeConfig != null) {
+            Method m = executeConfig.getResetMethod();
+            if (m != null) {
+                MethodUtil.invoke(m, actionForm, null);
+            }
         }
     }
 

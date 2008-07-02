@@ -20,6 +20,8 @@ import org.seasar.framework.beans.PropertyNotFoundRuntimeException;
 import org.seasar.struts.annotation.Execute;
 import org.seasar.struts.annotation.Required;
 import org.seasar.struts.config.S2ActionMapping;
+import org.seasar.struts.config.S2ExecuteConfig;
+import org.seasar.struts.util.S2ExecuteConfigUtil;
 
 /**
  * @author higa
@@ -89,7 +91,9 @@ public class ActionFormWrapperTest extends S2TestCase {
         BbbAction actionForm = (BbbAction) getComponent("bbbAction");
         S2ActionMapping actionMapping = new S2ActionMapping();
         actionMapping.setComponentDef(getComponentDef("bbbAction"));
-        actionMapping.setResetMethod(BbbAction.class.getMethod("reset"));
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setResetMethod(BbbAction.class.getMethod("reset"));
+        S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
         ActionFormWrapperClass wrapperClass = new ActionFormWrapperClass(
                 actionMapping);
         ActionFormWrapper formWrapper = new ActionFormWrapper(wrapperClass);

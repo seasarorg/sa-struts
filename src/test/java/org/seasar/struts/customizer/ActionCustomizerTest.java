@@ -165,6 +165,7 @@ public class ActionCustomizerTest extends S2TestCase {
         assertEquals(3, actionMapping.getExecuteConfigSize());
         assertFalse(executeConfig.isStopOnValidationError());
         assertTrue(executeConfig.isRemoveActionForm());
+        assertEquals("reset", executeConfig.getResetMethod().getName());
     }
 
     /**
@@ -367,26 +368,6 @@ public class ActionCustomizerTest extends S2TestCase {
     /**
      * @throws Exception
      */
-    public void testSetupReset_action() throws Exception {
-        S2ActionMapping actionMapping = customizer
-                .createActionMapping(getComponentDef("aaa_bbbAction"));
-        assertNotNull(actionMapping.getResetMethod());
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testSetupReset_actionForm() throws Exception {
-        register(CccAction.class, "cccAction");
-        register(CccActionForm.class, "cccActionForm");
-        S2ActionMapping actionMapping = customizer
-                .createActionMapping(getComponentDef("cccAction"));
-        assertNotNull(actionMapping.getResetMethod());
-    }
-
-    /**
-     * @throws Exception
-     */
     public void testCreateFormBeanConfig_name() throws Exception {
         S2ActionMapping actionMapping = customizer
                 .createActionMapping(getComponentDef("aaa_bbbAction"));
@@ -575,7 +556,7 @@ public class ActionCustomizerTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute(validator = false, validate = "validate", input = "/aaa/input2.jsp", roles = "admin,user", stopOnValidationError = false, removeActionForm = true)
+        @Execute(validator = false, validate = "validate", input = "/aaa/input2.jsp", roles = "admin,user", stopOnValidationError = false, removeActionForm = true, reset = "reset")
         public String execute() {
             return "input2.jsp";
         }
