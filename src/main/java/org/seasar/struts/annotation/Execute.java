@@ -82,8 +82,8 @@ public @interface Execute {
     boolean removeActionForm() default false;
 
     /**
-     * リセットメソッド名です。
+     * リセットメソッド名です。 デフォルトはresetです。
      * 
      */
-    String reset() default "";
+    String reset() default "reset";
 }
