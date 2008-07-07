@@ -15,9 +15,13 @@
  */
 package org.seasar.struts.util;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 import javax.servlet.http.HttpServletResponse;
 
 import org.seasar.framework.container.SingletonS2Container;
+import org.seasar.framework.exception.IORuntimeException;
 
 /**
  * レスポンスに関するユーティリティです。
@@ -37,5 +41,30 @@ public final class ResponseUtil {
      */
     public static HttpServletResponse getResponse() {
         return SingletonS2Container.getComponent(HttpServletResponse.class);
+    }
+
+    /**
+     * ダウンロードします。
+     * 
+     * @param fileName
+     *            ファイル名
+     * @param data
+     *            ダウンロードするデータ
+     */
+    public static void download(String fileName, byte[] data) {
+        HttpServletResponse response = getResponse();
+        try {
+            response.setContentType("application/octet-stream");
+            response.setHeader("Content-disposition", "attachment; filename=\""
+                    + fileName + "\"");
+            OutputStream out = response.getOutputStream();
+            try {
+                out.write(data);
+            } finally {
+                out.close();
+            }
+        } catch (IOException e) {
+            throw new IORuntimeException(e);
+        }
     }
 }
