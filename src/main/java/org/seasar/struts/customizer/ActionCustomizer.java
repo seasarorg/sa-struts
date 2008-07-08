@@ -125,6 +125,9 @@ public class ActionCustomizer implements ComponentCustomizer {
                 if (execute == null) {
                     continue;
                 }
+                if (actionMapping.getExecuteConfig(m.getName()) != null) {
+                    continue;
+                }
                 if (m.getParameterTypes().length > 0
                         || m.getReturnType() != String.class) {
                     throw new IllegalExecuteMethodRuntimeException(actionClass,

@@ -357,6 +357,20 @@ public class ActionCustomizerTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testSetupMethod_inheritedMethod() throws Exception {
+        register(NnnAction.class, "nnnAction");
+        S2ActionMapping actionMapping = customizer
+                .createActionMapping(getComponentDef("nnnAction"));
+        S2ExecuteConfig executeConfig = actionMapping
+                .findExecuteConfig("index");
+        assertNotNull(executeConfig);
+        assertEquals(NnnAction.class, executeConfig.getMethod()
+                .getDeclaringClass());
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testSetupActionForm() throws Exception {
         register(CccAction.class, "cccAction");
         register(CccActionForm.class, "cccActionForm");
@@ -784,6 +798,35 @@ public class ActionCustomizerTest extends S2TestCase {
         /**
          * @return
          */
+        @Execute(validator = false)
+        public String index() {
+            return "index.jsp";
+        }
+    }
+
+    /**
+     * 
+     */
+    public static class NnnBaseAction {
+
+        /**
+         * @return
+         */
+        @Execute(validator = false)
+        public String index() {
+            return "index.jsp";
+        }
+    }
+
+    /**
+     * 
+     */
+    public static class NnnAction extends NnnBaseAction {
+
+        /**
+         * @return
+         */
+        @Override
         @Execute(validator = false)
         public String index() {
             return "index.jsp";
