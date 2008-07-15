@@ -262,10 +262,8 @@ public class S2ActionMapping extends ActionMapping {
      */
     public void setComponentDef(ComponentDef componentDef) {
         this.componentDef = componentDef;
-        actionFormComponentDef = componentDef;
         actionBeanDesc = BeanDescFactory.getBeanDesc(componentDef
                 .getComponentClass());
-        actionFormBeanDesc = actionBeanDesc;
     }
 
     /**
@@ -274,6 +272,13 @@ public class S2ActionMapping extends ActionMapping {
      * @return アクションフォームのコンポーネント定義
      */
     public ComponentDef getActionFormComponentDef() {
+        if (actionFormField == null) {
+            return componentDef;
+        }
+        if (actionFormComponentDef == null) {
+            actionFormComponentDef = SingletonS2ContainerFactory.getContainer()
+                    .getComponentDef(actionFormField.getType());
+        }
         return actionFormComponentDef;
     }
 
@@ -292,6 +297,9 @@ public class S2ActionMapping extends ActionMapping {
      * @return アクションフォームのBean記述
      */
     public BeanDesc getActionFormBeanDesc() {
+        if (actionFormField == null) {
+            return actionBeanDesc;
+        }
         return actionFormBeanDesc;
     }
 
@@ -310,7 +318,7 @@ public class S2ActionMapping extends ActionMapping {
      * @return POJOアクションフォーム
      */
     public Object getActionForm() {
-        return actionFormComponentDef.getComponent();
+        return getActionFormComponentDef().getComponent();
     }
 
     /**
@@ -445,7 +453,5 @@ public class S2ActionMapping extends ActionMapping {
         this.actionFormField = actionFormField;
         actionFormBeanDesc = BeanDescFactory.getBeanDesc(actionFormField
                 .getType());
-        actionFormComponentDef = SingletonS2ContainerFactory.getContainer()
-                .getComponentDef(actionFormField.getType());
     }
 }
