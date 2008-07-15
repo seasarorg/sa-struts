@@ -209,9 +209,12 @@ public class S2RequestProcessor extends RequestProcessor {
         }
         try {
             actionForm = formConfig.createActionForm(servlet);
-        } catch (Throwable t) {
-            log.error(t.getMessage(), t);
-            return null;
+        } catch (IllegalAccessException e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        } catch (InstantiationException e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
         }
         if ("request".equals(mapping.getScope())) {
             request.setAttribute(mapping.getAttribute(), actionForm);
