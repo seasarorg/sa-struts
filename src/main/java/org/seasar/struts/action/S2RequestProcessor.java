@@ -274,6 +274,7 @@ public class S2RequestProcessor extends RequestProcessor {
                 if ((maxLengthExceeded != null)
                         && (maxLengthExceeded.booleanValue())) {
                     form.setMultipartRequestHandler(multipartHandler);
+                    processExecuteConfig(request, response, mapping);
                     return;
                 }
             }
