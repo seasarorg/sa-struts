@@ -8,7 +8,7 @@
   <artifactId>sa-struts</artifactId>
   <packaging>jar</packaging>
   <name>sa-struts</name>
-  <version>1.0.3-rc2</version>
+  <version>1.0.3</version>
   <description></description>
   <url>http://sastruts.seasar.org/</url>
   <inceptionYear>2004-2008</inceptionYear>
