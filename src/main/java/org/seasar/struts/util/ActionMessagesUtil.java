@@ -148,6 +148,31 @@ public final class ActionMessagesUtil {
     }
 
     /**
+     * エラーメッセージがあるかどうかを返します。
+     * 
+     * @param request
+     *            リクエスト
+     * @return エラーメッセージがあるかどうか
+     * @since 1.0.4
+     */
+    public static boolean hasErrors(HttpServletRequest request) {
+        ActionMessages errors = (ActionMessages) request
+                .getAttribute(Globals.ERROR_KEY);
+        if (errors != null && !errors.isEmpty()) {
+            return true;
+        }
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            return false;
+        }
+        errors = (ActionMessages) session.getAttribute(Globals.ERROR_KEY);
+        if (errors != null && !errors.isEmpty()) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * メッセージをリクエストに追加します。
      * 
      * @param request

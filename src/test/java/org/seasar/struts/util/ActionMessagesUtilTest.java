@@ -13,7 +13,7 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.seasar.struts.action;
+package org.seasar.struts.util;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -22,7 +22,6 @@ import org.apache.struts.Globals;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import org.seasar.extension.unit.S2TestCase;
-import org.seasar.struts.util.ActionMessagesUtil;
 
 /**
  * @author higa
@@ -59,6 +58,36 @@ public class ActionMessagesUtilTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testHasErrors_request() throws Exception {
+        ActionMessages errors = new ActionMessages();
+        errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("hoge",
+                false));
+        HttpServletRequest request = getRequest();
+        ActionMessagesUtil.saveErrors(request, errors);
+        assertTrue(ActionMessagesUtil.hasErrors(request));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testHasErrors_request_errorsNotExist() throws Exception {
+        HttpServletRequest request = getRequest();
+        assertFalse(ActionMessagesUtil.hasErrors(request));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testHasErrors_request_errorsEmpty() throws Exception {
+        ActionMessages errors = new ActionMessages();
+        HttpServletRequest request = getRequest();
+        ActionMessagesUtil.saveErrors(request, errors);
+        assertFalse(ActionMessagesUtil.hasErrors(request));
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testSaveMessages_request() throws Exception {
         ActionMessages messages = new ActionMessages();
         messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("hoge",
@@ -80,6 +109,38 @@ public class ActionMessagesUtilTest extends S2TestCase {
         ActionMessagesUtil.saveMessages(session, messages);
         assertFalse(((ActionMessages) session.getAttribute(Globals.MESSAGE_KEY))
                 .isEmpty());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testHasErrors_session() throws Exception {
+        ActionMessages errors = new ActionMessages();
+        errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("hoge",
+                false));
+        HttpServletRequest request = getRequest();
+        HttpSession session = request.getSession();
+        ActionMessagesUtil.saveErrors(session, errors);
+        assertTrue(ActionMessagesUtil.hasErrors(request));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testHasErrors_session_errorsNotExist() throws Exception {
+        HttpServletRequest request = getRequest();
+        assertFalse(ActionMessagesUtil.hasErrors(request));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testHasErrors_session_errorsEmpty() throws Exception {
+        ActionMessages errors = new ActionMessages();
+        HttpServletRequest request = getRequest();
+        HttpSession session = request.getSession();
+        ActionMessagesUtil.saveErrors(session, errors);
+        assertFalse(ActionMessagesUtil.hasErrors(request));
     }
 
     /**

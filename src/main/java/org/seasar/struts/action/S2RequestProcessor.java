@@ -57,6 +57,7 @@ import org.seasar.struts.exception.IndexedPropertyNotListArrayRuntimeException;
 import org.seasar.struts.exception.NoParameterizedListRuntimeException;
 import org.seasar.struts.exception.NoRoleRuntimeException;
 import org.seasar.struts.util.ActionFormUtil;
+import org.seasar.struts.util.ActionMessagesUtil;
 import org.seasar.struts.util.S2ActionMappingUtil;
 import org.seasar.struts.util.S2ExecuteConfigUtil;
 
@@ -317,7 +318,8 @@ public class S2RequestProcessor extends RequestProcessor {
      */
     protected void exportPropertiesToRequest(HttpServletRequest request,
             S2ActionMapping actionMapping, S2ExecuteConfig executeConfig) {
-        if (!executeConfig.isRemoveActionForm()) {
+        if (ActionMessagesUtil.hasErrors(request)
+                || !executeConfig.isRemoveActionForm()) {
             Object actionForm = actionMapping.getActionForm();
             BeanDesc actionFormBeanDesc = actionMapping.getActionFormBeanDesc();
             for (int i = 0; i < actionFormBeanDesc.getPropertyDescSize(); i++) {
