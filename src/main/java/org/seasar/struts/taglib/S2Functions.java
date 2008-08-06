@@ -94,7 +94,14 @@ public class S2Functions {
         return escape(str);
     }
 
-    private static String escape(String buffer) {
+    /**
+     * 文字列をHTMLエスケープします。
+     * 
+     * @param buffer
+     *            文字列
+     * @return エスケープした結果
+     */
+    public static String escape(String buffer) {
         int start = 0;
         int length = buffer.length();
         char[] arrayBuffer = buffer.toCharArray();

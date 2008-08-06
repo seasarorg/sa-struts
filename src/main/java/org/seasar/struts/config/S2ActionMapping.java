@@ -99,6 +99,10 @@ public class S2ActionMapping extends ActionMapping {
             return null;
         }
         boolean redirect = false;
+        S2ExecuteConfig executeConfig = S2ExecuteConfigUtil.getExecuteConfig();
+        if (executeConfig != null) {
+            redirect = executeConfig.isRedirect();
+        }
         if (path.endsWith(REDIRECT)) {
             redirect = true;
             path = path.substring(0, path.length() - REDIRECT.length() - 1);

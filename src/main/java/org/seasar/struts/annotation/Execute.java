@@ -88,4 +88,10 @@ public @interface Execute {
      * 
      */
     String reset() default "reset";
+
+    /**
+     * 正常終了時に遷移先にリダイレクトするかどうかです。
+     * 
+     */
+    boolean redirect() default false;
 }

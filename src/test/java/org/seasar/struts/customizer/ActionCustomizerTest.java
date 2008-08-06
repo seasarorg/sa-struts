@@ -166,6 +166,7 @@ public class ActionCustomizerTest extends S2TestCase {
         assertFalse(executeConfig.isStopOnValidationError());
         assertTrue(executeConfig.isRemoveActionForm());
         assertEquals("reset", executeConfig.getResetMethod().getName());
+        assertTrue(executeConfig.isRedirect());
     }
 
     /**
@@ -570,7 +571,7 @@ public class ActionCustomizerTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute(validator = false, validate = "validate", input = "/aaa/input2.jsp", roles = "admin,user", stopOnValidationError = false, removeActionForm = true, reset = "reset")
+        @Execute(validator = false, validate = "validate", input = "/aaa/input2.jsp", roles = "admin,user", stopOnValidationError = false, removeActionForm = true, reset = "reset", redirect = true)
         public String execute() {
             return "input2.jsp";
         }

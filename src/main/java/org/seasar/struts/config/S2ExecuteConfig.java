@@ -109,6 +109,11 @@ public class S2ExecuteConfig implements Serializable {
     protected Method resetMethod;
 
     /**
+     * 正常終了時に遷移先にリダイレクトするかどうかです。
+     */
+    protected boolean redirect = false;
+
+    /**
      * インスタンスを構築します。
      * 
      * @param method
@@ -388,6 +393,25 @@ public class S2ExecuteConfig implements Serializable {
      */
     public void setResetMethod(Method resetMethod) {
         this.resetMethod = resetMethod;
+    }
+
+    /**
+     * 正常終了時に遷移先にリダイレクトするかどうかを返します。
+     * 
+     * @return 正常終了時に遷移先にリダイレクトするかどうか
+     */
+    public boolean isRedirect() {
+        return redirect;
+    }
+
+    /**
+     * 正常終了時に遷移先にリダイレクトするかどうかを設定します。
+     * 
+     * @param redirect
+     *            正常終了時に遷移先にリダイレクトするかどうか
+     */
+    public void setRedirect(boolean redirect) {
+        this.redirect = redirect;
     }
 
     /**

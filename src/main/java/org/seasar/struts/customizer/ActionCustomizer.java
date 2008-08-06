@@ -203,6 +203,16 @@ public class ActionCustomizer implements ComponentCustomizer {
                 }
                 executeConfig.setStopOnValidationError(execute
                         .stopOnValidationError());
+                executeConfig.setRemoveActionForm(execute.removeActionForm());
+                String reset = execute.reset();
+                if (!StringUtil.isEmpty(reset)) {
+                    Method resetMethod = actionMapping.getActionFormBeanDesc()
+                            .getMethodNoException(reset);
+                    if (resetMethod != null) {
+                        executeConfig.setResetMethod(resetMethod);
+                    }
+                }
+                executeConfig.setRedirect(execute.redirect());
                 if (executeConfig.isUrlPatternAllSelected()) {
                     if (allSelectedExecuteConfig != null) {
                         throw new MultipleAllSelectedUrlPatternRuntimeException(
@@ -212,15 +222,6 @@ public class ActionCustomizer implements ComponentCustomizer {
                     allSelectedExecuteConfig = executeConfig;
                 } else {
                     actionMapping.addExecuteConfig(executeConfig);
-                }
-                executeConfig.setRemoveActionForm(execute.removeActionForm());
-                String reset = execute.reset();
-                if (!StringUtil.isEmpty(reset)) {
-                    Method resetMethod = actionMapping.getActionFormBeanDesc()
-                            .getMethodNoException(reset);
-                    if (resetMethod != null) {
-                        executeConfig.setResetMethod(resetMethod);
-                    }
                 }
             }
         }
