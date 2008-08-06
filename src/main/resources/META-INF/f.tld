@@ -82,4 +82,16 @@
       &lt;a href="${f:url(param:info)}" ...
     </example>
   </function>
+  
+  <function>
+    <description>
+      Converts value to label.
+    </description>
+    <name>label</name>
+    <function-class>org.seasar.struts.taglib.S2Functions</function-class>
+    <function-signature>java.lang.String label(java.lang.Object, java.util.List, java.lang.String, java.lang.String)</function-signature>
+    <example>
+      ${f:label(e.departmentId, deptItems, "id", "name")}
+    </example>
+  </function>
 </taglib>

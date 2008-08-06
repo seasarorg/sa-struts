@@ -20,7 +20,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
+import org.seasar.framework.beans.BeanDesc;
+import org.seasar.framework.beans.factory.BeanDescFactory;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.framework.exception.ParseRuntimeException;
@@ -242,5 +246,60 @@ public class S2Functions {
         }
         return input.replaceAll("\r\n", BR).replaceAll("\r", BR).replaceAll(
                 "\n", BR);
+    }
+
+    /**
+     * 値をラベルに変換します。
+     * 
+     * @param value
+     *            値
+     * @param dataList
+     *            JavaBeansあるいはMapのリスト
+     * @param valueName
+     *            値用のプロパティ名
+     * @param labelName
+     *            ラベル用のプロパティ名
+     * 
+     * @param input
+     *            入力値
+     * @return ラベル
+     */
+    @SuppressWarnings("unchecked")
+    public static String label(Object value, List dataList, String valueName,
+            String labelName) {
+        if (value == null) {
+            return "";
+        }
+        if (valueName == null) {
+            throw new NullPointerException("valueName");
+        }
+        if (labelName == null) {
+            throw new NullPointerException("labelName");
+        }
+        if (dataList == null) {
+            throw new NullPointerException("dataList");
+        }
+        if (dataList.size() == 0) {
+            return "";
+        }
+        for (Object o : dataList) {
+            if (o instanceof Map) {
+                Map<String, Object> m = (Map<String, Object>) o;
+                Object v = m.get(valueName);
+                if (value == null && v == null || value != null
+                        && value.equals(v)) {
+                    return (String) m.get(labelName);
+                }
+            } else {
+                BeanDesc beanDesc = BeanDescFactory.getBeanDesc(o.getClass());
+                Object v = beanDesc.getPropertyDesc(valueName).getValue(o);
+                if (value == null && v == null || value != null
+                        && value.equals(v)) {
+                    return (String) beanDesc.getPropertyDesc(labelName)
+                            .getValue(o);
+                }
+            }
+        }
+        return "";
     }
 }

@@ -15,6 +15,11 @@
  */
 package org.seasar.struts.taglib;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.seasar.extension.unit.S2TestCase;
 
 /**
@@ -207,5 +212,46 @@ public class S2FunctionsTest extends S2TestCase {
     public void testUrlForParameter() throws Exception {
         getRequest().setPathInfo("/add/index.jsp");
         assertEquals("/add/edit/1", S2Functions.url("edit/1"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testLabelUsingMap() throws Exception {
+        Map<String, Object> m = new HashMap<String, Object>();
+        m.put("value", 1);
+        m.put("label", "one");
+        List<Map<String, Object>> dataList = new ArrayList<Map<String, Object>>();
+        dataList.add(m);
+        assertEquals("one", S2Functions.label(1, dataList, "value", "label"));
+        assertEquals("", S2Functions.label(2, dataList, "value", "label"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testLabelUsingJavaBeans() throws Exception {
+        Foo foo = new Foo();
+        foo.id = 1;
+        foo.name = "one";
+        List<Foo> dataList = new ArrayList<Foo>();
+        dataList.add(foo);
+        assertEquals("one", S2Functions.label(1, dataList, "id", "name"));
+        assertEquals("", S2Functions.label(2, dataList, "id", "name"));
+    }
+
+    /**
+     * 
+     */
+    private static class Foo {
+        /**
+         * 
+         */
+        public Integer id;
+
+        /**
+         * 
+         */
+        public String name;
     }
 }
