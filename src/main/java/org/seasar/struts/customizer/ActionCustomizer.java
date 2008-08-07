@@ -206,8 +206,14 @@ public class ActionCustomizer implements ComponentCustomizer {
                 executeConfig.setRemoveActionForm(execute.removeActionForm());
                 String reset = execute.reset();
                 if (!StringUtil.isEmpty(reset)) {
-                    Method resetMethod = actionMapping.getActionFormBeanDesc()
-                            .getMethodNoException(reset);
+                    Method resetMethod = null;
+                    if ("reset".equals(reset)) {
+                        resetMethod = actionMapping.getActionFormBeanDesc()
+                                .getMethodNoException(reset);
+                    } else {
+                        resetMethod = actionMapping.getActionFormBeanDesc()
+                                .getMethod(reset);
+                    }
                     if (resetMethod != null) {
                         executeConfig.setResetMethod(resetMethod);
                     }
