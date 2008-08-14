@@ -141,7 +141,7 @@ public class ActionWrapper extends Action {
             RequestUtil.getRequest().removeAttribute(
                     actionMapping.getAttribute());
         }
-        return actionMapping.createForward(next);
+        return actionMapping.createForward(next, executeConfig.isRedirect());
     }
 
     /**

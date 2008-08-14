@@ -342,22 +342,6 @@ public class S2ActionMappingTest extends S2TestCase {
     /**
      * @throws Exception
      */
-    public void testCreateForward_redirect_executeConfig() throws Exception {
-        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
-        executeConfig.setRedirect(true);
-        S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
-        S2ActionMapping actionMapping = new S2ActionMapping();
-        ComponentDef cd = new ComponentDefImpl(MyAction.class, "aaaAction");
-        actionMapping.setComponentDef(cd);
-        ActionForward forward = actionMapping.createForward("hoge.jsp");
-        assertNotNull(forward);
-        assertEquals("/aaa/hoge.jsp", forward.getPath());
-        assertTrue(forward.getRedirect());
-    }
-
-    /**
-     * @throws Exception
-     */
     public void testCreateForward_routing() throws Exception {
         S2ActionMapping actionMapping = new S2ActionMapping();
         actionMapping.setComponentDef(getComponentDef(MyAction.class));

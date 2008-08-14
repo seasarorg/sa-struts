@@ -84,10 +84,6 @@ public class S2ActionMapping extends ActionMapping {
     }
 
     /**
-     * @param path
-     * @return
-     */
-    /**
      * アクションフォワードを作成します。
      * 
      * @param path
@@ -95,13 +91,21 @@ public class S2ActionMapping extends ActionMapping {
      * @return アクションフォワード
      */
     public ActionForward createForward(String path) {
+        return createForward(path, false);
+    }
+
+    /**
+     * アクションフォワードを作成します。
+     * 
+     * @param path
+     *            パス
+     * @param redirect
+     *            リダイレクトするかどうか
+     * @return アクションフォワード
+     */
+    public ActionForward createForward(String path, boolean redirect) {
         if (path == null) {
             return null;
-        }
-        boolean redirect = false;
-        S2ExecuteConfig executeConfig = S2ExecuteConfigUtil.getExecuteConfig();
-        if (executeConfig != null) {
-            redirect = executeConfig.isRedirect();
         }
         if (path.endsWith(REDIRECT)) {
             redirect = true;

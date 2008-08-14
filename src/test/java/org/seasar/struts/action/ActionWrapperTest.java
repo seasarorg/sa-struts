@@ -245,6 +245,23 @@ public class ActionWrapperTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testExecute_redirect() throws Exception {
+        ActionCustomizer customizer = new ActionCustomizer();
+        register(MmmAction.class, "mmmAction");
+        customizer.customize(getComponentDef(MmmAction.class));
+        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
+                .findActionConfig("/mmm");
+        S2ExecuteConfigUtil.setExecuteConfig(actionMapping
+                .findExecuteConfig(getRequest()));
+        ActionWrapper wrapper = new ActionWrapper(actionMapping);
+        ForwardConfig forward = wrapper.execute(actionMapping, null,
+                getRequest(), getResponse());
+        assertTrue(forward.getRedirect());
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testValidateUsingValidator() throws Exception {
         register(EeeAction.class, "aaa_eeeAction");
         ActionCustomizer customizer = new ActionCustomizer();
@@ -667,6 +684,20 @@ public class ActionWrapperTest extends S2TestCase {
         @Execute(validator = true, validate = "validate", input = "index.jsp")
         public String index() {
             return null;
+        }
+    }
+
+    /**
+     * 
+     */
+    public static class MmmAction {
+
+        /**
+         * @return
+         */
+        @Execute(validator = false, redirect = true)
+        public String index() {
+            return "index.jsp";
         }
     }
 
