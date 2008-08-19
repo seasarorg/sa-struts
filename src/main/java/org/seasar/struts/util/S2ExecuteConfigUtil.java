@@ -15,6 +15,8 @@
  */
 package org.seasar.struts.util;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.config.S2ModuleConfig;
@@ -66,5 +68,22 @@ public final class S2ExecuteConfigUtil {
         S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
                 .findActionConfig(actionPath);
         return actionMapping.findExecuteConfig(paramPath);
+    }
+
+    /**
+     * 実行設定を探します。
+     * 
+     * @param actionPath
+     *            アクションパス
+     * @param request
+     *            リクエスト
+     * @return 実行設定
+     */
+    public static S2ExecuteConfig findExecuteConfig(String actionPath,
+            HttpServletRequest request) {
+        S2ModuleConfig moduleConfig = S2ModuleConfigUtil.getModuleConfig();
+        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
+                .findActionConfig(actionPath);
+        return actionMapping.findExecuteConfig(request);
     }
 }

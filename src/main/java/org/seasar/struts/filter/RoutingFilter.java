@@ -69,20 +69,23 @@ public class RoutingFilter implements Filter {
                             }
                             res.sendRedirect(contextPath + path + "/"
                                     + queryString);
-                        } else {
+                            return;
+                        } else if (S2ExecuteConfigUtil.findExecuteConfig(
+                                actionPath, req) != null) {
                             forward((HttpServletRequest) request,
                                     (HttpServletResponse) response, actionPath,
                                     null, null);
+                            return;
                         }
-                        return;
-                    }
-                    S2ExecuteConfig executeConfig = S2ExecuteConfigUtil
-                            .findExecuteConfig(actionPath, paramPath);
-                    if (executeConfig != null) {
-                        forward((HttpServletRequest) request,
-                                (HttpServletResponse) response, actionPath,
-                                paramPath, executeConfig);
-                        return;
+                    } else {
+                        S2ExecuteConfig executeConfig = S2ExecuteConfigUtil
+                                .findExecuteConfig(actionPath, paramPath);
+                        if (executeConfig != null) {
+                            forward((HttpServletRequest) request,
+                                    (HttpServletResponse) response, actionPath,
+                                    paramPath, executeConfig);
+                            return;
+                        }
                     }
                 }
                 if (container.hasComponentDef(sb + "indexAction")) {
@@ -97,20 +100,23 @@ public class RoutingFilter implements Filter {
                             }
                             res.sendRedirect(contextPath + path + "/"
                                     + queryString);
-                        } else {
+                            return;
+                        } else if (S2ExecuteConfigUtil.findExecuteConfig(
+                                actionPath, req) != null) {
                             forward((HttpServletRequest) request,
                                     (HttpServletResponse) response, actionPath,
                                     null, null);
+                            return;
                         }
-                        return;
-                    }
-                    S2ExecuteConfig executeConfig = S2ExecuteConfigUtil
-                            .findExecuteConfig(actionPath, paramPath);
-                    if (executeConfig != null) {
-                        forward((HttpServletRequest) request,
-                                (HttpServletResponse) response, actionPath,
-                                paramPath, executeConfig);
-                        return;
+                    } else {
+                        S2ExecuteConfig executeConfig = S2ExecuteConfigUtil
+                                .findExecuteConfig(actionPath, paramPath);
+                        if (executeConfig != null) {
+                            forward((HttpServletRequest) request,
+                                    (HttpServletResponse) response, actionPath,
+                                    paramPath, executeConfig);
+                            return;
+                        }
                     }
                 }
                 sb.append(names[i] + "_");
@@ -125,12 +131,14 @@ public class RoutingFilter implements Filter {
                         queryString = "?" + req.getQueryString();
                     }
                     res.sendRedirect(contextPath + path + "/" + queryString);
-                } else {
+                    return;
+                } else if (S2ExecuteConfigUtil.findExecuteConfig(actionPath,
+                        req) != null) {
                     forward((HttpServletRequest) request,
                             (HttpServletResponse) response, actionPath, null,
                             null);
+                    return;
                 }
-                return;
             }
         }
         chain.doFilter(request, response);

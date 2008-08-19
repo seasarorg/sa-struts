@@ -28,6 +28,13 @@ import org.seasar.struts.config.S2ModuleConfig;
 public class S2ExecuteConfigUtilTest extends S2TestCase {
 
     /**
+     * @return
+     */
+    public String index() {
+        return null;
+    }
+
+    /**
      * @throws Exception
      */
     public void testExecuteConfig() throws Exception {
@@ -48,5 +55,21 @@ public class S2ExecuteConfigUtilTest extends S2TestCase {
         moduleConfig.addActionConfig(actionMapping);
         getServletContext().setAttribute(Globals.MODULE_KEY, moduleConfig);
         assertNotNull(S2ExecuteConfigUtil.findExecuteConfig("/aaa", "getClass"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testFindExecuteConfig_request() throws Exception {
+        S2ModuleConfig moduleConfig = new S2ModuleConfig("");
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        actionMapping.setPath("/aaa");
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setMethod(getClass().getMethod("index"));
+        actionMapping.addExecuteConfig(executeConfig);
+        moduleConfig.addActionConfig(actionMapping);
+        getServletContext().setAttribute(Globals.MODULE_KEY, moduleConfig);
+        assertNotNull(S2ExecuteConfigUtil.findExecuteConfig("/aaa",
+                getRequest()));
     }
 }
