@@ -174,6 +174,20 @@ public class S2FunctionsTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testNbsp() throws Exception {
+        assertEquals("&nbsp;&nbsp;", S2Functions.nbsp("  "));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testNbspForNull() throws Exception {
+        assertEquals("", S2Functions.nbsp(null));
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testUrlForNull() throws Exception {
         getServletContext().setServletContextName("/context");
         getRequest().setPathInfo("/add/index.jsp");

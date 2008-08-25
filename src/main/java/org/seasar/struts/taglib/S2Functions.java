@@ -47,6 +47,8 @@ public class S2Functions {
 
     private static String BR = "<br />";
 
+    private static String NBSP = "&nbsp;";
+
     private static char[][] specialCharactersRepresentation = new char[HIGHEST_SPECIAL + 1][];
 
     static {
@@ -246,6 +248,20 @@ public class S2Functions {
         }
         return input.replaceAll("\r\n", BR).replaceAll("\r", BR).replaceAll(
                 "\n", BR);
+    }
+
+    /**
+     * 空白を&nbsp;に変換します。
+     * 
+     * @param input
+     *            入力値
+     * @return 変換した結果
+     */
+    public static String nbsp(String input) {
+        if (StringUtil.isEmpty(input)) {
+            return "";
+        }
+        return input.replaceAll(" ", NBSP);
     }
 
     /**
