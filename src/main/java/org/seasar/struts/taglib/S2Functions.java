@@ -283,9 +283,6 @@ public class S2Functions {
     @SuppressWarnings("unchecked")
     public static String label(Object value, List dataList, String valueName,
             String labelName) {
-        if (value == null) {
-            return "";
-        }
         if (valueName == null) {
             throw new NullPointerException("valueName");
         }
@@ -295,27 +292,53 @@ public class S2Functions {
         if (dataList == null) {
             throw new NullPointerException("dataList");
         }
-        if (dataList.size() == 0) {
-            return "";
-        }
         for (Object o : dataList) {
             if (o instanceof Map) {
                 Map<String, Object> m = (Map<String, Object>) o;
                 Object v = m.get(valueName);
-                if (value == null && v == null || value != null
-                        && value.equals(v)) {
+                if (equals(value, v)) {
                     return (String) m.get(labelName);
                 }
             } else {
                 BeanDesc beanDesc = BeanDescFactory.getBeanDesc(o.getClass());
                 Object v = beanDesc.getPropertyDesc(valueName).getValue(o);
-                if (value == null && v == null || value != null
-                        && value.equals(v)) {
+                if (equals(value, v)) {
                     return (String) beanDesc.getPropertyDesc(labelName)
                             .getValue(o);
                 }
             }
         }
         return "";
+    }
+
+    /**
+     * 2つのオブジェクトの値が等しいかどうかを返します。
+     * 
+     * @param o1
+     *            オブジェクト1
+     * @param o2
+     *            オブジェクト2
+     * @return 2つのオブジェクトの値が等しいかどうか
+     */
+    private static boolean equals(Object o1, Object o2) {
+        if (o1 == null && o2 == null) {
+            return true;
+        }
+        if (o1 == null) {
+            if (o2 instanceof String && StringUtil.isEmpty((String) o2)) {
+                return true;
+            }
+            return false;
+        }
+        if (o2 == null) {
+            if (o1 instanceof String && StringUtil.isEmpty((String) o1)) {
+                return true;
+            }
+            return false;
+        }
+        if (o1.getClass() == o2.getClass()) {
+            return o1.equals(o2);
+        }
+        return o1.toString().equals(o2.toString());
     }
 }

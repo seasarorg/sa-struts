@@ -237,8 +237,72 @@ public class S2FunctionsTest extends S2TestCase {
         m.put("label", "one");
         List<Map<String, Object>> dataList = new ArrayList<Map<String, Object>>();
         dataList.add(m);
-        assertEquals("one", S2Functions.label(1, dataList, "value", "label"));
-        assertEquals("", S2Functions.label(2, dataList, "value", "label"));
+        Map<String, Object> m2 = new HashMap<String, Object>();
+        m2.put("value", 2);
+        m2.put("label", "two");
+        dataList.add(m2);
+        assertEquals("two", S2Functions.label(2, dataList, "value", "label"));
+        assertEquals("", S2Functions.label(0, dataList, "value", "label"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testLabelUsingMap_null_null() throws Exception {
+        Map<String, Object> m = new HashMap<String, Object>();
+        m.put("value", null);
+        m.put("label", "one");
+        List<Map<String, Object>> dataList = new ArrayList<Map<String, Object>>();
+        dataList.add(m);
+        assertEquals("one", S2Functions.label(null, dataList, "value", "label"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testLabelUsingMap_empty_null() throws Exception {
+        Map<String, Object> m = new HashMap<String, Object>();
+        m.put("value", null);
+        m.put("label", "one");
+        List<Map<String, Object>> dataList = new ArrayList<Map<String, Object>>();
+        dataList.add(m);
+        assertEquals("one", S2Functions.label("", dataList, "value", "label"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testLabelUsingMap_empty_empty() throws Exception {
+        Map<String, Object> m = new HashMap<String, Object>();
+        m.put("value", "");
+        m.put("label", "one");
+        List<Map<String, Object>> dataList = new ArrayList<Map<String, Object>>();
+        dataList.add(m);
+        assertEquals("one", S2Functions.label("", dataList, "value", "label"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testLabelUsingMap_null_empty() throws Exception {
+        Map<String, Object> m = new HashMap<String, Object>();
+        m.put("value", "");
+        m.put("label", "one");
+        List<Map<String, Object>> dataList = new ArrayList<Map<String, Object>>();
+        dataList.add(m);
+        assertEquals("one", S2Functions.label(null, dataList, "value", "label"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testLabelUsingMap_string_integer() throws Exception {
+        Map<String, Object> m = new HashMap<String, Object>();
+        m.put("value", 1);
+        m.put("label", "one");
+        List<Map<String, Object>> dataList = new ArrayList<Map<String, Object>>();
+        dataList.add(m);
+        assertEquals("one", S2Functions.label("1", dataList, "value", "label"));
     }
 
     /**
