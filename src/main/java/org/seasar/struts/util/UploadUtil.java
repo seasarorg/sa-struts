@@ -15,10 +15,7 @@
  */
 package org.seasar.struts.util;
 
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -27,6 +24,7 @@ import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.upload.FormFile;
 import org.seasar.framework.exception.IORuntimeException;
+import org.seasar.framework.util.FileUtil;
 import org.seasar.struts.upload.S2MultipartRequestHandler;
 
 /**
@@ -74,13 +72,8 @@ public final class UploadUtil {
             return;
         }
         try {
-            OutputStream out = new BufferedOutputStream(new FileOutputStream(
-                    path));
-            try {
-                out.write(formFile.getFileData(), 0, formFile.getFileSize());
-            } finally {
-                out.close();
-            }
+            FileUtil.write(path, formFile.getFileData(), 0, formFile
+                    .getFileSize());
         } catch (IOException e) {
             throw new IORuntimeException(e);
         }
