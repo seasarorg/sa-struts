@@ -39,6 +39,7 @@ import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.config.S2ModuleConfig;
 import org.seasar.struts.customizer.ActionCustomizer;
 import org.seasar.struts.enums.SaveType;
+import org.seasar.struts.util.ActionMessagesUtil;
 import org.seasar.struts.util.S2ExecuteConfigUtil;
 import org.seasar.struts.util.S2PropertyMessageResources;
 import org.seasar.struts.util.S2PropertyMessageResourcesFactory;
@@ -257,6 +258,27 @@ public class ActionWrapperTest extends S2TestCase {
         ForwardConfig forward = wrapper.execute(actionMapping, null,
                 getRequest(), getResponse());
         assertTrue(forward.getRedirect());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testExecute_redirect_hasErrors() throws Exception {
+        ActionCustomizer customizer = new ActionCustomizer();
+        register(MmmAction.class, "mmmAction");
+        customizer.customize(getComponentDef(MmmAction.class));
+        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
+                .findActionConfig("/mmm");
+        S2ExecuteConfigUtil.setExecuteConfig(actionMapping
+                .findExecuteConfig(getRequest()));
+        ActionMessages errors = new ActionMessages();
+        errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(
+                "errors.invalid", "hoge"));
+        ActionMessagesUtil.addErrors(getRequest(), errors);
+        ActionWrapper wrapper = new ActionWrapper(actionMapping);
+        ForwardConfig forward = wrapper.execute(actionMapping, null,
+                getRequest(), getResponse());
+        assertFalse(forward.getRedirect());
     }
 
     /**

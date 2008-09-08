@@ -36,6 +36,7 @@ import org.seasar.struts.config.S2ExecuteConfig;
 import org.seasar.struts.config.S2ValidationConfig;
 import org.seasar.struts.enums.SaveType;
 import org.seasar.struts.util.ActionFormUtil;
+import org.seasar.struts.util.ActionMessagesUtil;
 import org.seasar.struts.util.RequestUtil;
 import org.seasar.struts.util.S2ExecuteConfigUtil;
 import org.seasar.struts.util.ServletContextUtil;
@@ -141,7 +142,11 @@ public class ActionWrapper extends Action {
             RequestUtil.getRequest().removeAttribute(
                     actionMapping.getAttribute());
         }
-        return actionMapping.createForward(next, executeConfig.isRedirect());
+        boolean redirect = executeConfig.isRedirect();
+        if (ActionMessagesUtil.hasErrors(request)) {
+            redirect = false;
+        }
+        return actionMapping.createForward(next, redirect);
     }
 
     /**
