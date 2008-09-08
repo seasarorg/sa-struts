@@ -25,7 +25,9 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionServlet;
 import org.apache.struts.config.FormBeanConfig;
 import org.apache.struts.taglib.TagUtils;
+import org.apache.struts.taglib.html.Constants;
 import org.apache.struts.taglib.html.FormTag;
+import org.apache.struts.util.RequestUtils;
 import org.seasar.framework.container.S2Container;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
 import org.seasar.framework.util.StringUtil;
@@ -208,6 +210,28 @@ public class S2FormTag extends FormTag {
         beanName = mapping.getAttribute();
         beanScope = mapping.getScope();
         beanType = formBeanConfig.getType();
+    }
+
+    @Override
+    protected void initFormBean() throws JspException {
+        int scope = PageContext.SESSION_SCOPE;
+        if ("request".equalsIgnoreCase(beanScope)) {
+            scope = PageContext.REQUEST_SCOPE;
+        }
+
+        Object bean = pageContext.getAttribute(beanName, scope);
+        if (bean == null) {
+            bean = RequestUtils.createActionForm(
+                    (HttpServletRequest) pageContext.getRequest(), mapping,
+                    moduleConfig, servlet);
+            if (bean == null) {
+                throw new JspException(messages.getMessage("formTag.create",
+                        beanType));
+            }
+            pageContext.setAttribute(beanName, bean, scope);
+        }
+        pageContext.setAttribute(Constants.BEAN_KEY, bean,
+                PageContext.REQUEST_SCOPE);
     }
 
     @Override
