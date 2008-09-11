@@ -16,6 +16,7 @@
 package org.seasar.struts.util;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -24,6 +25,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.seasar.framework.container.SingletonS2Container;
 import org.seasar.framework.exception.IORuntimeException;
+import org.seasar.framework.util.InputStreamUtil;
+import org.seasar.framework.util.OutputStreamUtil;
 
 /**
  * レスポンスに関するユーティリティです。
@@ -68,6 +71,51 @@ public final class ResponseUtil {
         } catch (IOException e) {
             throw new IORuntimeException(e);
         }
+    }
+    
+    /**
+     * 指定されたストリームから読み込んで、ダウンロードレスポンスを出力します。
+     * 成否にかかわらずストリームは閉じます。
+     * 
+     * ストリームから読み込めないか、ユーザが途中でダウンロードを中断した場合に、IORuntimeExceptionが発生します。
+     * 
+     * @param fileName レスポンスとして返されるファイル名
+     * @param in ダウンロードさせたいデータ
+     */
+    public static void download(String fileName, InputStream in) {
+        try {
+            HttpServletResponse response = getResponse();
+            response.setContentType("application/octet-stream");
+            response.setHeader("Content-disposition", "attachment; filename=\""
+                    + fileName + "\"");
+            OutputStream out = response.getOutputStream();
+            try {
+                InputStreamUtil.copy(in, out);
+                OutputStreamUtil.flush(out);
+            } finally {
+                    OutputStreamUtil.close(out);
+            }
+        } catch (IOException e) {
+            throw new IORuntimeException(e);
+        } finally {
+            InputStreamUtil.close(in);
+        }
+    }
+    
+    /**
+     * 指定されたストリームから読み込んで、指定したContentLengthとともにダウンロードレスポンスを出力します。
+     * 成否にかかわらずストリームは閉じます。
+     * 
+     * ストリームから読み込めないか、ユーザが途中でダウンロードを中断した場合に、IORuntimeExceptionが発生します。
+     * 
+     * @param fileName レスポンスとして返されるファイル名
+     * @param in ダウンロードさせたいデータ
+     * @param length Content-Length:フィールドの値
+     */
+    public static void download(String fileName, InputStream in, int length) {
+        HttpServletResponse response = getResponse();
+        response.setContentLength(length);
+        download(fileName, in);
     }
 
     /**
