@@ -80,7 +80,8 @@ public class S2SubmitTag extends SubmitTag {
                     actionFormName.substring(1)).append("_").append(property)
                     .append("(myForm);");
             String originalOnclick = getOnclick();
-            if (originalOnclick == null) {
+            if (originalOnclick == null
+                    || originalOnclick.startsWith("var myForm")) {
                 setOnclick(sb.toString());
             } else {
                 setOnclick(originalOnclick + ";" + sb.toString());
