@@ -35,64 +35,70 @@ public class ResponseUtilTest extends S2TestCase {
     public void testGetResponse() throws Exception {
         assertNotNull(ResponseUtil.getResponse());
     }
-    
-    
+
     /**
      * ストリームをダウンロードさせるケース
+     * 
      * @throws Exception
      */
     public void testDownload_InputStream() throws Exception {
-        byte[] b = new byte[] { 0x1, 0x2, (byte)0xfe, (byte) 0xff};
+        byte[] b = new byte[] { 0x1, 0x2, (byte) 0xfe, (byte) 0xff };
         MockHttpServletResponse response = getResponse();
-        CheckedInputStream is = new CheckedInputStream(new ByteArrayInputStream(b));
+        CheckedInputStream is = new CheckedInputStream(
+                new ByteArrayInputStream(b));
         ResponseUtil.download("test.txt", is);
         assertTrue("input stream must be closed", is.isClosed());
         assertEquals("application/octet-stream", response.getContentType());
-        assertEquals(Arrays.toString(b), Arrays.toString(response.getResponseBytes()));
+        assertEquals(Arrays.toString(b), Arrays.toString(response
+                .getResponseBytes()));
     }
-    
+
     /**
      * ストリームをダウンロードさせるケース(Content-Lengthフィールド指定あり)
+     * 
      * @throws Exception
      */
     public void testDownload_InputStreamWithContentLength() throws Exception {
-        byte[] b = new byte[] { 0x1, 0x2, (byte)0xfe, (byte) 0xff};
+        byte[] b = new byte[] { 0x1, 0x2, (byte) 0xfe, (byte) 0xff };
         MockHttpServletResponse response = getResponse();
-        CheckedInputStream is = new CheckedInputStream(new ByteArrayInputStream(b));
+        CheckedInputStream is = new CheckedInputStream(
+                new ByteArrayInputStream(b));
         ResponseUtil.download("test.txt", is, b.length);
         assertTrue("input stream must be closed", is.isClosed());
         assertEquals("application/octet-stream", response.getContentType());
-        assertEquals(Arrays.toString(b), Arrays.toString(response.getResponseBytes()));
+        assertEquals(Arrays.toString(b), Arrays.toString(response
+                .getResponseBytes()));
         assertEquals(b.length, response.getContentLength());
     }
-    
-    
+
     /**
      * 閉じわすれをチェックするInputStream
+     * 
      * @author ooharak
-     *
+     * 
      */
     static class CheckedInputStream extends FilterInputStream {
         private boolean isClosed = false;
+
         /**
          * @param in
          */
         protected CheckedInputStream(InputStream in) {
             super(in);
         }
-        
-        /* (non-Javadoc)
-         * @see java.io.FilterInputStream#close()
-         */
+
         @Override
         public void close() throws IOException {
             super.close();
             this.isClosed = true;
         }
-        
+
+        /**
+         * @return
+         */
         public boolean isClosed() {
             return this.isClosed;
         }
-        
+
     }
 }

@@ -29,22 +29,20 @@ import org.seasar.framework.util.FileUtil;
 
 /**
  * @author ooharak
- *
+ * 
  */
 public class UploadUtilTest extends S2TigerTestCase {
     @EasyMock
     private FormFile formFile;
-    
+
     // テストに使う一時ファイル
     private File tempFile;
-    
+
     // 適当なバイト列
-    private byte[] b = new byte[] { 1, 2, 3, (byte)253, (byte)254, (byte)255};
-    
+    private byte[] b = new byte[] { 1, 2, 3, (byte) 253, (byte) 254, (byte) 255 };
+
     private CheckedInputStream in;
 
-    
-    
     /**
      * @throws Exception
      */
@@ -52,20 +50,21 @@ public class UploadUtilTest extends S2TigerTestCase {
         this.in = new CheckedInputStream(new ByteArrayInputStream(b));
         this.tempFile = File.createTempFile(this.getClass().getName(), "tmp");
     }
-    
-    
+
     /**
      * {@link UploadUtil#write(String, FormFile)}がファイルサイズチェックとストリームの取得を行っていることを検証します。
+     * 
      * @throws Exception
      */
     public void recordWrite() throws Exception {
-        //ファイルサイズをチェックして
-        org.easymock.EasyMock.expect(formFile.getFileSize()).andReturn(b.length);
-        
-        //ストリームを取得するはず
+        // ファイルサイズをチェックして
+        org.easymock.EasyMock.expect(formFile.getFileSize())
+                .andReturn(b.length);
+
+        // ストリームを取得するはず
         org.easymock.EasyMock.expect(formFile.getInputStream()).andReturn(in);
     }
-    
+
     /**
      * @throws Exception
      */
@@ -74,45 +73,48 @@ public class UploadUtilTest extends S2TigerTestCase {
             tempFile.delete();
         }
     }
-    
+
     /**
      * {@link UploadUtil#write(String, FormFile)} のテストです。
+     * 
      * @throws Exception
      */
     public void testWrite() throws Exception {
         UploadUtil.write(tempFile.getCanonicalPath(), formFile);
-        assertEquals("Uploaded file and saved file must be identical", 
-                Arrays.toString(b), Arrays.toString(FileUtil.getBytes(tempFile)));
+        assertEquals("Uploaded file and saved file must be identical", Arrays
+                .toString(b), Arrays.toString(FileUtil.getBytes(tempFile)));
         assertTrue("input stream must be closed", this.in.isClosed());
     }
-    
+
     /**
      * 閉じわすれをチェックするInputStream
+     * 
      * @author ooharak
-     *
+     * 
      */
     static class CheckedInputStream extends FilterInputStream {
         private boolean isClosed = false;
+
         /**
          * @param in
          */
         protected CheckedInputStream(InputStream in) {
             super(in);
         }
-        
-        /* (non-Javadoc)
-         * @see java.io.FilterInputStream#close()
-         */
+
         @Override
         public void close() throws IOException {
             super.close();
             this.isClosed = true;
         }
-        
+
+        /**
+         * @return
+         */
         public boolean isClosed() {
             return this.isClosed;
         }
-        
+
     }
 
 }
