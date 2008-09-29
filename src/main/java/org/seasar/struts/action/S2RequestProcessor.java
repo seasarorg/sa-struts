@@ -324,7 +324,7 @@ public class S2RequestProcessor extends RequestProcessor {
             BeanDesc actionFormBeanDesc = actionMapping.getActionFormBeanDesc();
             for (int i = 0; i < actionFormBeanDesc.getPropertyDescSize(); i++) {
                 PropertyDesc pd = actionFormBeanDesc.getPropertyDesc(i);
-                if (isExportableProperty(pd)) {
+                if (pd.isReadable() && isExportableProperty(pd)) {
                     Object value = WrapperUtil.convert(pd.getValue(actionForm));
                     if (value != null) {
                         request.setAttribute(pd.getPropertyName(), value);
@@ -336,7 +336,7 @@ public class S2RequestProcessor extends RequestProcessor {
         for (int i = 0; i < actionBeanDesc.getPropertyDescSize(); i++) {
             Object action = actionMapping.getAction();
             PropertyDesc pd = actionBeanDesc.getPropertyDesc(i);
-            if (isExportableProperty(pd)) {
+            if (pd.isReadable() && isExportableProperty(pd)) {
                 Object value = WrapperUtil.convert(pd.getValue(action));
                 if (value != null) {
                     request.setAttribute(pd.getPropertyName(), value);

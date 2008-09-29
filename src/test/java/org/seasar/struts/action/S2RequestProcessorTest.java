@@ -613,6 +613,30 @@ public class S2RequestProcessorTest extends S2TestCase {
     }
 
     /**
+     * @throws Exception
+     */
+    public void testExportPropertiesToRequest() throws Exception {
+        S2ActionMapping mapping = new S2ActionMapping();
+        mapping.setPath("/aaa/bbb");
+        mapping.setComponentDef(getComponentDef("aaa_bbbAction"));
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setMethod(getClass().getMethod("getClass"));
+        mapping.addExecuteConfig(executeConfig);
+        S2RequestProcessor processor = new S2RequestProcessor();
+        S2ModuleConfig moduleConfig = new S2ModuleConfig("");
+        moduleConfig.addActionConfig(mapping);
+        processor.init(new ActionServlet(), moduleConfig);
+        S2ActionMapping am = (S2ActionMapping) processor.processMapping(
+                getRequest(), getResponse(), "/aaa/bbb");
+        BbbAction action = (BbbAction) getComponent(BbbAction.class);
+        action.hoge = "111";
+        action.foo = "222";
+        processor.exportPropertiesToRequest(getRequest(), am, executeConfig);
+        assertEquals("111", getRequest().getAttribute("hoge"));
+        assertNull(getRequest().getAttribute("foo"));
+    }
+
+    /**
      * 
      */
     public static class BbbAction {
@@ -677,6 +701,9 @@ public class S2RequestProcessorTest extends S2TestCase {
          */
         public List<Map<String, Object>> mapList;
 
+        @SuppressWarnings("unused")
+        private String foo;
+
         /**
          * @return
          */
@@ -689,6 +716,13 @@ public class S2RequestProcessorTest extends S2TestCase {
          */
         public void reset() {
             hoge = "aaa";
+        }
+
+        /**
+         * @param foo
+         */
+        public void setFoo(String foo) {
+            this.foo = foo;
         }
     }
 
