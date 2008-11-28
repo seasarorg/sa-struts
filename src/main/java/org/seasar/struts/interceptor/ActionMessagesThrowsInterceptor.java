@@ -60,7 +60,8 @@ public class ActionMessagesThrowsInterceptor extends ThrowsInterceptor {
         }
         S2ExecuteConfig executeConfig = S2ExecuteConfigUtil.getExecuteConfig();
         if (executeConfig.getInput() != null) {
-            return executeConfig.getInput();
+            return executeConfig.resolveInput(S2ActionMappingUtil
+                    .getActionMapping());
         }
         return S2ActionMappingUtil.getActionMapping().getInput();
     }

@@ -143,7 +143,7 @@ public class ActionWrapper extends Action {
                     actionMapping.getAttribute());
         }
         boolean redirect = executeConfig.isRedirect();
-        if (ActionMessagesUtil.hasErrors(request)) {
+        if (redirect && ActionMessagesUtil.hasErrors(request)) {
             redirect = false;
         }
         return actionMapping.createForward(next, redirect);

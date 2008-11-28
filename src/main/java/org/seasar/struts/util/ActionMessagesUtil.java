@@ -161,14 +161,6 @@ public final class ActionMessagesUtil {
         if (errors != null && !errors.isEmpty()) {
             return true;
         }
-        HttpSession session = request.getSession(false);
-        if (session == null) {
-            return false;
-        }
-        errors = (ActionMessages) session.getAttribute(Globals.ERROR_KEY);
-        if (errors != null && !errors.isEmpty()) {
-            return true;
-        }
         return false;
     }
 

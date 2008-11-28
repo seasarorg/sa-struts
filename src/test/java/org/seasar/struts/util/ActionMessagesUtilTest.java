@@ -114,38 +114,6 @@ public class ActionMessagesUtilTest extends S2TestCase {
     /**
      * @throws Exception
      */
-    public void testHasErrors_session() throws Exception {
-        ActionMessages errors = new ActionMessages();
-        errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("hoge",
-                false));
-        HttpServletRequest request = getRequest();
-        HttpSession session = request.getSession();
-        ActionMessagesUtil.saveErrors(session, errors);
-        assertTrue(ActionMessagesUtil.hasErrors(request));
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testHasErrors_session_errorsNotExist() throws Exception {
-        HttpServletRequest request = getRequest();
-        assertFalse(ActionMessagesUtil.hasErrors(request));
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testHasErrors_session_errorsEmpty() throws Exception {
-        ActionMessages errors = new ActionMessages();
-        HttpServletRequest request = getRequest();
-        HttpSession session = request.getSession();
-        ActionMessagesUtil.saveErrors(session, errors);
-        assertFalse(ActionMessagesUtil.hasErrors(request));
-    }
-
-    /**
-     * @throws Exception
-     */
     public void testAddErrors_request() throws Exception {
         ActionMessages errors = new ActionMessages();
         errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("hoge",

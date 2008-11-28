@@ -29,6 +29,13 @@ import org.seasar.struts.annotation.Execute;
 public class S2ExecuteConfigTest extends S2TestCase {
 
     /**
+     * @return
+     */
+    public String index() {
+        return null;
+    }
+
+    /**
      * @throws Exception
      */
     public void testUrlPattern_empty() throws Exception {
@@ -82,6 +89,16 @@ public class S2ExecuteConfigTest extends S2TestCase {
         assertTrue(executeConfig.isTarget("edit/11"));
         assertFalse(executeConfig.isTarget("edit2/11"));
         assertFalse(executeConfig.isTarget(""));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testIsTarget_paramPath_index() throws Exception {
+        S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+        executeConfig.setMethod(getClass().getMethod("index"));
+        assertTrue(executeConfig.isTarget(""));
+        assertFalse(executeConfig.isTarget("edit2/11"));
     }
 
     /**

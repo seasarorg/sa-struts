@@ -425,7 +425,7 @@ public class S2ExecuteConfig implements Serializable {
         if (!StringUtil.isEmpty(paramPath)) {
             return urlPatternRegexp.matcher(paramPath).find();
         }
-        return false;
+        return "index".equals(urlPattern);
     }
 
     /**
