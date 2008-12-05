@@ -65,7 +65,6 @@ public class ListWrapperTest extends TestCase {
     /**
      * @throws Exception
      */
-    @SuppressWarnings("unchecked")
     public void testGet() throws Exception {
         ListWrapper wrapper = new ListWrapper(Arrays.asList(1));
         assertEquals(1, wrapper.get(0));

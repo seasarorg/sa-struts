@@ -52,7 +52,6 @@ public class ArrayWrapperTest extends TestCase {
     /**
      * @throws Exception
      */
-    @SuppressWarnings("unchecked")
     public void testGet() throws Exception {
         ArrayWrapper wrapper = new ArrayWrapper(new int[] { 1 });
         assertEquals(1, wrapper.get(0));

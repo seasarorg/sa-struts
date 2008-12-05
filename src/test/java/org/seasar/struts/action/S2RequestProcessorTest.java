@@ -458,7 +458,6 @@ public class S2RequestProcessorTest extends S2TestCase {
     /**
      * @throws Exception
      */
-    @SuppressWarnings("unchecked")
     public void testGetIndexedProperty_list_nest() throws Exception {
         S2RequestProcessor processor = new S2RequestProcessor();
         BbbAction bean = new BbbAction();
@@ -478,7 +477,6 @@ public class S2RequestProcessorTest extends S2TestCase {
     /**
      * @throws Exception
      */
-    @SuppressWarnings("unchecked")
     public void testGetIndexedProperty_list_nest_notParameterizedList()
             throws Exception {
         S2RequestProcessor processor = new S2RequestProcessor();
@@ -495,7 +493,6 @@ public class S2RequestProcessorTest extends S2TestCase {
     /**
      * @throws Exception
      */
-    @SuppressWarnings("unchecked")
     public void testGetIndexedProperty_notListArray() throws Exception {
         S2RequestProcessor processor = new S2RequestProcessor();
         BbbAction bean = new BbbAction();

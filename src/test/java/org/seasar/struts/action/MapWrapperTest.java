@@ -50,7 +50,6 @@ public class MapWrapperTest extends TestCase {
     /**
      * @throws Exception
      */
-    @SuppressWarnings("unchecked")
     public void testToString() throws Exception {
         MapWrapper wrapper = new MapWrapper(Maps.map("aaa",
                 Maps.map("bbb", "111").$()).$());

@@ -55,7 +55,6 @@ public class BeanWrapperTest extends TestCase {
     /**
      * @throws Exception
      */
-    @SuppressWarnings("unchecked")
     public void testGet_writeOnly() throws Exception {
         MyBean2 bean2 = new MyBean2();
         bean2.aaa = "1";
@@ -100,7 +99,6 @@ public class BeanWrapperTest extends TestCase {
     /**
      * @throws Exception
      */
-    @SuppressWarnings("unchecked")
     public void testToString() throws Exception {
         MyBean bean = new MyBean();
         MyBean bean2 = new MyBean();

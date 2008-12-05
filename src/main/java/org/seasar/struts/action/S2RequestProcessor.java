@@ -248,7 +248,6 @@ public class S2RequestProcessor extends RequestProcessor {
         return action;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected void processPopulate(HttpServletRequest request,
             HttpServletResponse response, ActionForm form, ActionMapping mapping)
