@@ -304,16 +304,14 @@ public class ActionCustomizer implements ComponentCustomizer {
                 forms.put(methodName, form);
             }
         }
-        BeanDesc beanDesc = actionMapping.getActionFormBeanDesc();
-        for (int i = 0; i < beanDesc.getPropertyDescSize(); i++) {
-            PropertyDesc pd = beanDesc.getPropertyDesc(i);
-            Field field = pd.getField();
-            if (field == null) {
-                continue;
-            }
-            for (Annotation anno : field.getDeclaredAnnotations()) {
-                processAnnotation(pd.getPropertyName(), anno,
-                        validatorResources, forms);
+        for (Class<?> clazz = actionMapping.getActionFormBeanDesc()
+                .getBeanClass(); clazz != null && clazz != Object.class; clazz = clazz
+                .getSuperclass()) {
+            for (Field field : ClassUtil.getDeclaredFields(clazz)) {
+                for (Annotation anno : field.getDeclaredAnnotations()) {
+                    processAnnotation(field.getName(), anno,
+                            validatorResources, forms);
+                }
             }
         }
         for (Iterator<Form> i = forms.values().iterator(); i.hasNext();) {

@@ -27,15 +27,15 @@ public class S2GenericValidatorTest extends TestCase {
      * @throws Exception
      */
     public void testMinByteLength() throws Exception {
-        assertTrue(S2GenericValidator.minByteLength("あ", 2, null));
-        assertFalse(S2GenericValidator.minByteLength("a", 2, null));
+        assertTrue(S2GenericValidator.minByteLength("\u3042", 2, "UTF-8"));
+        assertFalse(S2GenericValidator.minByteLength("a", 2, "UTF-8"));
     }
 
     /**
      * @throws Exception
      */
     public void testMaxByteLength() throws Exception {
-        assertFalse(S2GenericValidator.maxByteLength("あ", 1, null));
-        assertTrue(S2GenericValidator.maxByteLength("a", 1, null));
+        assertFalse(S2GenericValidator.maxByteLength("\u3042", 1, "UTF-8"));
+        assertTrue(S2GenericValidator.maxByteLength("a", 1, "UTF-8"));
     }
 }
