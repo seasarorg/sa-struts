@@ -110,6 +110,28 @@ public class ActionWrapperTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testExecute_parentActionValidateMethod() throws Exception {
+        register(OooAction.class, "oooAction");
+        register(MyForm.class, "myForm");
+        ActionCustomizer customizer = new ActionCustomizer();
+        customizer.customize(getComponentDef("oooAction"));
+        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
+                .findActionConfig("/ooo");
+        getRequest().setParameter("execute", "submit");
+        S2ExecuteConfigUtil.setExecuteConfig(actionMapping
+                .findExecuteConfig(getRequest()));
+        ActionWrapper wrapper = new ActionWrapper(actionMapping);
+        ForwardConfig forward = wrapper.execute(actionMapping, null,
+                getRequest(), getResponse());
+        assertNotNull(forward);
+        assertEquals("/ooo/index.jsp", forward.getPath());
+        assertNotNull(getRequest().getAttribute(Globals.ERROR_KEY));
+        assertNull(getRequest().getAttribute("aaa"));
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testExecute_validate_actionForm() throws Exception {
         register(KkkAction.class, "kkkAction");
         register(KkkActionDto.class, "kkkActionDto");
@@ -720,6 +742,49 @@ public class ActionWrapperTest extends S2TestCase {
         @Execute(validator = false, redirect = true)
         public String index() {
             return "index.jsp";
+        }
+    }
+
+    /**
+     * 
+     */
+    public abstract static class NnnAction {
+
+        /**
+         * @return
+         */
+        public ActionMessages validate() {
+            ActionMessages errors = new ActionMessages();
+            errors.add("hoge", new ActionMessage("errors.required", "hoge"));
+            return errors;
+        }
+    }
+
+    /**
+     * 
+     */
+    public static class OooAction extends NnnAction {
+
+        /**
+         * 
+         */
+        @ActionForm
+        public MyForm myForm;
+
+        /**
+         * @return
+         */
+        @Execute(validator = false)
+        public String index() {
+            return "index.jsp";
+        }
+
+        /**
+         * @return
+         */
+        @Execute(validate = "validate", input = "index.jsp")
+        public String execute() {
+            return "result.jsp";
         }
     }
 

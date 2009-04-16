@@ -115,8 +115,10 @@ public class ActionWrapper extends Action {
                     }
                 } else {
                     Object target = actionForm;
-                    if (cfg.getValidateMethod().getDeclaringClass() == actionMapping
-                            .getComponentDef().getComponentClass()) {
+                    if (cfg.getValidateMethod().getDeclaringClass()
+                            .isAssignableFrom(
+                                    actionMapping.getComponentDef()
+                                            .getComponentClass())) {
                         target = action;
                     }
                     ActionMessages errors2 = (ActionMessages) MethodUtil
