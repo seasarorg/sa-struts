@@ -31,6 +31,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.beanutils.DynaClass;
+import org.apache.commons.beanutils.DynaProperty;
 import org.apache.struts.Globals;
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
@@ -319,14 +321,19 @@ public class S2RequestProcessor extends RequestProcessor {
             S2ActionMapping actionMapping, S2ExecuteConfig executeConfig) {
         if (ActionMessagesUtil.hasErrors(request)
                 || !executeConfig.isRemoveActionForm()) {
-            Object actionForm = actionMapping.getActionForm();
-            BeanDesc actionFormBeanDesc = actionMapping.getActionFormBeanDesc();
-            for (int i = 0; i < actionFormBeanDesc.getPropertyDescSize(); i++) {
-                PropertyDesc pd = actionFormBeanDesc.getPropertyDesc(i);
-                if (pd.isReadable() && isExportableProperty(pd)) {
-                    Object value = WrapperUtil.convert(pd.getValue(actionForm));
-                    if (value != null) {
-                        request.setAttribute(pd.getPropertyName(), value);
+            ActionFormWrapper actionForm = (ActionFormWrapper) request
+                    .getAttribute(actionMapping.getAttribute());
+            if (actionForm != null) {
+                DynaClass dynaClass = actionForm.getDynaClass();
+                for (DynaProperty prop : dynaClass.getDynaProperties()) {
+                    S2DynaProperty s2prop = (S2DynaProperty) prop;
+                    PropertyDesc pd = s2prop.getPropertyDesc();
+                    if (isExportableProperty(pd)) {
+                        Object value = WrapperUtil.convert(actionForm.get(pd
+                                .getPropertyName()));
+                        if (value != null) {
+                            request.setAttribute(pd.getPropertyName(), value);
+                        }
                     }
                 }
             }

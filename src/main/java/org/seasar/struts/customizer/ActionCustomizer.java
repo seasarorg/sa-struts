@@ -278,8 +278,10 @@ public class ActionCustomizer implements ComponentCustomizer {
         BeanDesc beanDesc = actionMapping.getActionFormBeanDesc();
         for (int i = 0; i < beanDesc.getPropertyDescSize(); i++) {
             PropertyDesc pd = beanDesc.getPropertyDesc(i);
-            S2DynaProperty property = new S2DynaProperty(pd);
-            wrapperClass.addDynaProperty(property);
+            if (pd.isReadable()) {
+                S2DynaProperty property = new S2DynaProperty(pd);
+                wrapperClass.addDynaProperty(property);
+            }
         }
         formConfig.setDynaClass(wrapperClass);
         return formConfig;
