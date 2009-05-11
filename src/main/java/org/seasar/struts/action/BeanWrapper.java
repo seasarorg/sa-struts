@@ -84,7 +84,13 @@ public class BeanWrapper implements Map {
     }
 
     public Set entrySet() {
-        throw new UnsupportedOperationException("size");
+        Set set = new HashSet<Entry>();
+        int size = beanDesc.getPropertyDescSize();
+        for (int i = 0; i < size; i++) {
+            PropertyDesc pd = beanDesc.getPropertyDesc(i);
+            set.add(new BeanEntry(bean, pd));
+        }
+        return set;
     }
 
     public boolean isEmpty() {
@@ -120,5 +126,52 @@ public class BeanWrapper implements Map {
     @Override
     public String toString() {
         return bean.toString();
+    }
+
+    /**
+     * Bean用の {@link Entry}です。
+     * 
+     */
+    protected static class BeanEntry implements Entry {
+
+        /**
+         * プロパティ記述です。
+         */
+        protected PropertyDesc propDesc;
+
+        /**
+         * Beanです。
+         */
+        protected Object bean;
+
+        /**
+         * インスタンスを構築します。
+         * 
+         * @param bean
+         *            Beanです。
+         * @param propDesc
+         *            プロパティ記述です。
+         */
+        public BeanEntry(Object bean, PropertyDesc propDesc) {
+            this.propDesc = propDesc;
+            this.bean = bean;
+        }
+
+        public Object getKey() {
+            return propDesc.getPropertyName();
+        }
+
+        public Object getValue() {
+            if (!propDesc.isReadable()) {
+                return null;
+            }
+            return WrapperUtil.convert(propDesc.getValue(bean));
+        }
+
+        public Object setValue(Object value) {
+            propDesc.setValue(bean, value);
+            return null;
+        }
+
     }
 }

@@ -18,6 +18,7 @@ package org.seasar.struts.action;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import junit.framework.TestCase;
 
@@ -94,6 +95,22 @@ public class BeanWrapperTest extends TestCase {
         Iterator i = keySet.iterator();
         assertEquals("aaa", i.next());
         assertEquals("bbb", i.next());
+    }
+
+    /**
+     * @throws Exception
+     */
+    @SuppressWarnings("unchecked")
+    public void testEntrySet() throws Exception {
+        MyBean bean = new MyBean();
+        bean.aaa = "111";
+        BeanWrapper wrapper = new BeanWrapper(bean);
+        Set<Entry> set = wrapper.entrySet();
+        assertEquals(2, set.size());
+        Iterator<Entry> i = set.iterator();
+        Entry<String, Object> e = i.next();
+        assertEquals("aaa", e.getKey());
+        assertEquals("111", e.getValue());
     }
 
     /**
