@@ -15,6 +15,7 @@
  */
 package org.seasar.struts.config;
 
+import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.struts.config.ActionConfig;
 import org.apache.struts.config.impl.ModuleConfigImpl;
 import org.seasar.framework.container.factory.SingletonS2ContainerFactory;
@@ -61,6 +62,7 @@ public class S2ModuleConfig extends ModuleConfigImpl implements Disposable {
         actionConfigs.clear();
         actionConfigList.clear();
         formBeans.clear();
+        BeanUtilsBean.setInstance(new BeanUtilsBean());
         initialized = false;
     }
 
