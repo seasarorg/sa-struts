@@ -15,7 +15,9 @@
  */
 package org.seasar.struts.action;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -105,8 +107,21 @@ public class ActionFormWrapper extends ActionForm implements DynaBean {
         throw new UnsupportedOperationException("contains");
     }
 
+    @SuppressWarnings("unchecked")
     public Object get(String name, int index) {
-        throw new UnsupportedOperationException("get");
+        S2DynaProperty property = getProperty(name);
+        Object value = property.getValue(actionForm);
+        if (value == null) {
+            throw new IllegalStateException
+                ("The value of property(" + name + ") is null.");
+        } else if (value.getClass().isArray()) {
+            return (Array.get(value, index));
+        } else if (value instanceof List) {
+            return ((List) value).get(index);
+        } else {
+            throw new IllegalStateException
+                ("The value of property(" + name + ") is not indexed.");
+        }
     }
 
     public Object get(String name, String key) {

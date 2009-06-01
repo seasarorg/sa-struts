@@ -15,6 +15,9 @@
  */
 package org.seasar.struts.action;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.seasar.extension.unit.S2TestCase;
 import org.seasar.framework.beans.PropertyNotFoundRuntimeException;
 import org.seasar.struts.annotation.Execute;
@@ -87,6 +90,102 @@ public class ActionFormWrapperTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testIndexedGetForList() throws Exception {
+        BbbAction actionForm = (BbbAction) getComponent("bbbAction");
+        actionForm.list = Arrays.asList("123");
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        actionMapping.setComponentDef(getComponentDef("bbbAction"));
+        S2DynaProperty property = new S2DynaProperty(actionMapping
+                .getActionFormBeanDesc().getPropertyDesc("list"));
+        ActionFormWrapperClass wrapperClass = new ActionFormWrapperClass(
+                actionMapping);
+        wrapperClass.addDynaProperty(property);
+        ActionFormWrapper formWrapper = new ActionFormWrapper(wrapperClass);
+        assertEquals("123", formWrapper.get("list", 0));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testIndexedGetForNullList() throws Exception {
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        actionMapping.setComponentDef(getComponentDef("bbbAction"));
+        S2DynaProperty property = new S2DynaProperty(actionMapping
+                .getActionFormBeanDesc().getPropertyDesc("list"));
+        ActionFormWrapperClass wrapperClass = new ActionFormWrapperClass(
+                actionMapping);
+        wrapperClass.addDynaProperty(property);
+        ActionFormWrapper formWrapper = new ActionFormWrapper(wrapperClass);
+        try {
+            formWrapper.get("list", 0);
+            fail();
+        } catch (IllegalStateException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testIndexedGetForArray() throws Exception {
+        BbbAction actionForm = (BbbAction) getComponent("bbbAction");
+        actionForm.array = new String[] { "123" };
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        actionMapping.setComponentDef(getComponentDef("bbbAction"));
+        S2DynaProperty property = new S2DynaProperty(actionMapping
+                .getActionFormBeanDesc().getPropertyDesc("array"));
+        ActionFormWrapperClass wrapperClass = new ActionFormWrapperClass(
+                actionMapping);
+        wrapperClass.addDynaProperty(property);
+        ActionFormWrapper formWrapper = new ActionFormWrapper(wrapperClass);
+        assertEquals("123", formWrapper.get("array", 0));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testIndexedGetForNullArray() throws Exception {
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        actionMapping.setComponentDef(getComponentDef("bbbAction"));
+        S2DynaProperty property = new S2DynaProperty(actionMapping
+                .getActionFormBeanDesc().getPropertyDesc("array"));
+        ActionFormWrapperClass wrapperClass = new ActionFormWrapperClass(
+                actionMapping);
+        wrapperClass.addDynaProperty(property);
+        ActionFormWrapper formWrapper = new ActionFormWrapper(wrapperClass);
+        try {
+            formWrapper.get("array", 0);
+            fail();
+        } catch (IllegalStateException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testIndexedGetForNoIndexed() throws Exception {
+        BbbAction actionForm = (BbbAction) getComponent("bbbAction");
+        actionForm.hoge = "123";
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        actionMapping.setComponentDef(getComponentDef("bbbAction"));
+        S2DynaProperty property = new S2DynaProperty(actionMapping
+                .getActionFormBeanDesc().getPropertyDesc("hoge"));
+        ActionFormWrapperClass wrapperClass = new ActionFormWrapperClass(
+                actionMapping);
+        wrapperClass.addDynaProperty(property);
+        ActionFormWrapper formWrapper = new ActionFormWrapper(wrapperClass);
+        try {
+            formWrapper.get("hoge", 0);
+            fail();
+        } catch (IllegalStateException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testReset() throws Exception {
         BbbAction actionForm = (BbbAction) getComponent("bbbAction");
         S2ActionMapping actionMapping = new S2ActionMapping();
@@ -111,6 +210,16 @@ public class ActionFormWrapperTest extends S2TestCase {
          */
         @Required
         public String hoge;
+
+        /**
+         * 
+         */
+        public List<String> list;
+
+        /**
+         * 
+         */
+        public String[] array;
 
         /**
          * @return

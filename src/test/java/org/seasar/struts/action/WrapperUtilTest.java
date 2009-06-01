@@ -21,7 +21,11 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
+import org.seasar.framework.container.ComponentDef;
+import org.seasar.framework.container.impl.ComponentDefImpl;
 import org.seasar.framework.util.tiger.Maps;
+import org.seasar.struts.annotation.Execute;
+import org.seasar.struts.config.S2ActionMapping;
 
 /**
  * @author higa
@@ -59,6 +63,18 @@ public class WrapperUtilTest extends TestCase {
         List<Integer> l = WrapperUtil.convert(new int[] { 1 });
         assertEquals(ArrayWrapper.class, l.getClass());
         assertEquals(Integer.valueOf(1), l.get(0));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testConvert_actionFormWrapper() throws Exception {
+        ComponentDef cd = new ComponentDefImpl(AaaAction.class);
+        S2ActionMapping mapping = new S2ActionMapping();
+        mapping.setComponentDef(cd);
+        ActionFormWrapperClass dynaClass = new ActionFormWrapperClass(mapping);
+        ActionFormWrapper form = new ActionFormWrapper(dynaClass);
+        assertEquals(form, WrapperUtil.convert(form));
     }
 
     /**
@@ -127,5 +143,19 @@ public class WrapperUtilTest extends TestCase {
          * @return
          */
         public abstract String hoge();
+    }
+
+    /**
+     * 
+     */
+    public static class AaaAction {
+
+        /**
+         * @return
+         */
+        @Execute
+        public String execute() {
+            return "/aaa/bbb.jsp";
+        }
     }
 }

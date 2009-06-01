@@ -18,6 +18,7 @@ package org.seasar.struts.action;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.beanutils.DynaBean;
 import org.seasar.extension.jdbc.types.ValueTypes;
 
 /**
@@ -51,6 +52,9 @@ public final class WrapperUtil {
         }
         if (clazz.isArray()) {
             return (T) new ArrayWrapper(value);
+        }
+        if (DynaBean.class.isAssignableFrom(clazz)) {
+            return (T) value;
         }
         if (List.class.isAssignableFrom(clazz)) {
             return (T) new ListWrapper((List) value);
