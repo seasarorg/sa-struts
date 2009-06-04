@@ -41,6 +41,8 @@ import org.seasar.framework.aop.impl.AspectImpl;
 import org.seasar.framework.aop.impl.PointcutImpl;
 import org.seasar.framework.aop.interceptors.TraceInterceptor;
 import org.seasar.framework.aop.proxy.AopProxy;
+import org.seasar.framework.beans.BeanDesc;
+import org.seasar.framework.beans.factory.BeanDescFactory;
 import org.seasar.framework.mock.servlet.MockHttpServletRequest;
 import org.seasar.struts.action.S2RequestProcessor.IndexParsedResult;
 import org.seasar.struts.config.S2ActionMapping;
@@ -60,6 +62,7 @@ public class S2RequestProcessorTest extends S2TestCase {
     @Override
     public void setUp() throws Exception {
         register(BbbAction.class, "aaa_bbbAction");
+        register(BbbForm.class, "bbbForm");
     }
 
     /**
@@ -619,18 +622,29 @@ public class S2RequestProcessorTest extends S2TestCase {
         S2ExecuteConfig executeConfig = new S2ExecuteConfig();
         executeConfig.setMethod(getClass().getMethod("getClass"));
         mapping.addExecuteConfig(executeConfig);
+        mapping.setActionFormField(BbbAction.class.getDeclaredField("bbbForm"));
+        BeanDesc beanDesc = BeanDescFactory.getBeanDesc(BbbForm.class);
+        S2DynaProperty property = new S2DynaProperty(beanDesc
+                .getPropertyDesc("myBean2"));
+        ActionFormWrapperClass wrapperClass = new ActionFormWrapperClass(
+                mapping);
+        wrapperClass.addDynaProperty(property);
+        ActionFormWrapper formWrapper = new ActionFormWrapper(wrapperClass);
+        getRequest().setAttribute(mapping.getAttribute(), formWrapper);
         S2RequestProcessor processor = new S2RequestProcessor();
         S2ModuleConfig moduleConfig = new S2ModuleConfig("");
         moduleConfig.addActionConfig(mapping);
         processor.init(new ActionServlet(), moduleConfig);
-        S2ActionMapping am = (S2ActionMapping) processor.processMapping(
-                getRequest(), getResponse(), "/aaa/bbb");
         BbbAction action = (BbbAction) getComponent(BbbAction.class);
         action.hoge = "111";
         action.foo = "222";
-        processor.exportPropertiesToRequest(getRequest(), am, executeConfig);
+        action.bbbForm.myBean2 = new MyBean();
+        processor.exportPropertiesToRequest(getRequest(), mapping,
+                executeConfig);
         assertEquals("111", getRequest().getAttribute("hoge"));
         assertNull(getRequest().getAttribute("foo"));
+        assertEquals(BeanWrapper.class, getRequest().getAttribute("myBean2")
+                .getClass());
     }
 
     /**
@@ -698,6 +712,11 @@ public class S2RequestProcessorTest extends S2TestCase {
          */
         public List<Map<String, Object>> mapList;
 
+        /**
+         * 
+         */
+        public BbbForm bbbForm;
+
         @SuppressWarnings("unused")
         private String foo;
 
@@ -721,6 +740,17 @@ public class S2RequestProcessorTest extends S2TestCase {
         public void setFoo(String foo) {
             this.foo = foo;
         }
+    }
+
+    /**
+     *
+     */
+    public static class BbbForm {
+
+        /**
+         * 
+         */
+        public MyBean myBean2;
     }
 
     /**

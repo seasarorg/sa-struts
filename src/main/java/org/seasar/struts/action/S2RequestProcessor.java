@@ -329,8 +329,7 @@ public class S2RequestProcessor extends RequestProcessor {
                     S2DynaProperty s2prop = (S2DynaProperty) prop;
                     PropertyDesc pd = s2prop.getPropertyDesc();
                     if (isExportableProperty(pd)) {
-                        Object value = WrapperUtil.convert(actionForm.get(pd
-                                .getPropertyName()));
+                        Object value = actionForm.get(pd.getPropertyName());
                         if (value != null) {
                             request.setAttribute(pd.getPropertyName(), value);
                         }
