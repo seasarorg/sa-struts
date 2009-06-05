@@ -18,6 +18,7 @@ package org.seasar.struts.action;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -112,20 +113,31 @@ public class ActionFormWrapper extends ActionForm implements DynaBean {
         S2DynaProperty property = getProperty(name);
         Object value = property.getValue(actionForm);
         if (value == null) {
-            throw new IllegalStateException
-                ("The value of property(" + name + ") is null.");
+            throw new IllegalStateException("The value of property(" + name
+                    + ") is null.");
         } else if (value.getClass().isArray()) {
             return (Array.get(value, index));
         } else if (value instanceof List) {
             return ((List) value).get(index);
         } else {
-            throw new IllegalStateException
-                ("The value of property(" + name + ") is not indexed.");
+            throw new IllegalStateException("The value of property(" + name
+                    + ") is not indexed.");
         }
     }
 
+    @SuppressWarnings("unchecked")
     public Object get(String name, String key) {
-        throw new UnsupportedOperationException("get");
+        S2DynaProperty property = getProperty(name);
+        Object value = property.getValue(actionForm);
+        if (value == null) {
+            throw new IllegalStateException("The value of property(" + name
+                    + ") is null.");
+        } else if (value instanceof Map) {
+            return ((Map) value).get(key);
+        } else {
+            throw new IllegalStateException("The value of property(" + name
+                    + ") is not mapped.");
+        }
     }
 
     public void remove(String name, String key) {

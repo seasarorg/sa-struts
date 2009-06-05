@@ -107,10 +107,12 @@ public class BeanWrapperTest extends TestCase {
         BeanWrapper wrapper = new BeanWrapper(bean);
         Set<Entry> set = wrapper.entrySet();
         assertEquals(2, set.size());
-        Iterator<Entry> i = set.iterator();
-        Entry<String, Object> e = i.next();
-        assertEquals("aaa", e.getKey());
-        assertEquals("111", e.getValue());
+        for (Iterator<Entry> i = set.iterator(); i.hasNext();) {
+            Entry<String, Object> e = i.next();
+            if (e.getKey().equals("aaa")) {
+                assertEquals("111", e.getValue());
+            }
+        }
     }
 
     /**

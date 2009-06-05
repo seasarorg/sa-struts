@@ -16,7 +16,9 @@
 package org.seasar.struts.action;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.seasar.extension.unit.S2TestCase;
 import org.seasar.framework.beans.PropertyNotFoundRuntimeException;
@@ -186,6 +188,24 @@ public class ActionFormWrapperTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testMappedGet() throws Exception {
+        BbbAction actionForm = (BbbAction) getComponent("bbbAction");
+        actionForm.map = new HashMap<String, Object>();
+        actionForm.map.put("aaa", "111");
+        S2ActionMapping actionMapping = new S2ActionMapping();
+        actionMapping.setComponentDef(getComponentDef("bbbAction"));
+        S2DynaProperty property = new S2DynaProperty(actionMapping
+                .getActionFormBeanDesc().getPropertyDesc("map"));
+        ActionFormWrapperClass wrapperClass = new ActionFormWrapperClass(
+                actionMapping);
+        wrapperClass.addDynaProperty(property);
+        ActionFormWrapper formWrapper = new ActionFormWrapper(wrapperClass);
+        assertEquals("111", formWrapper.get("map", "aaa"));
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testReset() throws Exception {
         BbbAction actionForm = (BbbAction) getComponent("bbbAction");
         S2ActionMapping actionMapping = new S2ActionMapping();
@@ -220,6 +240,11 @@ public class ActionFormWrapperTest extends S2TestCase {
          * 
          */
         public String[] array;
+
+        /**
+         * 
+         */
+        public Map<String, Object> map;
 
         /**
          * @return
