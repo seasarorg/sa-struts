@@ -30,6 +30,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.validator.Resources;
+import org.seasar.framework.container.deployer.InstanceDefFactory;
 import org.seasar.framework.util.MethodUtil;
 import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
@@ -137,10 +138,18 @@ public class ActionWrapper extends Action {
         }
         String next = (String) MethodUtil.invoke(executeConfig.getMethod(),
                 action, null);
-        if (executeConfig.isRemoveActionForm()) {
-            RequestUtil.getRequest().getSession().removeAttribute(
-                    actionMapping.getActionFormComponentDef()
-                            .getComponentName());
+        if (executeConfig.isRemoveActionForm()
+                && !ActionMessagesUtil.hasErrors(request)) {
+            if (actionMapping.getActionFormComponentDef().getInstanceDef()
+                    .equals(InstanceDefFactory.SESSION)) {
+                RequestUtil.getRequest().getSession().removeAttribute(
+                        actionMapping.getActionFormComponentDef()
+                                .getComponentName());
+            } else {
+                RequestUtil.getRequest().removeAttribute(
+                        actionMapping.getActionFormComponentDef()
+                                .getComponentName());
+            }
             RequestUtil.getRequest().removeAttribute(
                     actionMapping.getAttribute());
         }

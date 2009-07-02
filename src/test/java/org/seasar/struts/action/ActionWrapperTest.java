@@ -40,6 +40,7 @@ import org.seasar.struts.config.S2ModuleConfig;
 import org.seasar.struts.customizer.ActionCustomizer;
 import org.seasar.struts.enums.SaveType;
 import org.seasar.struts.util.ActionMessagesUtil;
+import org.seasar.struts.util.RequestUtil;
 import org.seasar.struts.util.S2ExecuteConfigUtil;
 import org.seasar.struts.util.S2PropertyMessageResources;
 import org.seasar.struts.util.S2PropertyMessageResourcesFactory;
@@ -301,6 +302,24 @@ public class ActionWrapperTest extends S2TestCase {
         ForwardConfig forward = wrapper.execute(actionMapping, null,
                 getRequest(), getResponse());
         assertFalse(forward.getRedirect());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testExecute_removeActionForm_hasErrors() throws Exception {
+        register(PppAction.class, "pppAction");
+        register(MyForm.class, "myForm");
+        ActionCustomizer customizer = new ActionCustomizer();
+        customizer.customize(getComponentDef("pppAction"));
+        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
+                .findActionConfig("/ppp");
+        getRequest().setParameter("submit", "submit");
+        S2ExecuteConfigUtil.setExecuteConfig(actionMapping
+                .findExecuteConfig(getRequest()));
+        ActionWrapper wrapper = new ActionWrapper(actionMapping);
+        wrapper.execute(actionMapping, null, getRequest(), getResponse());
+        assertNotNull(getRequest().getSession().getAttribute("myForm"));
     }
 
     /**
@@ -782,9 +801,32 @@ public class ActionWrapperTest extends S2TestCase {
         /**
          * @return
          */
-        @Execute(validate = "validate", input = "index.jsp")
+        @Execute(validate = "validate", input = "index.jsp", removeActionForm = true)
         public String execute() {
             return "result.jsp";
+        }
+    }
+
+    /**
+     * 
+     */
+    public static class PppAction {
+
+        /**
+         * 
+         */
+        @ActionForm
+        public MyForm myForm;
+
+        /**
+         * @return
+         */
+        @Execute(validator = false, redirect = true, removeActionForm = true)
+        public String submit() {
+            ActionMessages errors = new ActionMessages();
+            errors.add("aaa", new ActionMessage("errors.required", "hoge"));
+            ActionMessagesUtil.addErrors(RequestUtil.getRequest(), errors);
+            return "index.jsp";
         }
     }
 
