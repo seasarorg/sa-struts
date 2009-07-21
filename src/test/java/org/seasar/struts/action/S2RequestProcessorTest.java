@@ -232,6 +232,16 @@ public class S2RequestProcessorTest extends S2TestCase {
     /**
      * @throws Exception
      */
+    public void testSetProperty_nested_map2() throws Exception {
+        BbbAction bean = new BbbAction();
+        S2RequestProcessor processor = new S2RequestProcessor();
+        processor.setProperty(bean, "map(aaa)", new String[] { "111" });
+        assertEquals("111", bean.map.get("aaa"));
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testSetProperty_indexed_array() throws Exception {
         BbbAction bean = new BbbAction();
         S2RequestProcessor processor = new S2RequestProcessor();
@@ -507,6 +517,17 @@ public class S2RequestProcessorTest extends S2TestCase {
             assertEquals(BbbAction.class, e.getTargetClass());
             assertEquals("hoge", e.getPropertyName());
         }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testMinIndex() throws Exception {
+        S2RequestProcessor processor = new S2RequestProcessor();
+        assertEquals(1, processor.minIndex(1, 2));
+        assertEquals(1, processor.minIndex(1, -1));
+        assertEquals(1, processor.minIndex(-1, 1));
+        assertEquals(-2, processor.minIndex(-1, -2));
     }
 
     /**

@@ -43,6 +43,7 @@ import org.apache.struts.action.RequestProcessor;
 import org.apache.struts.config.FormBeanConfig;
 import org.apache.struts.upload.MultipartRequestHandler;
 import org.apache.struts.upload.MultipartRequestWrapper;
+import org.hsqldb.lib.StringUtil;
 import org.seasar.framework.aop.javassist.AspectWeaver;
 import org.seasar.framework.beans.BeanDesc;
 import org.seasar.framework.beans.IllegalPropertyRuntimeException;
@@ -75,6 +76,10 @@ public class S2RequestProcessor extends RequestProcessor {
     private static final char INDEXED_DELIM = '[';
 
     private static final char INDEXED_DELIM2 = ']';
+
+    private static final char MAPPED_DELIM = '(';
+
+    private static final char MAPPED_DELIM2 = ')';
 
     @Override
     public void process(HttpServletRequest request, HttpServletResponse response)
@@ -394,28 +399,51 @@ public class S2RequestProcessor extends RequestProcessor {
         }
         int nestedIndex = name.indexOf(NESTED_DELIM);
         int indexedIndex = name.indexOf(INDEXED_DELIM);
-        if (nestedIndex < 0 && indexedIndex < 0) {
+        int mappedIndex = name.indexOf(MAPPED_DELIM);
+        if (nestedIndex < 0 && indexedIndex < 0 && mappedIndex < 0) {
             setSimpleProperty(bean, name, value);
-        } else if (nestedIndex >= 0 && indexedIndex >= 0) {
-            if (nestedIndex < indexedIndex) {
+        } else {
+            int minIndex = minIndex(minIndex(nestedIndex, indexedIndex),
+                    mappedIndex);
+            if (minIndex == nestedIndex) {
                 setProperty(getSimpleProperty(bean, name.substring(0,
                         nestedIndex)), name.substring(nestedIndex + 1), value);
-            } else {
+            } else if (minIndex == indexedIndex) {
                 IndexParsedResult result = parseIndex(name
                         .substring(indexedIndex + 1));
-                bean = getIndexedProperty(bean,
-                        name.substring(0, indexedIndex), result.indexes);
-                setProperty(bean, result.name, value);
+                if (StringUtil.isEmpty(result.name)) {
+                    setIndexedProperty(bean, name.substring(0, indexedIndex),
+                            result.indexes, value);
+                } else {
+                    bean = getIndexedProperty(bean, name.substring(0,
+                            indexedIndex), result.indexes);
+                    setProperty(bean, result.name, value);
+                }
+            } else {
+                int endIndex = name.indexOf(MAPPED_DELIM2, mappedIndex);
+                setProperty(bean, name.substring(0, mappedIndex) + "."
+                        + name.substring(mappedIndex + 1, endIndex)
+                        + name.substring(endIndex + 1), value);
             }
-        } else if (nestedIndex >= 0) {
-            setProperty(
-                    getSimpleProperty(bean, name.substring(0, nestedIndex)),
-                    name.substring(nestedIndex + 1), value);
+        }
+    }
+
+    /**
+     * 0以上で小さいほうのインデックスを返します。
+     * 
+     * @param index1
+     *            インデックス1
+     * @param index2
+     *            インデックス2
+     * @return 0以上で小さいほうのインデックス
+     */
+    protected int minIndex(int index1, int index2) {
+        if (index1 >= 0 && index2 < 0) {
+            return index1;
+        } else if (index1 < 0 && index2 >= 0) {
+            return index2;
         } else {
-            IndexParsedResult result = parseIndex(name
-                    .substring(indexedIndex + 1));
-            setIndexedProperty(bean, name.substring(0, indexedIndex),
-                    result.indexes, value);
+            return Math.min(index1, index2);
         }
     }
 
