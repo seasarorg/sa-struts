@@ -462,13 +462,7 @@ public class S2RequestProcessor extends RequestProcessor {
     @SuppressWarnings("unchecked")
     protected void setSimpleProperty(Object bean, String name, Object value) {
         if (bean instanceof Map) {
-            Map m = (Map) bean;
-            if (value instanceof String[]) {
-                String[] values = (String[]) value;
-                m.put(name, values.length > 0 ? values[0] : null);
-            } else {
-                m.put(name, value);
-            }
+            setMapProperty((Map) bean, name, value);
             return;
         }
         BeanDesc beanDesc = BeanDescFactory.getBeanDesc(bean.getClass());
@@ -494,6 +488,26 @@ public class S2RequestProcessor extends RequestProcessor {
             pd.setValue(bean, values.length > 0 ? values[0] : null);
         } else {
             pd.setValue(bean, value);
+        }
+    }
+
+    /**
+     * Mapの値を設定します。
+     * 
+     * @param map
+     *            マップ
+     * @param name
+     *            キー名
+     * @param value
+     *            値
+     */
+    @SuppressWarnings("unchecked")
+    protected void setMapProperty(Map map, String name, Object value) {
+        if (value instanceof String[]) {
+            String[] values = (String[]) value;
+            map.put(name, values.length > 0 ? values[0] : null);
+        } else {
+            map.put(name, value);
         }
     }
 
