@@ -57,11 +57,39 @@ public final class MessageResourcesUtil {
     /**
      * メッセージを返します。
      * 
+     * @param locale
+     *            ロケール
+     * @param key
+     *            キー
+     * @param args
+     *            引数の配列
+     * @return メッセージ
+     */
+    public static String getMessage(Locale locale, String key, Object... args) {
+        return getMessageResources().getMessage(locale, key, args);
+    }
+
+    /**
+     * メッセージを返します。
+     * 
      * @param key
      *            キー
      * @return メッセージ
      */
     public static String getMessage(String key) {
         return getMessageResources().getMessage(key);
+    }
+
+    /**
+     * メッセージを返します。
+     * 
+     * @param key
+     *            キー
+     * @param args
+     *            引数の配列
+     * @return メッセージ
+     */
+    public static String getMessage(String key, Object... args) {
+        return getMessageResources().getMessage(key, args);
     }
 }
