@@ -15,8 +15,11 @@
  */
 package org.seasar.struts.taglib;
 
+import javax.servlet.http.HttpSession;
 import javax.servlet.jsp.JspException;
 
+import org.apache.struts.Globals;
+import org.apache.struts.taglib.html.Constants;
 import org.apache.struts.taglib.html.LinkTag;
 
 /**
@@ -36,7 +39,18 @@ public class S2LinkTag extends LinkTag {
             if (index > -1) {
                 return super.calculateURL();
             }
-            return S2Functions.url(href);
+            String url = S2Functions.url(href);
+            if (transaction) {
+                HttpSession session = pageContext.getSession();
+                if (session != null) {
+                    String token = (String) session
+                            .getAttribute(Globals.TRANSACTION_TOKEN_KEY);
+                    if (token != null) {
+                        url = url + "?" + Constants.TOKEN_KEY + "=" + token;
+                    }
+                }
+            }
+            return url;
         }
         return super.calculateURL();
     }
