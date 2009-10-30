@@ -135,14 +135,6 @@ public class S2RequestProcessor extends RequestProcessor {
     }
 
     @Override
-    protected HttpServletRequest processMultipart(HttpServletRequest request) {
-        HttpServletRequest result = super.processMultipart(request);
-        SingletonS2ContainerFactory.getContainer().getExternalContext()
-                .setRequest(result);
-        return result;
-    }
-
-    @Override
     protected ActionMapping processMapping(HttpServletRequest request,
             HttpServletResponse response, String path) throws IOException {
         S2ActionMapping mapping = (S2ActionMapping) moduleConfig
@@ -284,6 +276,8 @@ public class S2RequestProcessor extends RequestProcessor {
                     processExecuteConfig(request, response, mapping);
                     return;
                 }
+                SingletonS2ContainerFactory.getContainer().getExternalContext()
+                        .setRequest(request);
             }
         }
         processExecuteConfig(request, response, mapping);

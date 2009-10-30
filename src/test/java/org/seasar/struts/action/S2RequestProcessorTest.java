@@ -43,7 +43,6 @@ import org.seasar.framework.aop.interceptors.TraceInterceptor;
 import org.seasar.framework.aop.proxy.AopProxy;
 import org.seasar.framework.beans.BeanDesc;
 import org.seasar.framework.beans.factory.BeanDescFactory;
-import org.seasar.framework.mock.servlet.MockHttpServletRequest;
 import org.seasar.struts.action.S2RequestProcessor.IndexParsedResult;
 import org.seasar.struts.config.S2ActionMapping;
 import org.seasar.struts.config.S2ExecuteConfig;
@@ -63,18 +62,6 @@ public class S2RequestProcessorTest extends S2TestCase {
     public void setUp() throws Exception {
         register(BbbAction.class, "aaa_bbbAction");
         register(BbbForm.class, "bbbForm");
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testProcessMultipart() throws Exception {
-        MockHttpServletRequest request = getRequest();
-        request.setMethod("POST");
-        request.setContentType("multipart/form-data");
-        S2RequestProcessor processor = new S2RequestProcessor();
-        HttpServletRequest req = processor.processMultipart(request);
-        assertSame(req, getContainer().getExternalContext().getRequest());
     }
 
     /**
