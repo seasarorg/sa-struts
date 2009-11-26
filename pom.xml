@@ -8,7 +8,7 @@
   <artifactId>sa-struts</artifactId>
   <packaging>jar</packaging>
   <name>sa-struts</name>
-  <version>1.0.4-sp6</version>
+  <version>1.0.4-sp7</version>
   <description></description>
   <url>http://sastruts.seasar.org/</url>
   <inceptionYear>2004-2008</inceptionYear>
@@ -136,7 +136,7 @@
     <dependency>
       <groupId>org.seasar.container</groupId>
       <artifactId>s2-tiger</artifactId>
-      <version>2.4.39</version>
+      <version>2.4.40</version>
       <type>jar</type>
     </dependency>
     <dependency>
