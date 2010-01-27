@@ -15,8 +15,10 @@
  */
 package org.seasar.struts.action;
 
+import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,6 +34,10 @@ import org.seasar.framework.beans.factory.BeanDescFactory;
  */
 @SuppressWarnings("unchecked")
 public class BeanWrapper implements Map {
+
+    private static final char INDEXED_DELIM = '[';
+
+    private static final char INDEXED_DELIM2 = ']';
 
     /**
      * JavaBeansです。
@@ -55,7 +61,37 @@ public class BeanWrapper implements Map {
     }
 
     public Object get(Object key) {
-        PropertyDesc pd = beanDesc.getPropertyDesc(key.toString());
+        if (key == null) {
+            throw new NullPointerException(
+                    "The key parameter must not be null.");
+        }
+        String k = key.toString();
+        int pos = k.indexOf(INDEXED_DELIM);
+        if (pos > 0) {
+            if (k.charAt(k.length() - 1) != INDEXED_DELIM2) {
+                throw new IllegalArgumentException("The key(" + k
+                        + ") is invalid.");
+            }
+            int index = Integer.valueOf(k.substring(pos + 1, k.length() - 1));
+            String name = k.substring(0, pos);
+            PropertyDesc pd = beanDesc.getPropertyDesc(name);
+            if (!pd.isReadable()) {
+                return null;
+            }
+            Object value = pd.getValue(bean);
+            if (value == null) {
+                return null;
+            }
+            if (pd.getPropertyType().isArray()) {
+                return Array.get(value, index);
+            }
+            if (List.class.isAssignableFrom(pd.getPropertyType())) {
+                return ((List) value).get(index);
+            }
+            throw new IllegalStateException(
+                    "Index property must be an array or a list.");
+        }
+        PropertyDesc pd = beanDesc.getPropertyDesc(k);
         if (!pd.isReadable()) {
             return null;
         }

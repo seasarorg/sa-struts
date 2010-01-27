@@ -15,7 +15,9 @@
  */
 package org.seasar.struts.action;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -66,6 +68,16 @@ public class BeanWrapperTest extends TestCase {
     /**
      * @throws Exception
      */
+    public void testGet_indexedProperty() throws Exception {
+        MyBean bean = new MyBean();
+        bean.list.add("aaa");
+        BeanWrapper wrapper = new BeanWrapper(bean);
+        assertEquals("aaa", wrapper.get("list[0]"));
+    }
+
+    /**
+     * @throws Exception
+     */
     public void testContainsKey() throws Exception {
         MyBean bean = new MyBean();
         BeanWrapper wrapper = new BeanWrapper(bean);
@@ -80,7 +92,7 @@ public class BeanWrapperTest extends TestCase {
     public void testSize() throws Exception {
         MyBean bean = new MyBean();
         BeanWrapper wrapper = new BeanWrapper(bean);
-        assertEquals(2, wrapper.size());
+        assertEquals(3, wrapper.size());
     }
 
     /**
@@ -91,10 +103,7 @@ public class BeanWrapperTest extends TestCase {
         MyBean bean = new MyBean();
         BeanWrapper wrapper = new BeanWrapper(bean);
         Set keySet = wrapper.keySet();
-        assertEquals(2, keySet.size());
-        Iterator i = keySet.iterator();
-        assertEquals("aaa", i.next());
-        assertEquals("bbb", i.next());
+        assertEquals(3, keySet.size());
     }
 
     /**
@@ -106,7 +115,7 @@ public class BeanWrapperTest extends TestCase {
         bean.aaa = "111";
         BeanWrapper wrapper = new BeanWrapper(bean);
         Set<Entry> set = wrapper.entrySet();
-        assertEquals(2, set.size());
+        assertEquals(3, set.size());
         for (Iterator<Entry> i = set.iterator(); i.hasNext();) {
             Entry<String, Object> e = i.next();
             if (e.getKey().equals("aaa")) {
@@ -142,6 +151,11 @@ public class BeanWrapperTest extends TestCase {
          * 
          */
         public MyBean bbb;
+
+        /**
+         * 
+         */
+        public List<String> list = new ArrayList<String>();
 
         @Override
         public String toString() {
