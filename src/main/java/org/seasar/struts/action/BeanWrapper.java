@@ -66,27 +66,38 @@ public class BeanWrapper implements Map {
                     "The key parameter must not be null.");
         }
         String k = key.toString();
-        int pos = k.indexOf(INDEXED_DELIM);
+        int pos = k.lastIndexOf(INDEXED_DELIM);
         if (pos > 0) {
-            if (k.charAt(k.length() - 1) != INDEXED_DELIM2) {
+            int endPos = k.lastIndexOf(INDEXED_DELIM2);
+            if (pos >= endPos) {
                 throw new IllegalArgumentException("The key(" + k
                         + ") is invalid.");
             }
-            int index = Integer.valueOf(k.substring(pos + 1, k.length() - 1));
+            int index = Integer.valueOf(k.substring(pos + 1, endPos));
             String name = k.substring(0, pos);
-            PropertyDesc pd = beanDesc.getPropertyDesc(name);
-            if (!pd.isReadable()) {
-                return null;
+            
+            Object value;
+            Class type;
+            if(name.indexOf(INDEXED_DELIM) > 0){
+                value = get(name);
+                type = value.getClass();
+            }else{
+                PropertyDesc pd = beanDesc.getPropertyDesc(name);
+                if (!pd.isReadable()) {
+                    return null;
+                }
+                value = pd.getValue(bean);
+                if (value == null) {
+                    return null;
+                }
+
+                type = pd.getPropertyType();
             }
-            Object value = pd.getValue(bean);
-            if (value == null) {
-                return null;
+            if (type.isArray()) {
+                return WrapperUtil.convert(Array.get(value, index));
             }
-            if (pd.getPropertyType().isArray()) {
-                return Array.get(value, index);
-            }
-            if (List.class.isAssignableFrom(pd.getPropertyType())) {
-                return ((List) value).get(index);
+            if (List.class.isAssignableFrom(type)) {
+                return WrapperUtil.convert(((List) value).get(index));
             }
             throw new IllegalStateException(
                     "Index property must be an array or a list.");

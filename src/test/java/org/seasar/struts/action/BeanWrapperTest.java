@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.apache.commons.beanutils.BeanUtils;
+
 import junit.framework.TestCase;
 
 /**
@@ -73,6 +75,69 @@ public class BeanWrapperTest extends TestCase {
         bean.list.add("aaa");
         BeanWrapper wrapper = new BeanWrapper(bean);
         assertEquals("aaa", wrapper.get("list[0]"));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testGet_indexedProperty_inBean() throws Exception {
+        MyBean2 bean = new MyBean2();
+        MyBean subBean = new MyBean();
+        subBean.aaa = "aaa";
+        bean.beanList.add(subBean );
+        BeanWrapper wrapper = new BeanWrapper(bean);
+        String aaa = BeanUtils.getProperty(wrapper, "beanList[0].aaa");
+        assertEquals("aaa", aaa);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testGet_indexedProperty_List2() throws Exception {
+        MyBean2 bean = new MyBean2();
+        List<String> list = new ArrayList<String>();
+        list.add("aaa");
+        bean.list2.add(list);
+        BeanWrapper wrapper = new BeanWrapper(bean);
+        String aaa = BeanUtils.getProperty(wrapper, "list2[0][0]");
+        assertEquals("aaa", aaa);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public void testGet_indexedProperty_Array() throws Exception {
+        MyBean2 bean = new MyBean2();
+        bean.array[0] = "aaa";
+        BeanWrapper wrapper = new BeanWrapper(bean);
+        assertEquals("aaa", wrapper.get("array[0]"));
+    }
+    /**
+     * @throws Exception
+     */
+    public void testGet_indexedProperty_Array2() throws Exception {
+        MyBean2 bean = new MyBean2();
+        bean.array2[0][1] = "aaa";
+        BeanWrapper wrapper = new BeanWrapper(bean);
+        assertEquals("aaa", wrapper.get("array2[0][1]"));
+    }
+    /**
+     * @throws Exception
+     */
+    public void testGet_indexedProperty_Array2Null() throws Exception {
+        MyBean2 bean = new MyBean2();
+        bean.array2[0][1] = null;
+        BeanWrapper wrapper = new BeanWrapper(bean);
+        assertNull(wrapper.get("array2[0][1]"));
+    }
+    /**
+     * @throws Exception
+     */
+    public void testGet_indexedProperty_Array3() throws Exception {
+        MyBean2 bean = new MyBean2();
+        bean.array3[1][1][1] = "aaa";
+        BeanWrapper wrapper = new BeanWrapper(bean);
+        assertEquals("aaa", wrapper.get("array3[1][1][1]"));
     }
 
     /**
@@ -156,7 +221,7 @@ public class BeanWrapperTest extends TestCase {
          * 
          */
         public List<String> list = new ArrayList<String>();
-
+        
         @Override
         public String toString() {
             return "MyBean";
@@ -173,6 +238,28 @@ public class BeanWrapperTest extends TestCase {
          */
         @SuppressWarnings("unused")
         private String aaa;
+        /**
+         * 
+         */
+        public String[] array = new String[10];
+        /**
+         * 
+         */
+        public String[][] array2 = new String[10][10];
+        /**
+         * 
+         */
+        public String[][][] array3 = new String[5][5][5];
+
+        /**
+         * 
+         */
+        public List<List<String>> list2 = new ArrayList<List<String>>();
+
+        /**
+         * 
+         */
+        public List<MyBean> beanList = new ArrayList<MyBean>();
 
         /**
          * @param aaa
