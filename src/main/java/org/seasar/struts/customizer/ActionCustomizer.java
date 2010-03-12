@@ -93,7 +93,7 @@ public class ActionCustomizer implements ComponentCustomizer {
      * @return アクションマッピング
      */
     protected S2ActionMapping createActionMapping(ComponentDef componentDef) {
-        S2ActionMapping actionMapping = new S2ActionMapping();
+        S2ActionMapping actionMapping = createActionMapping();
         actionMapping.setPath(ActionUtil.fromActionNameToPath(componentDef
                 .getComponentName()));
         actionMapping.setComponentDef(componentDef);
@@ -102,6 +102,15 @@ public class ActionCustomizer implements ComponentCustomizer {
         setupActionForm(actionMapping, actionClass);
         setupMethod(actionMapping, actionClass);
         return actionMapping;
+    }
+
+    /**
+     * アクションマッピングを作成します。
+     * 
+     * @return アクションマッピング
+     */
+    protected S2ActionMapping createActionMapping() {
+        return new S2ActionMapping();
     }
 
     /**
@@ -140,7 +149,7 @@ public class ActionCustomizer implements ComponentCustomizer {
                 }
                 String input = !StringUtil.isEmpty(execute.input()) ? execute
                         .input() : null;
-                S2ExecuteConfig executeConfig = new S2ExecuteConfig();
+                S2ExecuteConfig executeConfig = createExecuteConfig();
                 executeConfig.setMethod(m);
                 executeConfig.setSaveErrors(execute.saveErrors());
                 executeConfig.setInput(input);
@@ -240,6 +249,15 @@ public class ActionCustomizer implements ComponentCustomizer {
     }
 
     /**
+     * 実行設定を作成します。
+     * 
+     * @return 実行設定
+     */
+    protected S2ExecuteConfig createExecuteConfig() {
+        return new S2ExecuteConfig();
+    }
+
+    /**
      * アクションフォームの情報をセットアップします。
      * 
      * @param actionMapping
@@ -271,20 +289,52 @@ public class ActionCustomizer implements ComponentCustomizer {
     protected S2FormBeanConfig createFormBeanConfig(
             S2ActionMapping actionMapping) {
 
-        S2FormBeanConfig formConfig = new S2FormBeanConfig();
+        S2FormBeanConfig formConfig = createFormBeanConfig();
         formConfig.setName(actionMapping.getName());
-        ActionFormWrapperClass wrapperClass = new ActionFormWrapperClass(
-                actionMapping);
+        ActionFormWrapperClass wrapperClass = createActionFormWrapperClass(actionMapping);
         BeanDesc beanDesc = actionMapping.getActionFormBeanDesc();
         for (int i = 0; i < beanDesc.getPropertyDescSize(); i++) {
             PropertyDesc pd = beanDesc.getPropertyDesc(i);
             if (pd.isReadable()) {
-                S2DynaProperty property = new S2DynaProperty(pd);
+                S2DynaProperty property = createDynaProperty(pd);
                 wrapperClass.addDynaProperty(property);
             }
         }
         formConfig.setDynaClass(wrapperClass);
         return formConfig;
+    }
+
+    /**
+     * フォームBean設定を作成します。
+     * 
+     * @return フォームBean設定
+     * 
+     */
+    protected S2FormBeanConfig createFormBeanConfig() {
+        return new S2FormBeanConfig();
+    }
+
+    /**
+     * アクションフォームラッパーを作成します。
+     * 
+     * @param actionMapping
+     *            アクションマッピング
+     * @return アクションフォームラッパー
+     */
+    protected ActionFormWrapperClass createActionFormWrapperClass(
+            S2ActionMapping actionMapping) {
+        return new ActionFormWrapperClass(actionMapping);
+    }
+
+    /**
+     * 動的プロパティを作成します。
+     * 
+     * @param pd
+     *            プロパティ記述
+     * @return 動的プロパティ
+     */
+    protected S2DynaProperty createDynaProperty(PropertyDesc pd) {
+        return new S2DynaProperty(pd);
     }
 
     /**
