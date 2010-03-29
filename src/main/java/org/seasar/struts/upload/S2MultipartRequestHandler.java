@@ -93,9 +93,24 @@ public class S2MultipartRequestHandler extends CommonsMultipartRequestHandler {
             request.setAttribute(
                     MultipartRequestHandler.ATTRIBUTE_MAX_LENGTH_EXCEEDED,
                     Boolean.TRUE);
-            request.setAttribute(
-                    SIZE_EXCEPTION_KEY,
-                    e);
+            request.setAttribute(SIZE_EXCEPTION_KEY, e);
+            try {
+                InputStream is = request.getInputStream();
+                try {
+                    byte[] buf = new byte[1024];
+                    @SuppressWarnings("unused")
+                    int len = 0;
+                    while ((len = is.read(buf)) != -1) {
+                    }
+                } catch (Exception ignore) {
+                } finally {
+                    try {
+                        is.close();
+                    } catch (Exception ignore) {
+                    }
+                }
+            } catch (Exception ignore) {
+            }
             return;
         } catch (FileUploadException e) {
             log.error("Failed to parse multipart request", e);

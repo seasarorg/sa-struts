@@ -325,11 +325,13 @@ public class S2FunctionsTest extends S2TestCase {
         /**
          * 
          */
+        @SuppressWarnings("unused")
         public Integer id;
 
         /**
          * 
          */
+        @SuppressWarnings("unused")
         public String name;
     }
 }

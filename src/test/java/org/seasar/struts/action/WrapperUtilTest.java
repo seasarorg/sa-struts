@@ -116,6 +116,7 @@ public class WrapperUtilTest extends TestCase {
         /**
          * 
          */
+        @SuppressWarnings("unused")
         public String aaa;
     }
 
