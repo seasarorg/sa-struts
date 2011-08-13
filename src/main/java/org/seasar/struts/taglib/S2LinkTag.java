@@ -46,7 +46,9 @@ public class S2LinkTag extends LinkTag {
                     String token = (String) session
                             .getAttribute(Globals.TRANSACTION_TOKEN_KEY);
                     if (token != null) {
-                        url = url + "?" + Constants.TOKEN_KEY + "=" + token;
+                        String c = url != null && url.indexOf('?') >= 0 ? "&"
+                                : "?";
+                        url = url + c + Constants.TOKEN_KEY + "=" + token;
                     }
                 }
             }
