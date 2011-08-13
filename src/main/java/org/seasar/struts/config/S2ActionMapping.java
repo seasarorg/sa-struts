@@ -30,7 +30,6 @@ import org.seasar.framework.util.ArrayMap;
 import org.seasar.framework.util.StringUtil;
 import org.seasar.struts.util.RoutingUtil;
 import org.seasar.struts.util.S2ExecuteConfigUtil;
-import org.seasar.struts.util.S2ModuleConfigUtil;
 import org.seasar.struts.util.ServletContextUtil;
 
 /**
@@ -154,14 +153,16 @@ public class S2ActionMapping extends ActionMapping {
                 if (StringUtil.isEmpty(paramPath)) {
                     return actionPath
                             + ".do"
-                            + getQueryString(queryString, actionPath, paramPath);
+                            + getQueryString(queryString, actionPath,
+                                    paramPath, null);
                 }
                 S2ExecuteConfig executeConfig = S2ExecuteConfigUtil
                         .findExecuteConfig(actionPath, paramPath);
                 if (executeConfig != null) {
                     return actionPath
                             + ".do"
-                            + getQueryString(queryString, actionPath, paramPath);
+                            + getQueryString(queryString, actionPath,
+                                    paramPath, executeConfig);
                 }
             }
             if (container.hasComponentDef(sb + "indexAction")) {
@@ -171,14 +172,16 @@ public class S2ActionMapping extends ActionMapping {
                 if (StringUtil.isEmpty(paramPath)) {
                     return actionPath
                             + ".do"
-                            + getQueryString(queryString, actionPath, paramPath);
+                            + getQueryString(queryString, actionPath,
+                                    paramPath, null);
                 }
                 S2ExecuteConfig executeConfig = S2ExecuteConfigUtil
                         .findExecuteConfig(actionPath, paramPath);
                 if (executeConfig != null) {
                     return actionPath
                             + ".do"
-                            + getQueryString(queryString, actionPath, paramPath);
+                            + getQueryString(queryString, actionPath,
+                                    paramPath, executeConfig);
                 }
             }
             sb.append(names[i] + "_");
@@ -188,7 +191,7 @@ public class S2ActionMapping extends ActionMapping {
                     names.length - 1)
                     + "/index";
             return actionPath + ".do"
-                    + getQueryString(queryString, actionPath, "");
+                    + getQueryString(queryString, actionPath, "", null);
         }
         return originalPath;
     }
@@ -227,22 +230,19 @@ public class S2ActionMapping extends ActionMapping {
      *            アクションパス
      * @param paramPath
      *            パラメータ用のパス
+     * @param executeConfig
+     *            実行設定
      * @return クエリストリング
      */
     protected String getQueryString(String queryString, String actionPath,
-            String paramPath) {
+            String paramPath, S2ExecuteConfig executeConfig) {
         String queryString2 = "";
-        S2ModuleConfig moduleConfig = S2ModuleConfigUtil.getModuleConfig();
-        S2ActionMapping actionMapping = (S2ActionMapping) moduleConfig
-                .findActionConfig(actionPath);
-        S2ExecuteConfig executeConfig = actionMapping
-                .findExecuteConfig(paramPath);
         if (executeConfig != null) {
             queryString2 = executeConfig.getQueryString(paramPath);
         } else {
-            executeConfig = S2ExecuteConfigUtil.getExecuteConfig();
+            executeConfig = getExecuteConfig("index");
             if (executeConfig != null) {
-                queryString2 = "?" + executeConfig.method.getName() + "=";
+                queryString2 = executeConfig.getQueryString(paramPath);
             }
         }
         if (StringUtil.isEmpty(queryString)) {

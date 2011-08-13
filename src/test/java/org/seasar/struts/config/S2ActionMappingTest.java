@@ -79,18 +79,28 @@ public class S2ActionMappingTest extends S2TestCase {
      * @throws Exception
      */
     public void testGetQueryString_paramPathEmpty() throws Exception {
+        String actionPath = "/aaa";
+        String paramPath = "";
         S2ActionMapping actionMapping = new S2ActionMapping();
-        assertEquals("?aaa=1", actionMapping.getQueryString("?aaa=1", "/aaa",
-                ""));
+        S2ExecuteConfig executeConfig = S2ExecuteConfigUtil.findExecuteConfig(
+                actionPath, paramPath);
+        actionMapping.addExecuteConfig(executeConfig);
+        assertEquals("?aaa=1&SAStruts.method=index", actionMapping
+                .getQueryString("?aaa=1", actionPath, paramPath, null));
     }
 
     /**
      * @throws Exception
      */
     public void testGetQueryString_paramPath() throws Exception {
+        String actionPath = "/aaa";
+        String paramPath = "submit/2";
         S2ActionMapping actionMapping = new S2ActionMapping();
+        S2ExecuteConfig executeConfig = S2ExecuteConfigUtil.findExecuteConfig(
+                actionPath, paramPath);
+        actionMapping.addExecuteConfig(executeConfig);
         assertEquals("?aaa=1&id=2&SAStruts.method=submit", actionMapping
-                .getQueryString("?aaa=1", "/aaa", "submit/2"));
+                .getQueryString("?aaa=1", actionPath, paramPath, executeConfig));
     }
 
     /**
@@ -98,9 +108,14 @@ public class S2ActionMappingTest extends S2TestCase {
      */
     public void testGetQueryString_paramPath_queryStringEmpty()
             throws Exception {
+        String actionPath = "/aaa";
+        String paramPath = "submit/2";
         S2ActionMapping actionMapping = new S2ActionMapping();
+        S2ExecuteConfig executeConfig = S2ExecuteConfigUtil.findExecuteConfig(
+                actionPath, paramPath);
+        actionMapping.addExecuteConfig(executeConfig);
         assertEquals("?id=2&SAStruts.method=submit", actionMapping
-                .getQueryString("", "/aaa", "submit/2"));
+                .getQueryString("", "/aaa", "submit/2", executeConfig));
     }
 
     /**
@@ -108,8 +123,14 @@ public class S2ActionMappingTest extends S2TestCase {
      */
     public void testGetQueryString_paramPathEmpty_queryStringEmpty()
             throws Exception {
+        String actionPath = "/aaa";
+        String paramPath = "";
         S2ActionMapping actionMapping = new S2ActionMapping();
-        assertEquals("", actionMapping.getQueryString("", "/aaa", ""));
+        S2ExecuteConfig executeConfig = S2ExecuteConfigUtil.findExecuteConfig(
+                actionPath, paramPath);
+        actionMapping.addExecuteConfig(executeConfig);
+        assertEquals("?SAStruts.method=index", actionMapping.getQueryString("",
+                "/aaa", "", null));
     }
 
     /**
@@ -119,9 +140,9 @@ public class S2ActionMappingTest extends S2TestCase {
             throws Exception {
         S2ExecuteConfig executeConfig = new S2ExecuteConfig();
         executeConfig.setMethod(Object.class.getMethod("getClass"));
-        S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
         S2ActionMapping actionMapping = new S2ActionMapping();
-        assertEquals("?getClass=", actionMapping.getQueryString("", "/aaa", ""));
+        assertEquals("?SAStruts.method=getClass", actionMapping.getQueryString(
+                "", "/aaa", "", executeConfig));
     }
 
     /**
@@ -131,10 +152,9 @@ public class S2ActionMappingTest extends S2TestCase {
             throws Exception {
         S2ExecuteConfig executeConfig = new S2ExecuteConfig();
         executeConfig.setMethod(Object.class.getMethod("getClass"));
-        S2ExecuteConfigUtil.setExecuteConfig(executeConfig);
         S2ActionMapping actionMapping = new S2ActionMapping();
-        assertEquals("?aaa=1&getClass=", actionMapping.getQueryString("?aaa=1",
-                "/aaa", ""));
+        assertEquals("?aaa=1&SAStruts.method=getClass", actionMapping
+                .getQueryString("?aaa=1", "/aaa", "", executeConfig));
     }
 
     /**
@@ -613,6 +633,14 @@ public class S2ActionMappingTest extends S2TestCase {
          * 
          */
         public MyActionForm myActionForm;
+
+        /**
+         * @return
+         */
+        @Execute(validator = false)
+        public String index() {
+            return "index.jsp";
+        }
 
         /**
          * @return

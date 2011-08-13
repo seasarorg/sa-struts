@@ -436,9 +436,9 @@ public class S2ExecuteConfig implements Serializable {
      * @return リクエストが実行メソッドの対象かどうか
      */
     public boolean isTarget(HttpServletRequest request) {
-        String methodName = request.getParameter(METHOD_NAME);
-        if (!StringUtil.isEmpty(methodName)) {
-            return methodName.equals(method.getName());
+        String[] methodNames = request.getParameterValues(METHOD_NAME);
+        if (methodNames != null && methodNames.length > 0) {
+            return methodNames[0].equals(method.getName());
         }
         return !StringUtil.isEmpty(request.getParameter(method.getName()))
                 || !StringUtil.isEmpty(request.getParameter(method.getName()
